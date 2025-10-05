@@ -1,7 +1,7 @@
 // Yeh Prisma client generate karega jo JS/TS code me use hota hai matlab DB ko directly JS/TS code ke through access kar paoge
 
 generator client {
-  provider = "prisma-client-js" 
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -30,6 +30,9 @@ model User {
   updatedAt     DateTime  @default(now()) @updatedAt
   sessions      Session[]
   accounts      Account[]
+
+  workspaces  Workspace[] @relation("UserWorkspaces")
+  memberships  WorkspaceMember[]
 
   @@unique([email])
   @@map("user")
@@ -79,3 +82,52 @@ model Verification {
 
   @@map("verification")
 }
+
+// -------------WORKSPACE & Membership----------
+
+model Workspace {
+  id String @id @default(cuid())
+  name String @unique
+  description String?
+  ownerId String 
+  owner User @relation("UserWorkspaces", fields: [ownerId],references: [id]) // for making relation with all the users
+
+  members WorkspaceMember[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@unique([name,ownerId])
+}
+
+
+// In this we learn more by solving small tricky problems and next level experience
+
+enum MEMBER_ROLE {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+model WorkspaceMember{
+  id String @id @default(cuid())
+  role MEMBER_ROLE @default(ADMIN) 
+
+  userId String
+  workspaceId String
+
+  user User @relation(fields: [userId],references: [id])
+  workspace Workspace @relation(fields: [workspaceId],references: [id])
+
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@unique([userId,workspaceId])
+}
+
+// Ab humne workspace and workspace ke members ka schema build kr liya hai 
+
+
+// The main work to build any app is DB design and architecture/diagram , design schema accordingly
+
