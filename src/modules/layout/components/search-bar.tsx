@@ -42,7 +42,7 @@ const SearchBar = () => {
       >
         <span className="inline-flex flex-1 items-center">
           <Search size={16} className="mr-2" />
-          <span className="text-xs text-left">Search</span>
+          <span className="text-xs text-left">Search routeX</span>
         </span>
 
         {/*keyboard icon similar ui */}

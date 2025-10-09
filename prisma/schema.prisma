@@ -144,6 +144,39 @@ model Collection {
   workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
+  requests Request[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+enum REST_METHOD {
+  GET
+  POST
+  PUT
+  PATCH
+  DELETE
+}
+
+// A request always belong to particular collection and onDeleting any particular collection, all requests related to that collection are also deleted
+
+model Request {
+  id     String      @id @default(cuid())
+  name   String
+  method REST_METHOD @default(GET)
+  url    String
+
+  // there is no need to pass parameter, body , response and headers like authorization intially , we can pass it later when call the endpoint
+
+  parameters Json?
+  headers    Json?
+
+  body       Json?
+  response   Json?
+
+  collectionId String
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 }

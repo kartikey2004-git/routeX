@@ -164,7 +164,7 @@ const TabbedSidebar = ({ currentWorkspace }: Props) => {
           transition-all duration-200 ease-in-out
           ${
             activeTab === item.label
-              ? "bg-indigo-600 text-white shadow-md shadow-indigo-800/40"
+              ? "text-indigo-600"
               : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
           }`}
           >
