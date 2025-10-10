@@ -10,6 +10,7 @@ import {
 import { useGetWorkspace } from "@/modules/workspace/hooks/workspace";
 import TabbedSidebar from "@/modules/collection/components/sidebar";
 import { Loader2 } from "lucide-react";
+import RequestPlayground from "@/modules/request/components/request-playground";
 
 const Page = () => {
   // abstract global state for selected workspace
@@ -36,7 +37,7 @@ const Page = () => {
   return (
     <ResizablePanelGroup direction="horizontal">
       <ResizablePanel defaultSize={65} minSize={40}>
-        <h1>Request Playground</h1>
+        <RequestPlayground />
       </ResizablePanel>
       <ResizableHandle className="w-[2px] bg-zinc-800 hover:bg-indigo-500 transition-colors duration-200 ease-in-out mr-1" />
       <ResizablePanel
