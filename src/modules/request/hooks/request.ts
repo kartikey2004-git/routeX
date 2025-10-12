@@ -9,10 +9,15 @@ import {
   editRequestFromCollection,
 } from "../actions";
 import { REST_METHOD } from "@prisma/client";
+import { useRequestPlaygroundStore } from "../store/useRequestStore";
 
 // Custom hook banaya hai to add request to collection
 
 export function useAddRequestToCollection(collectionId: string) {
+ 
+  const { updateTabFromSavedRequest, activeTabId } =
+    useRequestPlaygroundStore();
+
   const queryClient = useQueryClient(); // directly QueryClient instance ka access
 
   /*
@@ -40,7 +45,11 @@ export function useAddRequestToCollection(collectionId: string) {
 
       // querykey is unique key which is used for caching and identify this query
 
-      console.log(data);
+      // console.log(data);
+
+      // instead of just console.log , we use here some optimistic update the UI
+
+      updateTabFromSavedRequest(activeTabId!, data);
     },
   });
 }
@@ -58,6 +67,9 @@ export function useGetAllRequestFromCollection(collectionId: string) {
 }
 
 export function useSaveRequest(id: string) {
+  const { updateTabFromSavedRequest, activeTabId } =
+    useRequestPlaygroundStore();
+
   const queryClient = useQueryClient(); // directly QueryClient instance ka access
 
   /*
@@ -80,7 +92,14 @@ export function useSaveRequest(id: string) {
       queryClient.invalidateQueries({
         queryKey: ["requests"],
       });
-      console.log(data);
+
+      // console.log(data);
+
+      // instead of just console.log , we use here some optimistic update the UI
+
+      // but jab bhi hum kisi nayi request ko kisi particular collection mein add krein toh current active tab update hojana chahiye uss request ka
+
+      updateTabFromSavedRequest(activeTabId!, data);
     },
   });
 }
@@ -107,7 +126,8 @@ export function useDeleteRequest(requestId: string, collectionId: string) {
   */
 
   return useMutation({
-    mutationFn: async () => deleteRequestFromCollection(requestId, collectionId),
+    mutationFn: async () =>
+      deleteRequestFromCollection(requestId, collectionId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["requests"],

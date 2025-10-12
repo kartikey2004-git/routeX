@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useRequestPlaygroundStore } from "../store/useRequestStore";
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
+import AddNameModal from "./add-name-modal";
 
 const TabBar = () => {
   const { tabs, activeTabId, addTab, setActiveTab, closeTab } =
@@ -28,7 +28,12 @@ const TabBar = () => {
     PATCH: "text-orange-500",
   };
 
-  const onDoubleClick = (id: string) => {};
+  const onDoubleClick = (tabId: string) => {
+    setSelectedTabId(tabId);
+    setrenameModalOpen(true);
+  };
+
+  // now we have to create modal for renaming the request of particular current active req tab
 
   return (
     <>
@@ -93,6 +98,14 @@ const TabBar = () => {
           +{" "}
         </button>
       </div>
+
+      {selectedTabId && (
+        <AddNameModal
+          isModalOpen={renameModalOpen}
+          setIsModalOpen={setrenameModalOpen}
+          tabId={selectedTabId}
+        />
+      )}
     </>
   );
 };

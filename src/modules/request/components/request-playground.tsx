@@ -7,9 +7,10 @@ import TabBar from "./tab-bar";
 import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "sonner";
 import RequestEditor from "./request-editor";
+import { REST_METHOD } from "@prisma/client";
+import SaveRequestToCollectionModal from "@/modules/collection/components/add-request-modal";
 
 const RequestPlayground = () => {
-
   const { tabs, activeTabId, addTab } = useRequestPlaygroundStore();
 
   const activeTab = tabs.find((tab) => tab.id === activeTabId);
@@ -19,6 +20,69 @@ const RequestPlayground = () => {
   // jab bhi hum kisi tab pe do baar click krenge toh ek modal open hojaye wo humein rename krne ka option dega
 
   const [showSaveModal, setShowSaveModal] = useState(false);
+
+  // it grabs the current request tab data from active tab
+
+  const getCurrentRequestData = () => {
+    // if there is no active tab currrently in request playground area
+
+    if (!activeTab) {
+      return {
+        name: "Untitled Request",
+        method: REST_METHOD.GET as REST_METHOD,
+        url: "https://echo.hoppscotch.io",
+      };
+    }
+
+    return {
+      name: activeTab.title,
+      method: activeTab.method as REST_METHOD,
+      url: activeTab.url,
+    };
+  };
+
+  useHotkeys(
+    "ctrl+s , meta+s",
+    async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (!activeTab) {
+        toast.error("No active request to save");
+        return;
+      }
+
+      // means if collectionId is present in any particular active request tab , then it means woh request kisi collection mein save hai
+
+      if (activeTab.collectionId) {
+        try {
+          await mutateAsync({
+            url: activeTab.url || "https://echo.hoppscotch.io",
+            method: activeTab.method as REST_METHOD,
+            name: activeTab.title || "Untitled Request",
+            body: activeTab.body,
+            headers: activeTab.headers,
+            parameters: activeTab.parameters,
+          });
+
+          toast.success("Request updated");
+        } catch (error) {
+          console.error("Failed to update request:", error);
+          toast.error("Failed to update request");
+        }
+      } else {
+        // means if collectionId is not present in any particular active request tab , then it means woh request kisi collection mein save nahi hai
+
+        // means koi aisa request jisse hum naya add kr rhe hai kisi collection mein , toh modal popup ho ki kis collection mein add krna hai us request ko 
+
+        // but now jab humne kisi request ko kisi particular collection mein add kra toh current active tab update nhi hua us request ka
+
+        setShowSaveModal(true);
+      }
+    },
+    { preventDefault: true, enableOnFormTags: true },
+    [activeTab]
+  );
 
   useHotkeys(
     "ctrl+g , meta+g",
@@ -66,8 +130,14 @@ const RequestPlayground = () => {
     <div className="flex flex-col h-full">
       <TabBar />
       <div className="flex-1 overflow-auto">
-       <RequestEditor />
+        <RequestEditor />
       </div>
+      <SaveRequestToCollectionModal
+        isModalOpen={showSaveModal}
+        setIsModalOpen={setShowSaveModal}
+        requestData={getCurrentRequestData()}
+        initialName={getCurrentRequestData().name}
+      />
     </div>
   );
 };
@@ -76,8 +146,4 @@ export default RequestPlayground;
 
 // In browser , by default bahut saare key combinations already acquired hote hai toh hum unhe directly use nhi kr skte
 
-
 // after functionality : renaming on doubleClick humara tab ka kaam khatam hojayega , then we move to saving a request
-
-
-
