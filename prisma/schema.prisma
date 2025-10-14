@@ -1,128 +1,128 @@
 // Yeh Prisma client generate karega jo JS/TS code me use hota hai matlab DB ko directly JS/TS code ke through access kar paoge
 
 generator client {
-  provider = "prisma-client-js"
+ provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  // Database ka provider PostgreSQL hai
+ provider = "postgresql"
+ // Database ka provider PostgreSQL hai
 
-  url = env("DATABASE_URL")
+ url = env("DATABASE_URL")
 
-  // DATABASE_URL environment variable se DB ka connection string aayega isme DB ka host, username, password, port, etc. hota hai
+ // DATABASE_URL environment variable se DB ka connection string aayega isme DB ka host, username, password, port, etc. hota hai
 }
 
 // cuid: Prisma ka built-in function hai jo unique string ID generate karta hai jo globally unique hota hai, collision chance almost zero.
 
 model Test {
-  id   String @id @default(cuid())
-  name String
+ id   String @id @default(cuid())
+ name String
 }
 
 model User {
-  id            String    @id
-  name          String
-  email         String
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
-  sessions      Session[]
-  accounts      Account[]
+ id            String    @id
+ name          String
+ email         String
+ emailVerified Boolean   @default(false)
+ image         String?
+ createdAt     DateTime  @default(now())
+ updatedAt     DateTime  @default(now()) @updatedAt
+ sessions      Session[]
+ accounts      Account[]
 
-  workspaces  Workspace[]       @relation("UserWorkspaces")
-  memberships WorkspaceMember[]
+ workspaces  Workspace[]       @relation("UserWorkspaces")
+ memberships WorkspaceMember[]
 
-  @@unique([email])
-  @@map("user")
+ @@unique([email])
+ @@map("user")
 }
 
 model Session {
-  id        String   @id
-  expiresAt DateTime
-  token     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  ipAddress String?
-  userAgent String?
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+ id        String   @id
+ expiresAt DateTime
+ token     String
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ ipAddress String?
+ userAgent String?
+ userId    String
+ user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([token])
-  @@map("session")
+ @@unique([token])
+ @@map("session")
 }
 
 model Account {
-  id                    String    @id
-  accountId             String
-  providerId            String
-  userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accessToken           String?
-  refreshToken          String?
-  idToken               String?
-  accessTokenExpiresAt  DateTime?
-  refreshTokenExpiresAt DateTime?
-  scope                 String?
-  password              String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+ id                    String    @id
+ accountId             String
+ providerId            String
+ userId                String
+ user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+ accessToken           String?
+ refreshToken          String?
+ idToken               String?
+ accessTokenExpiresAt  DateTime?
+ refreshTokenExpiresAt DateTime?
+ scope                 String?
+ password              String?
+ createdAt             DateTime  @default(now())
+ updatedAt             DateTime  @updatedAt
 
-  @@map("account")
+ @@map("account")
 }
 
 model Verification {
-  id         String   @id
-  identifier String
-  value      String
-  expiresAt  DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @default(now()) @updatedAt
+ id         String   @id
+ identifier String
+ value      String
+ expiresAt  DateTime
+ createdAt  DateTime @default(now())
+ updatedAt  DateTime @default(now()) @updatedAt
 
-  @@map("verification")
+ @@map("verification")
 }
 
 // -------------WORKSPACE & Membership----------
 
 model Workspace {
-  id          String  @id @default(cuid())
-  name        String  @unique
-  description String?
-  ownerId     String
-  owner       User    @relation("UserWorkspaces", fields: [ownerId], references: [id]) // for making relation with all the users
+ id          String  @id @default(cuid())
+ name        String  @unique
+ description String?
+ ownerId     String
+ owner       User    @relation("UserWorkspaces", fields: [ownerId], references: [id]) // for making relation with all the users
 
-  members     WorkspaceMember[]
-  collections Collection[]
+ members     WorkspaceMember[]
+ collections Collection[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+ createdAt DateTime @default(now())
+ updatedAt DateTime @default(now()) @updatedAt
 
-  @@unique([name, ownerId])
+ @@unique([name, ownerId])
 }
 
 // In this we learn more by solving small tricky problems and next level experience
 
 enum MEMBER_ROLE {
-  ADMIN
-  EDITOR
-  VIEWER
+ ADMIN
+ EDITOR
+ VIEWER
 }
 
 model WorkspaceMember {
-  id   String      @id @default(cuid())
-  role MEMBER_ROLE @default(ADMIN)
+ id   String      @id @default(cuid())
+ role MEMBER_ROLE @default(ADMIN)
 
-  userId      String
-  workspaceId String
+ userId      String
+ workspaceId String
 
-  user      User      @relation(fields: [userId], references: [id])
-  workspace Workspace @relation(fields: [workspaceId], references: [id])
+ user      User      @relation(fields: [userId], references: [id])
+ workspace Workspace @relation(fields: [workspaceId], references: [id])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+ createdAt DateTime @default(now())
+ updatedAt DateTime @default(now()) @updatedAt
 
-  @@unique([userId, workspaceId])
+ @@unique([userId, workspaceId])
 }
 
 // Ab humne workspace and workspace ke members ka schema build kr liya hai 
@@ -138,45 +138,64 @@ model WorkspaceMember {
 // A collection always belong to particular workspace and onDeleting any particular workspace , all collections related to that workspace are also deleted
 
 model Collection {
-  id   String @id @default(cuid())
-  name String
+ id   String @id @default(cuid())
+ name String
 
-  workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+ workspaceId String
+ workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-  requests Request[]
+ requests Request[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+ createdAt DateTime @default(now())
+ updatedAt DateTime @default(now()) @updatedAt
 }
 
 enum REST_METHOD {
-  GET
-  POST
-  PUT
-  PATCH
-  DELETE
+ GET
+ POST
+ PUT
+ PATCH
+ DELETE
 }
 
 // A request always belong to particular collection and onDeleting any particular collection, all requests related to that collection are also deleted
 
 model Request {
-  id     String      @id @default(cuid())
-  name   String
-  method REST_METHOD @default(GET)
-  url    String
+ id     String      @id @default(cuid())
+ name   String
+ method REST_METHOD @default(GET)
+ url    String
 
-  // there is no need to pass parameter, body , response and headers like authorization intially , we can pass it later when call the endpoint
+ // there is no need to pass parameter, body , response and headers like authorization intially , we can pass it later when call the endpoint
 
-  parameters Json?
-  headers    Json?
+ parameters Json?
+ headers    Json?
 
-  body       Json?
-  response   Json?
+ body     Json?
+ response Json?
 
-  collectionId String
-  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+ collectionId String
+ collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+ runs RequestRun[]
+
+ createdAt DateTime @default(now())
+ updatedAt DateTime @default(now()) @updatedAt
 }
+
+model RequestRun {
+ id String @id @default(cuid())
+
+ requestId String
+ request   Request @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+ status     Int // status of HTTP request
+ statusText String? // status text getting in response
+
+ headers    Json?
+ body       Json?
+ durationMs Int? // how many time taken by particular request to run (in ms)
+
+ createdAt DateTime @default(now())
+}
+

@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useRunRequest } from "../hooks/request";
+import { toast } from "sonner";
 
 interface Props {
   tab: RequestTab;
@@ -19,6 +21,8 @@ interface Props {
 const RequestBar = ({ tab, updateTab }: Props) => {
   // here utility/hashmap for mapping color according to different HTTP requests
 
+  const { mutateAsync, isPending } = useRunRequest(tab?.requestId ?? "");
+
   const requestColorMap: Record<string, string> = {
     GET: "text-green-500",
     POST: "text-indigo-500",
@@ -27,7 +31,14 @@ const RequestBar = ({ tab, updateTab }: Props) => {
     PATCH: "text-orange-500",
   };
 
-  const onSendRequest = () => {};
+  const onSendRequest = async () => {
+    try {
+      const res = await mutateAsync();
+      toast.success("Request sent successfully");
+    } catch (error) {
+      toast.error("Failed to send request");
+    }
+  };
 
   return (
     <div className="flex items-center justify-between bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 w-full shadow-sm">
@@ -95,5 +106,3 @@ const RequestBar = ({ tab, updateTab }: Props) => {
 export default RequestBar;
 
 // now we want to achieve one thing when we click on particular request inside the particular collection collapsible , it opens the particular request tab
-
-
