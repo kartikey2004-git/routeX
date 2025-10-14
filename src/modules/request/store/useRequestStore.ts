@@ -2,14 +2,30 @@
 import { create } from "zustand";
 import { nanoid } from "nanoid";
 
-interface SavedRequest {
+type HeadersMap = Record<string, string>;
+
+interface RequestRun {
   id: string;
-  name: string;
-  method: string;
-  url: string;
-  body?: string;
-  headers?: string;
-  parameters?: string;
+  requestId?: string;
+  status?: number;
+  statusText?: string;
+  headers?: HeadersMap;
+  body?: string | object | null;
+  durationMs?: number;
+  createdAt?: string;
+}
+
+interface Result {
+  status?: number;
+  statusText?: string;
+  duration?: number;
+  size?: number;
+}
+
+export interface ResponseData {
+  success: boolean;
+  requestRun: RequestRun;
+  result?: Result;
 }
 
 export type RequestTab = {
@@ -26,7 +42,20 @@ export type RequestTab = {
   collectionId?: string; // collectionId for which collection request belong to
 
   workspaceId?: string; // workspaceId
+
+  responseViewerData: ResponseData | null;
+  setResponseViewerData: (data: ResponseData) => void;
 };
+
+interface SavedRequest {
+  id: string;
+  name: string;
+  method: string;
+  url: string;
+  body?: string;
+  headers?: string;
+  parameters?: string;
+}
 
 // here both editor and viewer ar present
 
@@ -50,11 +79,15 @@ type PlaygroundState = {
     savedRequest: SavedRequest
   ) => void; // for updating a particular tab from saved request
 
-  // responseViewerData: ResponseData | null;
-  // setResponseViewerData: (data: ResponseData) => void;
+  responseViewerData: ResponseData | null;
+
+  setResponseViewerData: (data: ResponseData) => void;
 };
 
 export const useRequestPlaygroundStore = create<PlaygroundState>((set) => ({
+  responseViewerData: null,
+  setResponseViewerData: (data) => set({ responseViewerData: data }),
+
   tabs: [],
   activeTabId: null,
 

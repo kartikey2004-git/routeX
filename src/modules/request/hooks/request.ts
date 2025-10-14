@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import {
@@ -7,6 +8,7 @@ import {
   type Request,
   deleteRequestFromCollection,
   editRequestFromCollection,
+  run,
 } from "../actions";
 import { REST_METHOD } from "@prisma/client";
 import { useRequestPlaygroundStore } from "../store/useRequestStore";
@@ -14,7 +16,6 @@ import { useRequestPlaygroundStore } from "../store/useRequestStore";
 // Custom hook banaya hai to add request to collection
 
 export function useAddRequestToCollection(collectionId: string) {
- 
   const { updateTabFromSavedRequest, activeTabId } =
     useRequestPlaygroundStore();
 
@@ -49,6 +50,7 @@ export function useAddRequestToCollection(collectionId: string) {
 
       // instead of just console.log , we use here some optimistic update the UI
 
+      // @ts-ignore
       updateTabFromSavedRequest(activeTabId!, data);
     },
   });
@@ -99,6 +101,7 @@ export function useSaveRequest(id: string) {
 
       // but jab bhi hum kisi nayi request ko kisi particular collection mein add krein toh current active tab update hojana chahiye uss request ka
 
+      // @ts-ignore
       updateTabFromSavedRequest(activeTabId!, data);
     },
   });
@@ -171,6 +174,20 @@ export function useEditRequest(
       queryClient.invalidateQueries({
         queryKey: ["requests"],
       });
+    },
+  });
+}
+
+export function useRunRequest(requestId: string) {
+  const queryClient = useQueryClient();
+  const { setResponseViewerData } = useRequestPlaygroundStore();
+
+  return useMutation({
+    mutationFn: async () => await run(requestId),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["requests"] });
+      // @ts-ignore
+      setResponseViewerData(data);
     },
   });
 }

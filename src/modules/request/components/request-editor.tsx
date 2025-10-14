@@ -2,9 +2,11 @@ import React from "react";
 import { useRequestPlaygroundStore } from "../store/useRequestStore";
 import RequestBar from "./request-bar";
 import RequestEditorArea from "./request-editor-area";
+import ResponseViewer from "./response-viewer";
 
 const RequestEditor = () => {
-  const { tabs, activeTabId, updateTab } = useRequestPlaygroundStore();
+  const { tabs, activeTabId, updateTab, responseViewerData } =
+    useRequestPlaygroundStore();
 
   const activeTab = tabs.find((tab) => tab.id === activeTabId) || tabs[0];
 
@@ -20,6 +22,10 @@ const RequestEditor = () => {
         {/* we have to pass updateTab to track saved and unsaved tab */}
         <RequestEditorArea tab={activeTab} updateTab={updateTab} />
       </div>
+
+      {responseViewerData && (
+        <ResponseViewer responseData={responseViewerData} />
+      )}
     </div>
   );
 };
