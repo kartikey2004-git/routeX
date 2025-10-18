@@ -6,8 +6,8 @@ services:
   db:
     image: postgres:latest
     environment:
-      - POSTGRES_USER=Kartikey
-      - POSTGRES_PASSWORD=npg_E2sQMClHxT1p
+      - POSTGRES_USER=kartikey
+      - POSTGRES_PASSWORD=npg_p1yWPj2DNKCh
       - POSTGRES_DB=routex
     ports:
       - 5432:5432
