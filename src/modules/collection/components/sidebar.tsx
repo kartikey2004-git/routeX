@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import CreateCollection from "./create-collection";
 import EmptyCollections from "./empty-collection";
 import CollectionFolder from "./collection-folder";
+import { Hint } from "@/components/ui/hint";
 
 interface Props {
   // We can add proper types further : TODO
@@ -157,19 +158,21 @@ const TabbedSidebar = ({ currentWorkspace }: Props) => {
         */}
 
         {sidebarItems.map((item, index) => (
-          <div
-            key={index}
-            onClick={() => setactiveTab(item.label)}
-            className={`w-10 h-10 rounded-sm flex items-center justify-center cursor-pointer 
+          <Hint label={item.label} key={index} side="left">
+            <div
+              key={index}
+              onClick={() => setactiveTab(item.label)}
+              className={`w-10 h-10 rounded-sm flex items-center justify-center cursor-pointer 
           transition-all duration-200 ease-in-out
           ${
             activeTab === item.label
               ? "text-indigo-600"
               : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
           }`}
-          >
-            <item.icon className="w-5 h-5" />
-          </div>
+            >
+              <item.icon className="w-5 h-5" />
+            </div>
+          </Hint>
         ))}
       </div>
 
