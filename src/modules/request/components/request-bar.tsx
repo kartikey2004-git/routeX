@@ -95,7 +95,7 @@ const RequestBar = ({ tab, updateTab }: Props) => {
         type="submit"
         onClick={onSendRequest}
         disabled={!tab.url}
-        className="ml-3 flex items-center gap-2 bg-blue-700 hover:bg-blue-800 disabled:opacity-50 text-white font-semibold px-4 py-2 rounded-sm transition-all duration-200 shadow-md hover:shadow-lg"
+        className="ml-3 flex items-center gap-2 bg-zinc-800/90 hover:bg-zinc-700/90 disabled:opacity-50 text-white font-semibold px-4 py-2 rounded-sm transition-all duration-200 shadow-md hover:shadow-lg"
       >
         Send
       </Button>

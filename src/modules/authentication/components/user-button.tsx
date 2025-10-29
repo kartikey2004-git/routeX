@@ -46,7 +46,7 @@ interface UserButtonProps {
   // whether to show a small badge on avatar
   showBadge?: boolean;
   badgeText?: string; // text inside badge
-  badgeVariant?: "default" | "secondary" | "destructive" | "outline"; // badge color
+  badgeVariant?: "default" | "secondary" | "destructive" | "outline"; // badge variant
   size?: "sm" | "md" | "lg"; // avatar size
   showEmail?: boolean; // whether to show user email in dropdown
   showMemberSince?: boolean; // whether to show "member since" info
@@ -54,7 +54,7 @@ interface UserButtonProps {
 
 export default function UserButton({
   user,
-  onLogout,
+  // onLogout,
   onSettings,
   onProfile,
   onBilling,
@@ -65,27 +65,28 @@ export default function UserButton({
   showEmail = true,
   showMemberSince = true,
 }: UserButtonProps) {
-
   // loading state for logout button
   const [isLoading, setIsLoading] = useState(false);
+
+  // This hook allows you to programmatically change routes inside Client Component.
+
   const router = useRouter();
 
-  // Actual sign out logic using your auth client , grab signOut function which comes from authClient  
-  
-  
+  // Actual sign out logic using your auth client , grab signOut function which comes from authClient
+
   /// onSuccess : a callback function that will be called when a response is successful.
 
   const onSignOut = async () => {
     await authClient.signOut({
-      fetchOptions:{
+      fetchOptions: {
         onSuccess: () => {
-          router.push("/sign-in") // after sign out, redirect user to sign-in page
-        }
-      }
+          router.push("/sign-in"); // after sign out, redirect user to sign-in page
+        },
+      },
     });
   };
 
-  // custom logout handler for signout to handle errors and loading state  
+  // custom logout handler for signout to handle errors and loading state
 
   const handleLogout = async () => {
     setIsLoading(true);
@@ -123,7 +124,7 @@ export default function UserButton({
     }).format(new Date(date));
   };
 
-   // Predefined avatar sizes to keep design consistent
+  // Predefined avatar sizes to keep design consistent
   const avatarSizes = {
     sm: "h-8 w-8",
     md: "h-10 w-10",

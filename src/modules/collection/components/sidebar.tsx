@@ -82,7 +82,7 @@ const TabbedSidebar = ({ currentWorkspace }: Props) => {
     switch (activeTab) {
       case "Collections":
         return (
-          <div className="h-full bg-zinc-950 text-zinc-100 flex flex-col">
+          <div className="h-full bg-zinc-950/30 text-zinc-100 flex flex-col">
             {/* Now this div for current selected workspace mein hum hai uske liye*/}
 
             <div className="flex items-center justify-between p-4 border-b border-zinc-400">
@@ -93,7 +93,7 @@ const TabbedSidebar = ({ currentWorkspace }: Props) => {
                 </span>
 
                 <span className="text-zinc-600"></span>
-                <span className="text-sm font-medium">Collections</span>
+                <span className="text-sm font-normal">Collections</span>
               </div>
 
               <div className="flex items-center space-x-2.5">
@@ -158,7 +158,7 @@ const TabbedSidebar = ({ currentWorkspace }: Props) => {
         */}
 
         {sidebarItems.map((item, index) => (
-          <Hint label={item.label} key={index} side="left">
+          <Hint label={item.label} key={index} side="bottom" className="">
             <div
               key={index}
               onClick={() => setactiveTab(item.label)}
@@ -166,7 +166,7 @@ const TabbedSidebar = ({ currentWorkspace }: Props) => {
           transition-all duration-200 ease-in-out
           ${
             activeTab === item.label
-              ? "text-indigo-600"
+              ? "bg-zinc-800"
               : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
           }`}
             >

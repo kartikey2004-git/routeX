@@ -2,7 +2,7 @@
 
 we use Prisma instance to query the database
 
-   - NextJS uses hot reloading : whenever we save something inside the app , it gonnna create new prisma client every single time and we don't want to do that
+   - NextJS uses hot reloading : whenever we save something inside the app , it gonna create new prisma client every single time and we don't want to do that
 
 
     - In Next.js development mode (when you save a file), it hot-reloads your code multiple times.
@@ -15,7 +15,6 @@ we use Prisma instance to query the database
     - I don't want to crash your database due to multiple Prisma clients.
 
 */
-
 
 // This imports the PrismaClient class from Prisma's generated client. This class is what you'll use to talk to your database (run queries, migrations, etc).
 
@@ -45,14 +44,11 @@ const db =
 
 */
 
-
 if (process.env.NODE_ENV === "development") {
   globalThis.prisma = db;
 }
 
 export default db;
-
-
 
 /*
 
@@ -64,7 +60,7 @@ export default db;
 
      - Without this, each time your application reloads, a new instance of the Prisma client would be created, potentially leading to connection issues.
 
-----------------------------------------------
+------------------------------------------
 
    - In development (NODE_ENV !== "production"):
       

@@ -7,7 +7,7 @@ import { headers } from "next/headers";
 export const currentUser = async () => {
   try {
 
-    // we grab the session from auth.api.getSession and we have to pass headers 
+    // we grab the session from auth.api.getSession and we have to pass headers
 
     const session = await auth.api.getSession({
       headers: await headers(),

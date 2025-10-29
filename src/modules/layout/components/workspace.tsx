@@ -45,12 +45,12 @@ const Workspace = () => {
   }, [workspaces, selectedWorkspace, setSelectedWorkspace]);
 
   if (isLoading) {
-    return <Loader2 className="animate-spin size-4 text-indigo-400" />;
+    return <Loader2 className="animate-spin size-4 text-blue-400" />;
   }
 
   if (!workspaces || workspaces.length === 0) {
     return (
-      <div className="font-semibold text-indigo-400">No Workspace Found</div>
+      <div className="font-semibold text-blue-400">No Workspace Found</div>
     );
   }
 
@@ -66,9 +66,9 @@ const Workspace = () => {
             if (ws) setSelectedWorkspace(ws);
           }}
         >
-          <SelectTrigger className="border border-indigo-400 bg-indigo-400/10 hover:bg-indigo-400/20 text-indigo-400 hover:text-indigo-300 flex flex-row items-center space-x-1">
-            <User className="size-4 text-indigo-400" />
-            <span className="text-sm text-indigo-400 font-semibold">
+          <SelectTrigger className="border flex flex-row items-center space-x-1">
+            <User className="size-4 text-white" />
+            <span className="text-sm  font-semibold">
               <SelectValue placeholder="Select workspace" />
 
               <SelectContent>

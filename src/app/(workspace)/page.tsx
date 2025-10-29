@@ -25,7 +25,7 @@ const Page = () => {
   if (isPending) {
     return (
       <div className="flex flex-col items-center justify-center h-full">
-        <Loader2 className="w-6 h-6 text-indigo-400 animate-spin" />
+        <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
       </div>
     );
   }
@@ -36,10 +36,7 @@ const Page = () => {
 
   return (
     <ResizablePanelGroup direction="horizontal">
-      <ResizablePanel defaultSize={65} minSize={40}>
-        <RequestPlayground />
-      </ResizablePanel>
-      <ResizableHandle className="w-[2px] bg-zinc-800 hover:bg-indigo-500 transition-colors duration-200 ease-in-out mr-1" />
+      {/* Sidebar first */}
       <ResizablePanel
         defaultSize={35}
         maxSize={40}
@@ -47,10 +44,15 @@ const Page = () => {
         className="flex"
       >
         <div className="flex-1">
-          {/* here is component named TabbedSidebar which accepts currentWorkSpace as a prop */}
-
           <TabbedSidebar currentWorkspace={currentWorkspace!} />
         </div>
+      </ResizablePanel>
+
+      <ResizableHandle className="w-[2px] bg-zinc-800 hover:bg-indigo-500 transition-colors duration-200 ease-in-out mr-1" />
+
+      {/* Playground second */}
+      <ResizablePanel defaultSize={65} minSize={40}>
+        <RequestPlayground />
       </ResizablePanel>
     </ResizablePanelGroup>
   );

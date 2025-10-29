@@ -73,7 +73,7 @@ const RequestPlayground = () => {
       } else {
         // means if collectionId is not present in any particular active request tab , then it means woh request kisi collection mein save nahi hai
 
-        // means koi aisa request jisse hum naya add kr rhe hai kisi collection mein , toh modal popup ho ki kis collection mein add krna hai us request ko 
+        // means koi aisa request jisse hum naya add kr rhe hai kisi collection mein , toh modal popup ho ki kis collection mein add krna hai us request ko
 
         // but now jab humne kisi request ko kisi particular collection mein add kra toh current active tab update nhi hua us request ka
 
@@ -102,7 +102,7 @@ const RequestPlayground = () => {
     return (
       <div className="flex space-y-4 flex-col h-full items-center justify-center">
         <div className="flex flex-col justify-center items-center h-40 w-40 border rounded-full bg-zinc-900">
-          <Zap size={80} className="text-indigo-400 font-extralight" />
+          <Zap size={80} strokeWidth={0.5} className="text-zinc-800" />
         </div>
 
         {/*key-combination shortcut display*/}

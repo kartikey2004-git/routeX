@@ -233,7 +233,7 @@ const RealtimeMessageEditor = () => {
         <Button
           onClick={handleSendMessage}
           disabled={status !== "connected" || isSending}
-          className="bg-indigo-500 hover:bg-indigo-600 text-white font-medium"
+          className="bg-zinc-700 hover:bg-zinc-600 text-white font-medium"
         >
           <Send size={16} className="mr-2" />
           {isSending ? "Sending..." : "Send Message"}

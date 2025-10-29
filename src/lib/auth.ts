@@ -1,8 +1,10 @@
 // Create A Better Auth Instance
 
 import { betterAuth } from "better-auth";
-import { prismaAdapter } from "better-auth/adapters/prisma";
-import db from "./db"; // prisma client jo database se baat krega 
+
+import { prismaAdapter } from "better-auth/adapters/prisma"; // ye prisma ORM ka adapter hai
+
+import db from "./db"; // prisma client jo database se baat krega
 
 import { env } from "./env";
 
@@ -25,12 +27,12 @@ export const auth = betterAuth({
 
 /* 
 
-In prisma , if we want to implement oAuth using google or github provider
+In prisma + better auth, if we want to implement oAuth using google or github provider
   
   - if we run that commands that provided , automatically all authenticated related prisma schema models added automatically
 
 
-- We support google as well as github provider because for invite feature we don't have multiple github
+- We support google as well as github provider because for invite feature, coz we don't have multiple github
 
 
 */

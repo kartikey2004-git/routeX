@@ -48,7 +48,6 @@ export const deleteCollection = async (collectionId: string) => {
 };
 
 export const editCollection = async (collectionId: string, name: string) => {
-
   // edit the name of collection
   await db.collection.update({
     where: {

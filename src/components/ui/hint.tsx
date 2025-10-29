@@ -4,10 +4,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
 export interface HintProps {
   label: string;
   children: React.ReactNode;
+  className?: string;
   side?: "top" | "bottom" | "left" | "right";
   align?: "start" | "center" | "end";
   sideOffset?: number;
@@ -17,17 +19,18 @@ export interface HintProps {
 export const Hint = ({
   label,
   children,
-  side,
-  align,
-  sideOffset,
-  alignOffset,
+  className,
+  side = "top",
+  align = "center",
+  sideOffset = 4,
+  alignOffset = 0,
 }: HintProps) => {
   return (
     <TooltipProvider>
       <Tooltip delayDuration={100}>
         <TooltipTrigger asChild>{children}</TooltipTrigger>
-
         <TooltipContent
+          className={cn("", className)}
           side={side}
           align={align}
           sideOffset={sideOffset}
@@ -39,5 +42,3 @@ export const Hint = ({
     </TooltipProvider>
   );
 };
-
-// enhanced version of tooltip

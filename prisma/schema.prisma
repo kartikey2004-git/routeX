@@ -1,4 +1,4 @@
-// Yeh Prisma client generate karega jo JS/TS code me use hota hai matlab DB ko directly JS/TS code ke through access kar paoge
+// Yeh Prisma client generate karega jo JS/TS code me use hota hai matlab DB ko directly JS/TS code ke through access kar payenge
 
 generator client {
  provider = "prisma-client-js"
@@ -84,7 +84,7 @@ model Verification {
  @@map("verification")
 }
 
-// -------------WORKSPACE & Membership----------
+// ------- WORKSPACE & Membership --------
 
 model Workspace {
  id          String  @id @default(cuid())
