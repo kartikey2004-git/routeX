@@ -104,6 +104,8 @@ export const useRequestPlaygroundStore = create<PlaygroundState>((set) => ({
         headers: "",
         parameters: "",
         unsavedChanges: true, // intially jab request tab hum banayenge wo save nhi hoga database mein
+        responseViewerData: null,
+        setResponseViewerData: () => {},
       };
       return {
         tabs: [...state.tabs, newTab], // yaha pe humne tabs array ko spread krke usme ek naya tab add (append) kiya hai
@@ -201,6 +203,9 @@ export const useRequestPlaygroundStore = create<PlaygroundState>((set) => ({
         collectionId: req.collectionId,
         workspaceId: req.workspaceId,
         unsavedChanges: false,
+
+        responseViewerData: null,
+        setResponseViewerData: () => {},
       };
 
       return {

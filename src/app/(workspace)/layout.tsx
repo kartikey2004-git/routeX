@@ -6,6 +6,7 @@ import TabbedLeftPanel from "@/modules/workspace/components/tabbed-left-panel";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import React from "react";
+import { Github, Linkedin, Mail } from "lucide-react";
 
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {
   // we grab the session from auth.api.getSession and we have to pass headers
@@ -47,6 +48,61 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
               </div>
             </div>
           </main>
+          <footer className="w-full border-t border-white/10 bg-zinc-900/90 text-gray-300">
+            <div className="max-w-6xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+              {/* Left Section */}
+              <div className="text-sm text-gray-400">
+                © {new Date().getFullYear()} routeX. All rights reserved.
+              </div>
+              {/* Center Section */}
+              <div className="flex items-center gap-6 text-sm">
+                <a
+                  href="/privacy"
+                  className="hover:text-white transition-colors duration-200"
+                >
+                  Privacy
+                </a>
+                <a
+                  href="/terms"
+                  className="hover:text-white transition-colors duration-200"
+                >
+                  Terms
+                </a>
+                <a
+                  href="/contact"
+                  className="hover:text-white transition-colors duration-200"
+                >
+                  Contact
+                </a>
+              </div>
+
+              {/* Right Section */}
+              <div className="flex items-center gap-4">
+                <a
+                  href="https://github.com/kartikey2004-git/routeX"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-white transition-colors duration-200"
+                >
+                  <Github className="h-5 w-5" />
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/kartikey-bhatnagar-2702a4337"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-white transition-colors duration-200"
+                >
+                  <Linkedin className="h-5 w-5" />
+                </a>
+                <a
+                  href="mailto:kartikeybhatnagar247@gmail.com"
+                  className="hover:text-white transition-colors duration-200"
+                >
+                  <Mail className="h-5 w-5" />
+                </a>
+              </div>
+            </div>
+          </footer>
         </>
       )}
     </>
