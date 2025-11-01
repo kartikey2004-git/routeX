@@ -1,5 +1,5 @@
 /*
-
+chalaake dikhao aur problem btao : okieee :
 we use Prisma instance to query the database
 
    - NextJS uses hot reloading : whenever we save something inside the app , it gonna create new prisma client every single time and we don't want to do that

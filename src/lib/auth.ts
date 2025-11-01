@@ -8,6 +8,9 @@ import db from "./db"; // prisma client jo database se baat krega
 
 import { env } from "./env";
 
+// console.log(env.GOOGLE_CLIENT_ID);
+
+
 export const auth = betterAuth({
   database: prismaAdapter(db, {
     provider: "postgresql",
@@ -23,6 +26,7 @@ export const auth = betterAuth({
       clientSecret: env.GOOGLE_CLIENT_SECRET,
     },
   },
+  trustedOrigins:["http://localhost:3000"]
 });
 
 /* 

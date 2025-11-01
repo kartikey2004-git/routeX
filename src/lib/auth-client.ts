@@ -11,10 +11,11 @@ import { createAuthClient } from "better-auth/react"; //function that helps us c
 export const authClient = createAuthClient({
   baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000", // Backend server address
 });
+// do nhi banaye hai ek hi usko niche call krke functions ka access liya hai - ruk - dekh
 
 // main auth functions (signIn, signUp, useSession) : functions will be used in React components to handle authentication
 
-export const { signIn, signUp, useSession } = createAuthClient();
+// export const  = createAuthClient();
 
 /*
   

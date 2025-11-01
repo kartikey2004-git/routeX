@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { signIn } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 import { FaGoogle } from "react-icons/fa";
 import { FaGithub } from "react-icons/fa";
 import Link from "next/link";
@@ -57,7 +57,7 @@ const SignInPage = () => {
             <Button
               className="w-full flex items-center justify-center gap-3 transition-all shadow-md border-gray-700 bg-gray-950/10 px-4 py-2 text-sm text-gray-400 backdrop-blur-sm hover:bg-gray-700/20"
               onClick={() =>
-                signIn.social({
+                authClient.signIn.social({
                   provider: "github",
                   callbackURL: "/",
                 })
@@ -69,7 +69,7 @@ const SignInPage = () => {
             <Button
               className="w-full flex items-center justify-center gap-3 transition-all shadow-md border-gray-700 bg-gray-950/10 px-4 py-2 text-sm text-gray-400 backdrop-blur-sm hover:bg-gray-700/20"
               onClick={() =>
-                signIn.social({ provider: "google", callbackURL: "/" })
+                authClient.signIn.social({ provider: "google", callbackURL: "/" })
               }
             >
               <FaGoogle /> Sign in with Google
