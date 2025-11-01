@@ -21,13 +21,15 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
     redirect("/sign-in");
   }
 
-  const { workspace } = await initializeWorkspace();
+  // const { workspace } = await initializeWorkspace();
 
-  console.log(JSON.stringify(workspace));
+  // console.log(JSON.stringify(workspace));
 
   // utility for extracting current user data which search on basis of session user id in the database and extract user details
 
   const user = await currentUser();
+  if (!user) return;
+  await initializeWorkspace(user);
 
   return (
     <>

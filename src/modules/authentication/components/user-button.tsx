@@ -22,7 +22,7 @@ import { authClient } from "@/lib/auth-client";
 
 // Type defines shape of user data object
 
-interface UserData {
+export interface UserData {
   id: string;
   email: string | null;
   name: string | null;

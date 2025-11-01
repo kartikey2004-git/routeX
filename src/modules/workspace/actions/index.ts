@@ -2,13 +2,12 @@
 
 import db from "@/lib/db";
 import { currentUser } from "@/modules/authentication/actions";
+import type {UserData} from "@/modules/authentication/components/user-button"
 import { MEMBER_ROLE } from "@prisma/client";
 
 
-export const initializeWorkspace = async () => {
+export const initializeWorkspace = async (user: UserData) => {
   // utility for extracting current user data which search on basis of session user id in the database and extract user details
-
-  const user = await currentUser();
 
   if (!user) {
     return {
