@@ -21,7 +21,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
     redirect("/sign-in");
   }
 
-  const workspace = await initializeWorkspace();
+  const { workspace } = await initializeWorkspace();
 
   console.log(JSON.stringify(workspace));
 
