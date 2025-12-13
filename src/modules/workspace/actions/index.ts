@@ -51,8 +51,8 @@ export const initializeWorkspace = async (user: UserData) => {
 
       where: {
         name_ownerId: {
-          ownerId: user.id,
           name: "Personal Workspace",
+          ownerId: user.id,
         },
       },
       update: {}, // stage for updating existing workspace

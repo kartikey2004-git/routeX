@@ -7,6 +7,12 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import React from "react";
 import { Github, Linkedin, Mail } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../../components/ui/tooltip";
 
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {
   // we grab the session from auth.api.getSession and we have to pass headers
@@ -56,53 +62,59 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
               <div className="text-sm text-gray-400">
                 © {new Date().getFullYear()} routeX. All rights reserved.
               </div>
-              {/* Center Section */}
-              <div className="flex items-center gap-6 text-sm">
-                <a
-                  href="/privacy"
-                  className="hover:text-white transition-colors duration-200"
-                >
-                  Privacy
-                </a>
-                <a
-                  href="/terms"
-                  className="hover:text-white transition-colors duration-200"
-                >
-                  Terms
-                </a>
-                <a
-                  href="/contact"
-                  className="hover:text-white transition-colors duration-200"
-                >
-                  Contact
-                </a>
-              </div>
 
-              {/* Right Section */}
-              <div className="flex items-center gap-4">
-                <a
-                  href="https://github.com/kartikey2004-git/routeX"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-white transition-colors duration-200"
-                >
-                  <Github className="h-5 w-5" />
-                </a>
-                <a
-                  href="https://www.linkedin.com/in/kartikey-bhatnagar-2702a4337"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-white transition-colors duration-200"
-                >
-                  <Linkedin className="h-5 w-5" />
-                </a>
-                <a
-                  href="mailto:kartikeybhatnagar247@gmail.com"
-                  className="hover:text-white transition-colors duration-200"
-                >
-                  <Mail className="h-5 w-5" />
-                </a>
-              </div>
+              <TooltipProvider>
+                <div className="flex items-center gap-4">
+                  {/* GitHub */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <a
+                        href="https://github.com/kartikey2004-git/routeX"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-white transition-colors duration-200"
+                      >
+                        <Github className="h-5 w-5" />
+                      </a>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>GitHub</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  {/* LinkedIn */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <a
+                        href="https://www.linkedin.com/in/kartikey-bhatnagar-2702a4337"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-white transition-colors duration-200"
+                      >
+                        <Linkedin className="h-5 w-5" />
+                      </a>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>LinkedIn</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  {/* Email */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <a
+                        href="mailto:kartikeybhatnagar247@gmail.com"
+                        className="hover:text-white transition-colors duration-200"
+                      >
+                        <Mail className="h-5 w-5" />
+                      </a>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Email</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              </TooltipProvider>
             </div>
           </footer>
         </>

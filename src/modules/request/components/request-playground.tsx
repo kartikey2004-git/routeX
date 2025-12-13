@@ -15,7 +15,7 @@ const RequestPlayground = () => {
 
   const activeTab = tabs.find((tab) => tab.id === activeTabId);
 
-  const { mutateAsync, isPending } = useSaveRequest(activeTab?.requestId ?? "");
+  const { mutateAsync } = useSaveRequest(activeTab?.requestId ?? "");
 
   // jab bhi hum kisi tab pe do baar click krenge toh ek modal open hojaye wo humein rename krne ka option dega
 

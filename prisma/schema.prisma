@@ -88,7 +88,7 @@ model Verification {
 
 model Workspace {
  id          String  @id @default(cuid())
- name        String  @unique
+ name        String  
  description String?
  ownerId     String
  owner       User    @relation("UserWorkspaces", fields: [ownerId], references: [id]) // for making relation with all the users

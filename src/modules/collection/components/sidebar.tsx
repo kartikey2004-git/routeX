@@ -158,7 +158,7 @@ const TabbedSidebar = ({ currentWorkspace }: Props) => {
         */}
 
         {sidebarItems.map((item, index) => (
-          <Hint label={item.label} key={index} side="bottom" className="">
+          <Hint label={item.label} key={index} side="right" className="">
             <div
               key={index}
               onClick={() => setactiveTab(item.label)}
