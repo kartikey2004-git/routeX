@@ -65,23 +65,6 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
 
               <TooltipProvider>
                 <div className="flex items-center gap-4">
-                  {/* GitHub */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <a
-                        href="https://github.com/kartikey2004-git/routeX"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="hover:text-white transition-colors duration-200"
-                      >
-                        <Github className="h-5 w-5" />
-                      </a>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>GitHub</p>
-                    </TooltipContent>
-                  </Tooltip>
-
                   {/* LinkedIn */}
                   <Tooltip>
                     <TooltipTrigger asChild>
