@@ -3,82 +3,201 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
-import { FaGoogle } from "react-icons/fa";
-import { FaGithub } from "react-icons/fa";
+import { FaGoogle, FaGithub } from "react-icons/fa";
 import Link from "next/link";
+import { Zap } from "lucide-react";
 
-const SignInPage = () => {
+export default function LandingPage() {
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-[#0f1117]">
-      <div className="relative flex w-full lg:w-3/5 items-center justify-center px-6 py-16 lg:py-20 lg:px-16">
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)
-            `,
-            backgroundSize: "50px 50px",
-          }}
-        />
-        <div className="relative z-10 max-w-2xl text-center lg:text-left">
-          <Link href={"/"}>
-            <h1 className="mb-4 text-3xl font-light leading-tight tracking-tight md:text-4xl lg:text-5xl">
-              <span className="text-white">RouteX</span> <br />
-              <span className="font-normal text-gray-400">
-                Always Sync with Server
-              </span>
-            </h1>
-          </Link>
+    <div className="min-h-screen bg-[#fff7ef] text-gray-900">
+      <div className="bg-gradient-to-r from-orange-500 to-black text-white text-sm py-2 text-center">
+        AI needs context. APIs deliver it.
+      </div>
 
-          <p className="mb-6 inline-block rounded-md border border-gray-700 bg-black/50 px-4 py-2 text-sm text-gray-400 backdrop-blur-sm">
-            Discover RouteX
-          </p>
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
+        <div className="grid grid-cols-[minmax(0,640px)_1fr] items-center h-16">
+          <div className="flex items-center gap-3 px-6 lg:pl-24">
+            <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-sm py-2">
+              <Zap />
+            </div>
 
-          <p className="text-base md:text-lg lg:text-xl leading-relaxed text-gray-300 max-w-xl mx-auto lg:mx-0">
+            <Link href="/" className="text-xl font-semibold text-black">
+              RouteX
+            </Link>
+          </div>
+
+          <div className="flex justify-end items-center gap-3 px-6 lg:pr-12">
+            <Button
+              onClick={() =>
+                authClient.signIn.social({
+                  provider: "google",
+                  callbackURL: "/",
+                })
+              }
+              className="px-4 py-2 text-sm border rounded-md bg-gray-100"
+            >
+              Sign In
+            </Button>
+
+            <Button
+              onClick={() =>
+                authClient.signIn.social({
+                  provider: "google",
+                  callbackURL: "/",
+                })
+              }
+              className="px-4 py-2 text-sm rounded-md bg-orange-500 text-white hover:bg-orange-600"
+            >
+              Sign Up for Free
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <main className="relative grid grid-cols-1 lg:grid-cols-[minmax(0,640px)_1fr] min-h-[calc(100vh-120px)]">
+        <div className="px-6 lg:pl-24 lg:pr-12 py-12 max-w-xl">
+          <h1 className="text-5xl font-semibold leading-tight mb-6 text-gray-900">
+            RouteX Always Sync with Server
+          </h1>
+
+          {/* Description */}
+          <p className="text-lg text-gray-700 max-w-xl mb-10">
             RouteX lets developers test and debug APIs and uses AI features for
             automated tests, smart request validation, and code suggestions.
           </p>
-        </div>
-      </div>
 
-      <div className="w-full lg:w-2/5 flex items-center justify-center border-2 border-gray-800/10 px-6 py-12 lg:px-12">
-        <div className="w-full max-w-md flex flex-col gap-6">
-          {/* Divider */}
-          <div className="flex items-center my-4">
-            <div className="flex-1 border-t border-gray-700"></div>
-            <span className="px-4 text-gray-500 text-sm">
-              Login with Providers
-            </span>
-            <div className="flex-1 border-t border-gray-700"></div>
+      
+          <div className="mb-8">
+            <Button
+              onClick={() =>
+                authClient.signIn.social({
+                  provider: "google",
+                  callbackURL: "/",
+                })
+              }
+              className="inline-flex items-center justify-center px-6 py-3 bg-orange-500 text-white rounded-md font-medium hover:bg-orange-600 w-full"
+            >
+              Sign Up for Free
+            </Button>
           </div>
 
-          <div className="flex flex-col gap-4">
+          <div className="flex items-center my-6 text-gray-400">
+            <div className="flex-1 h-px bg-gray-200" />
+            <span className="px-3 text-xs font-medium tracking-wide">OR</span>
+            <div className="flex-1 h-px bg-gray-200" />
+          </div>
+
+          <div className="space-y-3 ">
             <Button
-              className="w-full flex items-center justify-center gap-3 transition-all shadow-md border-gray-700 bg-gray-950/10 px-4 py-2 text-sm text-gray-400 backdrop-blur-sm hover:bg-gray-700/20"
+              onClick={() =>
+                authClient.signIn.social({
+                  provider: "google",
+                  callbackURL: "/",
+                })
+              }
+              variant="outline"
+              className="w-full py-5 text-sm flex items-center justify-center gap-3 border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-700 cursor-pointer"
+            >
+              <FaGoogle className="h-4 w-4" />
+              Continue with email
+            </Button>
+
+            <Button
               onClick={() =>
                 authClient.signIn.social({
                   provider: "github",
                   callbackURL: "/",
                 })
               }
+              variant="outline"
+              className="w-full py-5 text-sm flex items-center justify-center gap-3 border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-700 cursor-pointer"
             >
-              <FaGithub /> Sign in with GitHub
-            </Button>
-
-            <Button
-              className="w-full flex items-center justify-center gap-3 transition-all shadow-md border-gray-700 bg-gray-950/10 px-4 py-2 text-sm text-gray-400 backdrop-blur-sm hover:bg-gray-700/20"
-              onClick={() =>
-                authClient.signIn.social({ provider: "google", callbackURL: "/" })
-              }
-            >
-              <FaGoogle /> Sign in with Google
+              <FaGithub className="h-4 w-4" />
+              Continue with GitHub
             </Button>
           </div>
+
+          <p className="mt-8 text-xs text-gray-500 leading-relaxed">
+            By signing in, you agree to our{" "}
+            <span className="text-[#ff6c37] cursor-pointer hover:underline">
+              Terms of Service
+            </span>{" "}
+            and{" "}
+            <span className="text-[#ff6c37] cursor-pointer hover:underline">
+              Privacy Policy
+            </span>
+            .
+          </p>
         </div>
-      </div>
+
+        <div className="relative lg:ml-8 lg:mt-4">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-2xl overflow-hidden">
+            {/* Top Bar */}
+            <div className="flex items-center gap-3 px-4 py-3 border-b bg-gray-50">
+              <span className="px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded">
+                GET
+              </span>
+
+              <input
+                className="flex-1 px-3 py-2 text-sm border rounded-md font-mono focus:outline-none focus:ring-1 focus:ring-orange-500"
+                value="{{base_url}}/accounts/:accountNumber"
+                readOnly
+              />
+
+              <button className="px-5 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700">
+                Send
+              </button>
+            </div>
+
+            {/* Main Grid */}
+            <div className="grid grid-cols-[220px_1fr] min-h-[420px]">
+              {/* Sidebar */}
+              <aside className="border-r bg-gray-50 p-4 text-sm">
+                <p className="font-semibold mb-3">Collections</p>
+                <ul className="space-y-2 text-gray-700">
+                  <li>Accounts</li>
+                  <li>Customers</li>
+                  <li>Payments</li>
+                  <li className="text-green-600 font-medium">GET Overview</li>
+                </ul>
+              </aside>
+
+              {/* Editor */}
+              <section className="flex flex-col">
+                {/* Tabs */}
+                <div className="flex gap-6 px-4 py-2 border-b text-sm">
+                  <button className="font-medium border-b-2 border-orange-500">
+                    Params
+                  </button>
+                  <button className="text-gray-500">Headers</button>
+                  <button className="text-gray-500">Body</button>
+                </div>
+
+                {/* Request Editor */}
+                <div className="p-4 flex-1">
+                  <div className="h-full border rounded-md bg-gray-50 text-sm font-mono text-gray-600 p-4">
+                    key: accountNumber <br />
+                    value: 123456789
+                  </div>
+                </div>
+
+                {/* Response */}
+                <div className="border-t font-mono text-sm p-4 h-40 overflow-auto">
+                  {`{
+  "accountNumber": "123456789",
+  "balance": 24500,
+  "currency": "INR",
+  "status": "ACTIVE"
+}`}
+                </div>
+              </section>
+            </div>
+          </div>
+
+          {/* Glow */}
+          <div className="absolute -z-10 inset-0 bg-gradient-to-r from-orange-300 to-yellow-200 blur-3xl opacity-40" />
+        </div>
+      </main>
     </div>
   );
-};
-
-export default SignInPage;
+}
