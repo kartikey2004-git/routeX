@@ -10,10 +10,6 @@ import { Zap } from "lucide-react";
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#fff7ef] text-gray-900">
-      <div className="bg-gradient-to-r from-orange-500 to-black text-white text-sm py-2 text-center">
-        AI needs context. APIs deliver it.
-      </div>
-
       <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
         <div className="grid grid-cols-[minmax(0,640px)_1fr] items-center h-16">
           <div className="flex items-center gap-3 px-6 lg:pl-24">
@@ -66,7 +62,6 @@ export default function LandingPage() {
             automated tests, smart request validation, and code suggestions.
           </p>
 
-      
           <div className="mb-8">
             <Button
               onClick={() =>

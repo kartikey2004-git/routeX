@@ -37,7 +37,7 @@ const TabBar = () => {
 
   return (
     <>
-      <div className="flex items-center border-b border-zinc-800 bg-zinc-900 overflow-x-auto no-scrollbar">
+      <div className="flex items-center border-b bg-card overflow-x-auto no-scrollbar">
         <AnimatePresence initial={false}>
           {tabs.map((tab) => {
             return (
@@ -54,13 +54,13 @@ const TabBar = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`group flex items-center gap-2 px-4 py-2 cursor-pointer transition-colors duration-200 ease-out ${
                   activeTabId === tab.id
-                    ? "bg-zinc-800 text-white border-b-1 border-indigo-500"
-                    : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
+                    ? "bg-muted text-foreground border-b-2 border-primary"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 }`}
               >
                 <span
                   className={`font-semibold transition-colors duration-200 ${
-                    requestColorMap[tab.method] || "text-gray-500"
+                    requestColorMap[tab.method] || "text-slate-500"
                   }`}
                 >
                   {tab.method}
@@ -92,7 +92,7 @@ const TabBar = () => {
         {/* button to add a request tab*/}
         <button
           onClick={addTab}
-          className="px-3 py-2 text-zinc-400 hover:text-white"
+          className="px-3 py-2 text-muted-foreground hover:text-foreground"
         >
           {" "}
           +{" "}

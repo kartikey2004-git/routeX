@@ -29,14 +29,14 @@ const RealtimeConnectionBar = () => {
   const getConnectionColor = () => {
     switch (status) {
       case "connected":
-        return "bg-green-500 hover:bg-green-600";
+        return "bg-green-600 hover:bg-green-700";
       case "connecting":
       case "reconnecting":
-        return "bg-yellow-500 hover:bg-yellow-600";
+        return "bg-yellow-600 hover:bg-yellow-700";
       case "error":
-        return "bg-red-500 hover:bg-red-600";
+        return "bg-red-600 hover:bg-red-700";
       default:
-        return "bg-zinc-700 hover:bg-zinc-600";
+        return "bg-muted hover:bg-muted/80";
     }
   };
 
@@ -114,46 +114,46 @@ const RealtimeConnectionBar = () => {
         onConnect();
       }
     },
-    [onConnect]
+    [onConnect],
   );
 
   return (
-    <div className="flex flex-row items-center justify-between bg-zinc-900 rounded-md px-2 py-2 w-full">
+    <div className="flex flex-row items-center justify-between bg-card border rounded-md px-2 py-2 w-full shadow-sm">
       <div className="flex flex-row items-center gap-2 flex-1">
         <Input
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           onKeyDown={handleKeyPress}
           placeholder="Enter WebSocket URL (e.g., ws://localhost:8080)"
-          className="flex-1 bg-zinc-800 border-zinc-700 text-white placeholder-zinc-400"
+          className="flex-1 bg-background border-input text-foreground placeholder-muted-foreground"
           disabled={status === "connecting" || status === "reconnecting"}
         />
       </div>
 
       <div className="flex items-center gap-2 ">
         {/* Connection Status Indicator */}
-        <div className="flex px-2 flex-col items-end text-xs text-zinc-400">
+        <div className="flex px-2 flex-col items-end text-xs text-muted-foreground">
           <div className="flex items-center gap-1">
             <div
               className={`w-2 h-2 rounded-full ${
                 status === "connected"
-                  ? "bg-green-500"
+                  ? "bg-green-600"
                   : status === "connecting" || status === "reconnecting"
-                  ? "bg-yellow-500 animate-pulse"
-                  : status === "error"
-                  ? "bg-red-500"
-                  : "bg-zinc-500"
+                    ? "bg-yellow-600 animate-pulse"
+                    : status === "error"
+                      ? "bg-red-600"
+                      : "bg-muted-foreground"
               }`}
             />
             <span className="capitalize">{getStatusText()}</span>
           </div>
           {connectedUrl && (
-            <div className="text-[10px] text-zinc-500 max-w-32 truncate">
+            <div className="text-[10px] text-muted-foreground max-w-32 truncate">
               {connectedUrl}
             </div>
           )}
           {error && (
-            <div className="text-[10px] text-red-400 max-w-32 truncate">
+            <div className="text-[10px] text-destructive max-w-32 truncate">
               {error}
             </div>
           )}
@@ -163,7 +163,7 @@ const RealtimeConnectionBar = () => {
           type="button"
           onClick={onConnect}
           disabled={status === "connecting" || status === "reconnecting"}
-          className={`ml-2 text-white font-semibold transition-colors ${getConnectionColor()}`}
+          className={`ml-2 text-primary-foreground font-semibold transition-colors ${getConnectionColor()}`}
         >
           <span className="flex items-center gap-2">
             {getConnectionIcon()}

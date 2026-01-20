@@ -1,9 +1,11 @@
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
 import db from "@/lib/db";
 import { REST_METHOD } from "@prisma/client";
 import axios, { AxiosRequestConfig } from "axios";
+import { nanoid } from "nanoid";
 
 export type Request = {
   name: string;
@@ -36,7 +38,7 @@ Ye method isliye banaya gaya hai taaki jab hum koi nayi request banayein, use ek
 
 export const addRequestToCollection = async (
   collectionId: string,
-  value: Request
+  value: Request,
 ) => {
   // create a request in a particular collection with help of collectionId which we pass as prop
 
@@ -100,7 +102,7 @@ export const getAllRequestFromCollection = async (collectionId: string) => {
 
 export const deleteRequestFromCollection = async (
   requestId: string,
-  collectionId: string
+  collectionId: string,
 ) => {
   /*
 
@@ -123,7 +125,7 @@ export const editRequestFromCollection = async (
   collectionId: string,
   name: string,
   method: REST_METHOD,
-  url: string
+  url: string,
 ) => {
   /*
 
@@ -342,57 +344,45 @@ export async function runDirect(requestData: {
 
     const result = await sendRequest(requestConfig);
 
-    const requestRun = await db.requestRun.create({
-      data: {
-        requestId: requestData.id,
-        status: result.status || 0,
-
-        statusText: result.statusText || (result.error ? "Error" : null),
-
-        headers: result.headers || "",
-
-        body: result.data
-          ? typeof result.data === "string"
-            ? result.data
-            : JSON.stringify(result.data)
-          : "",
-
-        durationMs: result.duration || 0,
-      },
-    });
-
-    // Update request with latest response if successful
-    if (result.data && !result.error) {
-      await db.request.update({
-        where: { id: requestData.id },
-        data: {
-          response: result.data,
-          updatedAt: new Date(),
-        },
-      });
-    }
+    // For direct runs, we don't create a RequestRun record since there's no actual request in DB
+    // Instead, we return the result directly with a mock requestRun structure
+    const mockRequestRun = {
+      id: nanoid(), // Generate a temporary ID
+      requestId: requestData.id,
+      status: result.status || 0,
+      statusText: result.statusText || (result.error ? "Error" : null),
+      headers: result.headers || "",
+      body: result.data
+        ? typeof result.data === "string"
+          ? result.data
+          : JSON.stringify(result.data)
+        : "",
+      durationMs: result.duration || 0,
+      createdAt: new Date().toISOString(),
+    };
 
     return {
       success: true,
-      requestRun,
+      requestRun: mockRequestRun,
       result,
     };
   } catch (error: any) {
-    const failedRun = await db.requestRun.create({
-      data: {
-        requestId: requestData.id,
-        status: 0,
-        statusText: "Failed",
-        headers: "",
-        body: error.message,
-        durationMs: 0,
-      },
-    });
+    // For failed direct runs, we also don't create DB records
+    const mockFailedRun = {
+      id: nanoid(),
+      requestId: requestData.id,
+      status: 0,
+      statusText: "Failed",
+      headers: "",
+      body: error.message,
+      durationMs: 0,
+      createdAt: new Date().toISOString(),
+    };
 
     return {
       success: false,
       error: error.message,
-      requestRun: failedRun,
+      requestRun: mockFailedRun,
     };
   }
 }

@@ -25,7 +25,7 @@ const keyValueSchema = z.object({
       key: z.string().min(1, "Key is required"),
       value: z.string().min(1, "Value is required"),
       enabled: z.boolean().default(true).optional(),
-    })
+    }),
   ),
 });
 
@@ -138,7 +138,7 @@ const KeyValueFormEditor: React.FC<KeyValueFormEditorProps> = ({
   const getFilteredItemsFromValues = (items: KeyValueItem[]) =>
     items
       .filter(
-        (item) => item.enabled && (item.key?.trim() || item.value?.trim())
+        (item) => item.enabled && (item.key?.trim() || item.value?.trim()),
       )
       .map(({ key, value }) => ({ key, value }));
 
@@ -162,7 +162,7 @@ const KeyValueFormEditor: React.FC<KeyValueFormEditorProps> = ({
         onSubmit(filtered);
       }
     },
-    [onSubmit]
+    [onSubmit],
   );
 
   const debouncedSaveRef = useRef(saveIfChanged);
@@ -172,7 +172,7 @@ const KeyValueFormEditor: React.FC<KeyValueFormEditorProps> = ({
   }, [saveIfChanged]);
 
   const debouncedInvokerRef = useRef<((items: KeyValueItem[]) => void) | null>(
-    null
+    null,
   );
 
   // useEffect debounce method ko call krega means har 0.5 seconds baad is autosaved ko triggered krega and if value changed hogi toh call hota rhega
@@ -200,7 +200,9 @@ const KeyValueFormEditor: React.FC<KeyValueFormEditorProps> = ({
           {/* Header */}
 
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-zinc-400">Query Params</h3>
+            <h3 className="text-sm font-medium text-muted-foreground">
+              Query Params
+            </h3>
 
             {/* button to add new key value pair row */}
 
@@ -209,7 +211,7 @@ const KeyValueFormEditor: React.FC<KeyValueFormEditorProps> = ({
               variant={"ghost"}
               size={"sm"}
               onClick={addNewRow}
-              className="flex items-center gap-1 text-zinc-300 hover:text-white hover:bg-zinc-700/60 transition-colors"
+              className="flex items-center gap-1 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
             >
               <Plus className="h-4 w-4" />
               <span className="text-xs font-medium">Add</span>
@@ -218,29 +220,29 @@ const KeyValueFormEditor: React.FC<KeyValueFormEditorProps> = ({
 
           {/* Table-like layout */}
 
-          <div className="w-full border border-zinc-800  overflow-hidden">
+          <div className="w-full border rounded overflow-hidden">
             {/* Table header */}
-            <div className="grid grid-cols-12 bg-zinc-900 text-xs text-zinc-500 border-b border-zinc-800">
-              <div className="col-span-5 border-r font-medium border-zinc-800 px-3 py-2">
+            <div className="grid grid-cols-12 bg-muted text-xs text-muted-foreground border-b">
+              <div className="col-span-5 border-r font-medium px-3 py-2">
                 KEY
               </div>
-              <div className="col-span-5 border-r font-medium  border-zinc-800 px-3 py-2">
+              <div className="col-span-5 border-r font-medium px-3 py-2">
                 VALUE
               </div>
 
-              <div className="hidden lg:block col-span-1 border-r border-zinc-800 font-medium  px-3 py-2 text-white/30">
+              <div className="hidden lg:block col-span-1 border-r font-medium px-3 py-2 text-muted-foreground/60">
                 ON/OFF
               </div>
 
-              <div className="hidden lg:block col-span-1 border-r border-zinc-800 font-medium  px-3 py-2">
+              <div className="hidden lg:block col-span-1 border-r font-medium px-3 py-2">
                 DELETE
               </div>
 
-              <div className="col-span-1 border-r border-zinc-800 px-3 py-2 text-white/30  font-medium lg:hidden">
+              <div className="col-span-1 font-medium px-3 py-2 text-muted-foreground/60 lg:hidden">
                 <Check className="w-4 h-4 border" />
               </div>
 
-              <div className="col-span-1 font-medium  border-r border-zinc-800 px-3 py-2 text-white/30 lg:hidden">
+              <div className="col-span-1 font-medium px-3 py-2 text-muted-foreground/60 lg:hidden">
                 <Trash2 className="w-4 h-4" />
               </div>
             </div>
@@ -251,14 +253,14 @@ const KeyValueFormEditor: React.FC<KeyValueFormEditorProps> = ({
                 <div
                   key={field.id}
                   className={cn(
-                    "grid grid-cols-12 items-center text-sm border-t border-zinc-800",
+                    "grid grid-cols-12 items-center text-sm border-t",
                     form.watch(`items.${index}.enabled`)
-                      ? "bg-zinc-900"
-                      : "bg-zinc-800/50 opacity-60"
+                      ? "bg-background"
+                      : "bg-muted/50 opacity-60",
                   )}
                 >
                   {/* Key Input*/}
-                  <div className="col-span-5 border-r border-zinc-800 px-3 py-2">
+                  <div className="col-span-5 border-r px-3 py-2">
                     <FormField
                       control={form.control}
                       name={`items.${index}.key`}
@@ -268,7 +270,7 @@ const KeyValueFormEditor: React.FC<KeyValueFormEditorProps> = ({
                             <Input
                               {...field}
                               placeholder={placeholder.key}
-                              className="bg-transparent border-0 focus:ring-0 rounded-none text-xs text-zinc-200 placeholder:text-zinc-500"
+                              className="bg-transparent border-0 focus:ring-0 rounded-none text-xs text-foreground placeholder:text-muted-foreground"
                               disabled={!form.watch(`items.${index}.enabled`)}
                             />
                           </FormControl>
@@ -279,7 +281,7 @@ const KeyValueFormEditor: React.FC<KeyValueFormEditorProps> = ({
                   </div>
 
                   {/* Value */}
-                  <div className="col-span-5 border-r border-zinc-800 px-3 py-2">
+                  <div className="col-span-5 border-r px-3 py-2">
                     <FormField
                       control={form.control}
                       name={`items.${index}.value`}
@@ -290,7 +292,7 @@ const KeyValueFormEditor: React.FC<KeyValueFormEditorProps> = ({
                               {...field}
                               placeholder={placeholder.value}
                               className={cn(
-                                "bg-transparent border-0 focus:ring-0 text-xs rounded-none placeholder:text-zinc-500"
+                                "bg-transparent border-0 focus:ring-0 text-xs rounded-none placeholder:text-muted-foreground",
                               )}
                               disabled={!form.watch(`items.${index}.enabled`)}
                             />
@@ -302,7 +304,7 @@ const KeyValueFormEditor: React.FC<KeyValueFormEditorProps> = ({
                   </div>
 
                   {/* Enabled */}
-                  <div className="col-span-1 border-r border-zinc-800 flex items-center justify-center px-3 py-4">
+                  <div className="col-span-1 border-r flex items-center justify-center px-3 py-4">
                     <FormField
                       control={form.control}
                       name={`items.${index}.enabled`}
@@ -317,8 +319,8 @@ const KeyValueFormEditor: React.FC<KeyValueFormEditorProps> = ({
                               className={cn(
                                 "h-5 w-5 p-0 rounded-none border transition-colors",
                                 checkBoxField.value
-                                  ? "bg-black/5 border-black/15 text-white hover:bg-gray-800"
-                                  : ""
+                                  ? "bg-black border-primary text-primary-foreground hover:bg-black/90 hover:text-primary-foreground"
+                                  : "bg-black border border-muted hover:bg-black/80",
                               )}
                             >
                               {checkBoxField.value ? (
@@ -342,11 +344,11 @@ const KeyValueFormEditor: React.FC<KeyValueFormEditorProps> = ({
                       className={cn(
                         "h-5 w-5 p-0 transition-colors",
                         fields.length <= 1
-                          ? "text-zinc-600 cursor-not-allowed"
-                          : "text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                          ? "text-muted-foreground cursor-not-allowed"
+                          : "text-destructive hover:text-destructive/80 hover:bg-destructive/10",
                       )}
                     >
-                      <Trash2 className="h-3 w-3 text-gray-300" />
+                      <Trash2 className="h-3 w-3 text-muted-foreground" />
                     </Button>
                   </div>
                 </div>
@@ -356,7 +358,7 @@ const KeyValueFormEditor: React.FC<KeyValueFormEditorProps> = ({
 
           {/* Autosave enabled — changes are saved automatically */}
           <div className="flex justify-end pt-4">
-            <span className="text-xs text-zinc-500">
+            <span className="text-xs text-muted-foreground">
               Changes saved automatically
             </span>
           </div>

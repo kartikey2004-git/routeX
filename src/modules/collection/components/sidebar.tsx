@@ -57,13 +57,13 @@ const TabbedSidebar = ({ currentWorkspace }: Props) => {
   // get all the pre-existing or newer collections jo hum banayenge for a particular workspace
 
   const { data: collections, isPending } = useGetCollections(
-    currentWorkspace?.id
+    currentWorkspace?.id,
   );
 
   if (isPending)
     return (
       <div className="flex-1 flex items-center justify-center">
-        <Loader2 className="w-6 h-6 tet-indigo-400 animate-spin" />
+        <Loader2 className="w-6 h-6 text-primary animate-spin" />
       </div>
     );
 
@@ -82,40 +82,40 @@ const TabbedSidebar = ({ currentWorkspace }: Props) => {
     switch (activeTab) {
       case "Collections":
         return (
-          <div className="h-full bg-zinc-950/30 text-zinc-100 flex flex-col">
+          <div className="h-full bg-card text-foreground flex flex-col border-r">
             {/* Now this div for current selected workspace mein hum hai uske liye*/}
 
-            <div className="flex items-center justify-between p-4 border-b border-zinc-400">
+            <div className="flex items-center justify-between p-4 border-b">
               <div className="flex items-center space-x-2">
                 {/* name of current workspace */}
-                <span className="text-sm text-zinc-400">
+                <span className="text-sm text-muted-foreground">
                   {currentWorkspace?.name}
                 </span>
 
-                <span className="text-zinc-600"></span>
+                <span className="text-muted-foreground"></span>
                 <span className="text-sm font-normal">Collections</span>
               </div>
 
               <div className="flex items-center space-x-2.5">
-                <HelpCircle className="w-4 h-4 text-zinc-400 hover:text-zinc-300 cursor-pointer" />
-                <ExternalLink className="w-4 h-4 text-zinc-400 hover:text-zinc-300 cursor-pointer" />
+                <HelpCircle className="w-4 h-4 text-muted-foreground hover:text-foreground cursor-pointer" />
+                <ExternalLink className="w-4 h-4 text-muted-foreground hover:text-foreground cursor-pointer" />
               </div>
             </div>
 
             {/* Search Bar */}
-            <div className="p-4 border-b border-zinc-800">
+            <div className="p-4 border-b">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-zinc-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
                   type="text"
                   placeholder="Search"
-                  className="w-full bg-zinc-900 border border-zinc-700 rounded-lg pl-10 pr-4 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full bg-background border border-input rounded-lg pl-10 pr-4 py-2 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent"
                 />
               </div>
             </div>
 
             {/* New Button */}
-            <div className="p-4 border-b border-zinc-800">
+            <div className="p-4 border-b">
               <Button variant={"ghost"} onClick={() => setIsModalOpen(true)}>
                 <Plus className="w-4 h-4" />
                 <span className="text-sm font-medium">New</span>
@@ -126,7 +126,7 @@ const TabbedSidebar = ({ currentWorkspace }: Props) => {
               collections.map((collection) => {
                 return (
                   <div
-                    className="flex flex-col justify-start items-start p-3 border-b border-zinc-800"
+                    className="flex flex-col justify-start items-start p-3 border-b"
                     key={collection.id}
                   >
                     {/* passing collection as prop to show in folder-style ui */}
@@ -142,15 +142,17 @@ const TabbedSidebar = ({ currentWorkspace }: Props) => {
 
       default:
         return (
-          <div className="p-4 text-zinc-400">Select a tab to view content</div>
+          <div className="p-4 text-muted-foreground">
+            Select a tab to view content
+          </div>
         );
     }
   };
 
   return (
-    <div className="flex h-screen bg-zinc-950">
+    <div className="flex h-screen bg-background">
       {/* Sidebar */}
-      <div className="w-14 bg-zinc-900 border-r border-zinc-800 flex flex-col items-center py-4 space-y-3">
+      <div className="w-14 bg-card border-r flex flex-col items-center py-4 space-y-3">
         {/* 
         
         Sidebar ke saare items ko map karke render kar rahe hain aur click par active tab ka background change hota hai.
@@ -166,8 +168,8 @@ const TabbedSidebar = ({ currentWorkspace }: Props) => {
           transition-all duration-200 ease-in-out
           ${
             activeTab === item.label
-              ? "bg-zinc-800"
-              : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
+              ? "bg-muted"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted"
           }`}
             >
               <item.icon className="w-5 h-5" />
@@ -177,7 +179,7 @@ const TabbedSidebar = ({ currentWorkspace }: Props) => {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 bg-zinc-900 overflow-y-auto">
+      <div className="flex-1 bg-card overflow-y-auto scrollbar-light">
         {/* Tab content will render here */}
         {renderTabContent()}
       </div>

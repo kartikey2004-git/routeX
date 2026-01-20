@@ -76,17 +76,19 @@ type PlaygroundState = {
 
   updateTabFromSavedRequest: (
     tabId: string,
-    savedRequest: SavedRequest
+    savedRequest: SavedRequest,
   ) => void; // for updating a particular tab from saved request
 
   responseViewerData: ResponseData | null;
 
   setResponseViewerData: (data: ResponseData) => void;
+  clearResponseViewerData: () => void; // function to clear response data
 };
 
 export const useRequestPlaygroundStore = create<PlaygroundState>((set) => ({
   responseViewerData: null,
   setResponseViewerData: (data) => set({ responseViewerData: data }),
+  clearResponseViewerData: () => set({ responseViewerData: null }),
 
   tabs: [],
   activeTabId: null,
@@ -148,7 +150,17 @@ export const useRequestPlaygroundStore = create<PlaygroundState>((set) => ({
         state.activeTabId === id && newTabs.length > 0
           ? newTabs[0].id
           : state.activeTabId;
-      return { tabs: newTabs, activeTabId: newActive };
+
+      // Clear response data if the closed tab was active
+      const shouldClearResponse = state.activeTabId === id;
+
+      return {
+        tabs: newTabs,
+        activeTabId: newActive,
+        responseViewerData: shouldClearResponse
+          ? null
+          : state.responseViewerData,
+      };
     }),
 
   // helps in setting newActivetab by taking ( id: reqTabId) as parameters
@@ -160,7 +172,7 @@ export const useRequestPlaygroundStore = create<PlaygroundState>((set) => ({
   updateTab: (id, data) =>
     set((state) => ({
       tabs: state.tabs.map((t) =>
-        t.id === id ? { ...t, ...data, unsavedChanges: true } : t
+        t.id === id ? { ...t, ...data, unsavedChanges: true } : t,
       ),
     })),
 
@@ -169,7 +181,7 @@ export const useRequestPlaygroundStore = create<PlaygroundState>((set) => ({
   markUnsaved: (id, value) =>
     set((state) => ({
       tabs: state.tabs.map((t) =>
-        t.id === id ? { ...t, unsavedChanges: value } : t
+        t.id === id ? { ...t, unsavedChanges: value } : t,
       ),
     })),
 
@@ -233,7 +245,7 @@ export const useRequestPlaygroundStore = create<PlaygroundState>((set) => ({
         t.id === tabId
           ? {
               ...t,
-              id: savedRequest.id, // Replace temporary id with saved one
+              requestId: savedRequest.id, // Keep tab.id, update only requestId
               title: savedRequest.name,
               method: savedRequest.method,
               body: savedRequest?.body,
@@ -242,8 +254,8 @@ export const useRequestPlaygroundStore = create<PlaygroundState>((set) => ({
               url: savedRequest.url,
               unsavedChanges: false,
             }
-          : t
+          : t,
       ),
-      activeTabId: savedRequest.id, // keep active in sync
+      // Keep activeTabId pointing to tab ID, not request ID
     })),
 }));

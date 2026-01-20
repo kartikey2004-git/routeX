@@ -15,10 +15,10 @@ const RequestEditor = () => {
   // we'll get active tab with the help of active tab id
 
   return (
-    <div className="flex flex-col items-center justify-start py-4 px-2">
+    <div className="flex flex-col h-full bg-background">
       <RequestBar tab={activeTab} updateTab={updateTab} />
 
-      <div className="flex flex-1 flex-col w-full justify-start mt-4 items-center">
+      <div className="flex-1 flex-col w-full px-4 py-6">
         {/* we have to pass updateTab to track saved and unsaved tab */}
         <RequestEditorArea tab={activeTab} updateTab={updateTab} />
       </div>

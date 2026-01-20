@@ -62,7 +62,7 @@ const InviteMember = () => {
       <Hint label="Invite Member">
         <DropdownMenuTrigger asChild>
           <Button className="border border-gray-400/10 bg-gray-400/10 hover:bg-gray-400/20 text-gray-400 hover:text-gray-300">
-            <UserPlus className="size-4 text-white" />
+            <UserPlus className="size-4 text-black" />
           </Button>
         </DropdownMenuTrigger>
       </Hint>

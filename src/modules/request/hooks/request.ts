@@ -9,6 +9,7 @@ import {
   deleteRequestFromCollection,
   editRequestFromCollection,
   run,
+  runDirect,
 } from "../actions";
 import { REST_METHOD } from "@prisma/client";
 import { useRequestPlaygroundStore } from "../store/useRequestStore";
@@ -144,7 +145,7 @@ export function useEditRequest(
   collectionId: string,
   name: string,
   method: REST_METHOD,
-  url: string
+  url: string,
 ) {
   const queryClient = useQueryClient(); // directly QueryClient instance ka access
 
@@ -184,6 +185,62 @@ export function useRunRequest(requestId: string) {
 
   return useMutation({
     mutationFn: async () => await run(requestId),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["requests"] });
+      // @ts-ignore
+      setResponseViewerData(data);
+    },
+  });
+}
+
+export function useRunDirectRequest() {
+  const queryClient = useQueryClient();
+  const { setResponseViewerData, tabs, activeTabId } =
+    useRequestPlaygroundStore();
+
+  return useMutation({
+    mutationFn: async () => {
+      const activeTab = tabs.find((tab) => tab.id === activeTabId);
+      if (!activeTab) {
+        throw new Error("No active request tab found");
+      }
+
+      // Parse JSON fields if they exist, otherwise use undefined
+      let headers;
+      let parameters;
+      let body;
+
+      try {
+        headers = activeTab.headers ? JSON.parse(activeTab.headers) : undefined;
+      } catch {
+        headers = undefined;
+      }
+
+      try {
+        parameters = activeTab.parameters
+          ? JSON.parse(activeTab.parameters)
+          : undefined;
+      } catch {
+        parameters = undefined;
+      }
+
+      try {
+        body = activeTab.body ? JSON.parse(activeTab.body) : undefined;
+      } catch {
+        body = activeTab.body || undefined;
+      }
+
+      const requestData = {
+        id: activeTab.id, // Use tab.id for runDirect
+        method: activeTab.method,
+        url: activeTab.url,
+        headers,
+        parameters,
+        body,
+      };
+
+      return await runDirect(requestData);
+    },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["requests"] });
       // @ts-ignore

@@ -13,11 +13,11 @@ interface Props {
 
 const Header = ({ user }: Props) => {
   return (
-    <header className="grid grid-cols-5 grid-rows-1 gap-2 overflow-x-auto overflow-hidden p-2 border bg-zinc-900/70">
+    <header className="grid grid-cols-5 grid-rows-1 gap-2 overflow-x-auto overflow-hidden p-2 border bg-card shadow-sm">
       <div className="col-span-2 flex items-center space-x-2 ml-2 hover:cursor-pointer hover:opacity-80 font-extralight">
-        <h1 className="text-2xl font-normal select-none tracking-tight">
+        <h1 className="text-2xl font-normal select-none tracking-tight text-foreground">
           route
-          <span className="text-white">X</span>
+          <span className="text-primary">X</span>
         </h1>
       </div>
 

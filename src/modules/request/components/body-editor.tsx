@@ -174,14 +174,14 @@ const BodyEditor: React.FC<BodyEditorProps> = ({
   return (
     <div className={cn("w-full", className)}>
       <Form {...form}>
-        <div className="border border-zinc-700 rounded-lg overflow-hidden bg-zinc-900">
+        <div className="border border-slate-200 rounded-lg overflow-hidden bg-white">
           {/* Header */}
-          <div className="bg-zinc-900 border-b border-zinc-900 px-4 py-3 flex items-center justify-between">
+          <div className="bg-card border-b border-slate-200 px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <h3 className="text-sm font-medium text-zinc-200">
+              <h3 className="text-sm font-medium text-slate-700">
                 Raw Request Body
               </h3>
-              <div className="flex items-center gap-2 text-xs text-zinc-400">
+              <div className="flex items-center gap-2 text-slate-500">
                 <span>Content Type</span>
                 <FormField
                   control={form.control}
@@ -193,16 +193,16 @@ const BodyEditor: React.FC<BodyEditorProps> = ({
                         defaultValue={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger className="w-[180px] h-7 bg-zinc-700 border-zinc-600 text-xs">
+                          <SelectTrigger className="w-[180px] h-7 bg-white border border-slate-200 text-xs">
                             <SelectValue />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="bg-zinc-800 border-zinc-600">
+                        <SelectContent className="bg-white border border-slate-200">
                           {contentTypeOptions.map((option) => (
                             <SelectItem
                               key={option.value}
                               value={option.value}
-                              className="text-xs hover:bg-zinc-700 focus:bg-zinc-700"
+                              className="text-xs hover:bg-slate-100 focus:bg-slate-100"
                             >
                               <div className="flex items-center gap-2">
                                 <option.icon className="h-3 w-3" />
@@ -225,15 +225,15 @@ const BodyEditor: React.FC<BodyEditorProps> = ({
                   size="sm"
                   onClick={handleGenerateClick}
                   disabled={isPending}
-                  className="h-7 px-2 text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700"
+                  className="h-7 px-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100"
                   title="Generate JSON Body"
                 >
                   <Sparkles
                     className={cn(
                       "h-3 w-3",
                       isPending
-                        ? "animate-spin text-zinc-400"
-                        : "text-green-400"
+                        ? "animate-spin text-slate-500"
+                        : "text-green-600",
                     )}
                   />
                 </Button>
@@ -291,7 +291,7 @@ const BodyEditor: React.FC<BodyEditorProps> = ({
                           ? "json"
                           : "plaintext"
                       }
-                      theme="vs-dark"
+                      theme="vs-light"
                       options={{
                         automaticLayout: true,
                         minimap: { enabled: false },
@@ -315,15 +315,15 @@ const BodyEditor: React.FC<BodyEditorProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="bg-zinc-900 border-t border-zinc-700 px-4 py-3 flex items-center justify-between">
-            <div className="text-xs text-zinc-400">
+          <div className="bg-card border-t border-slate-200 px-4 py-3 flex items-center justify-between">
+            <div className="text-xs text-slate-500">
               Lines: {bodyValue?.split("\n").length || 0} | Characters:{" "}
               {bodyValue?.length || 0}
             </div>
             <Button
               type="button"
               size="sm"
-              className="bg-black/10 hover:bg-black/30 text-white/70 h-7"
+              className="bg-black hover:bg-black/90 text-primary-foreground h-7"
               onClick={() => form.handleSubmit(onSubmit)()}
             >
               Update Body
@@ -334,7 +334,7 @@ const BodyEditor: React.FC<BodyEditorProps> = ({
 
       {/* Generate JSON Dialog */}
       <Dialog open={showGenerateDialog} onOpenChange={setShowGenerateDialog}>
-        <DialogContent className="sm:max-w-[425px] bg-zinc-900 text-zinc-100 border-zinc-800">
+        <DialogContent className="sm:max-w-[425px] bg-white text-slate-900 border-slate-200">
           <DialogHeader>
             <DialogTitle>Generate JSON Body</DialogTitle>
           </DialogHeader>
@@ -347,7 +347,7 @@ const BodyEditor: React.FC<BodyEditorProps> = ({
                 id="prompt"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                className="bg-zinc-800 border-zinc-700"
+                className="bg-white border border-slate-200"
                 placeholder="e.g., Create a user registration body with email and password"
               />
             </div>
@@ -357,7 +357,7 @@ const BodyEditor: React.FC<BodyEditorProps> = ({
               type="button"
               variant="outline"
               onClick={() => setShowGenerateDialog(false)}
-              className="border-zinc-700 text-zinc-300"
+              className="border-slate-200 text-slate-600"
             >
               Cancel
             </Button>

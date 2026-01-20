@@ -19,13 +19,13 @@ const Page = () => {
   // now we have to fetch data of the currently selected workspace , so we have to pass its workspaceId to the useGetWorkspace as a prop.
 
   const { data: currentWorkspace, isPending } = useGetWorkspace(
-    selectedWorkspace?.id ?? ""
+    selectedWorkspace?.id ?? "",
   );
 
   if (isPending) {
     return (
-      <div className="flex flex-col items-center justify-center h-full">
-        <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
+      <div className="flex flex-col items-center justify-center h-full bg-slate-50/80 backdrop-blur-sm">
+        <Loader2 className="w-6 h-6 text-slate-600 animate-spin" />
       </div>
     );
   }
@@ -36,11 +36,11 @@ const Page = () => {
 
   return (
     <ResizablePanelGroup direction="horizontal">
-      {/* Sidebar first */}
+      {/* Collection Folder / Sidebar */}
       <ResizablePanel
-        defaultSize={35}
-        maxSize={40}
-        minSize={25}
+        defaultSize={25}
+        minSize={20}
+        maxSize={35}
         className="flex"
       >
         <div className="flex-1">
@@ -48,10 +48,10 @@ const Page = () => {
         </div>
       </ResizablePanel>
 
-      <ResizableHandle className="w-[2px] bg-zinc-800 hover:bg-indigo-500 transition-colors duration-200 ease-in-out mr-1" />
+      <ResizableHandle withHandle />
 
-      {/* Playground second */}
-      <ResizablePanel defaultSize={65} minSize={40}>
+      {/* Request Playground */}
+      <ResizablePanel defaultSize={75} minSize={50}>
         <RequestPlayground />
       </ResizablePanel>
     </ResizablePanelGroup>

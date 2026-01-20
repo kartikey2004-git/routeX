@@ -16,9 +16,9 @@ const TabbedLeftPanel = () => {
   ];
 
   return (
-    <div className="flex h-screen bg-zinc-950">
+    <div className="flex h-screen bg-slate-50">
       {/* Sidebar */}
-      <div className="w-12 bg-zinc-900 border-r border-zinc-800 flex flex-col items-center py-4 space-y-4">
+      <div className="w-12 bg-white border border-slate-200 rounded-lg shadow-sm flex flex-col items-center py-4 space-y-4">
         {sidebarItems.map((item, index) => (
           <Hint label={item.label} key={index} side="right">
             <Link
@@ -26,8 +26,8 @@ const TabbedLeftPanel = () => {
               key={index}
               className={`w-8 h-8 rounded-sm flex items-center justify-center cursor-pointer transition-colors ${
                 activeTab === item.label
-                  ? "bg-zinc-800"
-                  : "text-zinc-400 hover:text-zinc-300 hover:bg-zinc-800"
+                  ? "bg-muted"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
               }`}
             >
               <item.icon className="w-4 h-4" />

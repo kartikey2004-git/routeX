@@ -44,7 +44,7 @@ const SaveRequestToCollectionModal = ({
   // state for handling the selected collection Id by default collection Id hum props se le lenge
 
   const [selectedCollectionId, setSelectedCollectionId] = useState<string>(
-    collectionId || ""
+    collectionId || "",
   );
 
   // state for input search text which used for rendering filtering collections
@@ -102,13 +102,13 @@ const SaveRequestToCollectionModal = ({
 
   const filteredCollections =
     collections?.filter((collection) =>
-      collection.name.toLowerCase().includes(searchTerm.toLowerCase())
+      collection.name.toLowerCase().includes(searchTerm.toLowerCase()),
     ) || [];
 
   // check kar rahe hain agar collections me se koi collection  selectedCollectionId ke saath match karta hai, toh usko selectedCollection krdenge ( show selected collection name here )
 
   const selectedCollection = collections?.find(
-    (c) => c.id === selectedCollectionId
+    (c) => c.id === selectedCollectionId,
   );
 
   const handleSubmit = async () => {
@@ -135,7 +135,7 @@ const SaveRequestToCollectionModal = ({
       });
 
       toast.success(
-        `Request saved to "${selectedCollection?.name}" collection`
+        `Request saved to "${selectedCollection?.name}" collection`,
       );
       setIsModalOpen(false);
     } catch (error) {
@@ -156,7 +156,7 @@ const SaveRequestToCollectionModal = ({
     >
       <div className="space-y-4">
         <div>
-          <Label className="block text-sm font-medium mb-2 text-zinc-200">
+          <Label className="block text-sm font-medium mb-2 text-foreground">
             Request name
           </Label>
 
@@ -167,7 +167,7 @@ const SaveRequestToCollectionModal = ({
               value={requestName}
               onChange={(e) => setRequestName(e.target.value)}
               autoFocus
-              className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent pr-20"
+              className="w-full p-3 bg-background border border-input rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent pr-20"
               placeholder="Enter request name..."
             />
 
@@ -187,12 +187,12 @@ const SaveRequestToCollectionModal = ({
 
         {/* select collection in workspace for particular request */}
         <div>
-          <Label className="block text-sm font-medium mb-2 text-zinc-200">
+          <Label className="block text-sm font-medium mb-2 text-foreground">
             Select collection
           </Label>
 
           {/* selected workspace name */}
-          <div className="flex items-center space-x-2 text-sm text-zinc-400 mb-3">
+          <div className="flex items-center space-x-2 text-sm text-muted-foreground mb-3">
             <span>{selectedWorkspace?.name || "workspace"}</span>
             <span>›</span>
             <span>Collections</span>
@@ -201,11 +201,11 @@ const SaveRequestToCollectionModal = ({
           {/* input for searching particular collection in workspace to adding req */}
 
           <div className="relative mb-3">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-zinc-500" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               type="text"
               placeholder="Search"
-              className="w-full bg-zinc-800 border border-zinc-700 rounded-lg pl-10 pr-4 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full bg-background border border-input rounded-lg pl-10 pr-4 py-2 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -218,8 +218,8 @@ const SaveRequestToCollectionModal = ({
 
             {isLoading ? (
               <div className="flex items-center justify-center py-8">
-                <div className="w-5 h-5 border-2 border-zinc-600 border-t-indigo-500 rounded-full animate-spin"></div>
-                <span className="ml-2 text-sm text-zinc-400">
+                <div className="w-5 h-5 border-2 border-muted-foreground border-t-primary rounded-full animate-spin"></div>
+                <span className="ml-2 text-sm text-muted-foreground">
                   Loading collections...
                 </span>
               </div>
@@ -232,7 +232,7 @@ const SaveRequestToCollectionModal = ({
             ) : // state When there is no collections in workspace
 
             filteredCollections.length === 0 ? (
-              <div className="text-center py-4 text-zinc-500 text-sm">
+              <div className="text-center py-4 text-muted-foreground text-sm">
                 {searchTerm
                   ? "No collections found"
                   : "No collections available"}
@@ -253,27 +253,25 @@ const SaveRequestToCollectionModal = ({
                   className={`flex items-center justify-between p-3  cursor-pointer rounded-md transition-all duration-200 ${
                     selectedCollectionId === collection.id
                       ? "bg-accent/40 border border-accent/60  tracking-wide shadow-sm "
-                      : "border border-transparent hover:border-accent/30 hover:bg-zinc-800/40 hover:shadow-md hover:shadow-accent/10"
+                      : "border border-transparent hover:border-border hover:bg-muted/50 hover:shadow-md hover:shadow-border/10"
                   }`}
                 >
                   <div className="flex items-center space-x-3">
                     {selectedCollectionId === collection.id ? (
                       <div>
-                        <ChevronRight className="w-4 h-4"/>
+                        <ChevronRight className="w-4 h-4" />
                       </div>
                     ) : (
-                      <Folder className="w-4 h-4 text-zinc-400" />
+                      <Folder className="w-4 h-4 text-muted-foreground" />
                     )}
-                    <span
-                      className={`text-sm font-light`}
-                    >
+                    <span className={`text-sm font-light`}>
                       {collection.name}
                     </span>
                   </div>
 
                   <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                      <span className="text-zinc-500">⋯</span>
+                      <span className="text-muted-foreground">⋯</span>
                     </Button>
                   </div>
                 </div>
@@ -285,22 +283,20 @@ const SaveRequestToCollectionModal = ({
         {/* Selected Collection Preview : means yaha pr preview dikhega ki request kis collection mein save hogi */}
 
         {selectedCollection && (
-          <div className="p-3 bg-zinc-800/50 rounded-lg border border-zinc-700">
+          <div className="p-3 bg-muted/50 rounded-lg border border-border">
             <div className="flex items-center space-x-2 text-sm">
-              <span className="text-zinc-400">Saving to:</span>
+              <span className="text-muted-foreground">Saving to:</span>
               <Folder className="w-4 h-4" />
-              <span className="font-light">
-                {selectedCollection.name}
-              </span>
+              <span className="font-light">{selectedCollection.name}</span>
             </div>
           </div>
         )}
 
         {/* URL Preview (Optional) */}
-        <div className="p-2 bg-zinc-900 rounded border border-zinc-700">
+        <div className="p-2 bg-card rounded border border-border">
           <div className="flex items-center space-x-2 text-xs">
-            <span className="text-zinc-500">URL:</span>
-            <span className="text-zinc-300 truncate">{requestData.url}</span>
+            <span className="text-muted-foreground">URL:</span>
+            <span className="text-foreground truncate">{requestData.url}</span>
           </div>
         </div>
       </div>

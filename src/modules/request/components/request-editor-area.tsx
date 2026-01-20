@@ -26,12 +26,22 @@ const RequestEditorArea = ({ tab, updateTab }: Props) => {
 
   const getHeadersData = () => {
     const parsed = parseKeyValueData(tab.headers);
-    return parsed.length > 0 ? parsed : [{ key: "", value: "", enabled: true }];
+    return parsed.length > 0
+      ? parsed
+      : [
+          { key: "", value: "", enabled: true },
+          { key: "", value: "", enabled: true },
+        ];
   };
 
   const getParametersData = () => {
     const parsed = parseKeyValueData(tab.parameters);
-    return parsed.length > 0 ? parsed : [{ key: "", value: "", enabled: true }];
+    return parsed.length > 0
+      ? parsed
+      : [
+          { key: "", value: "", enabled: true },
+          { key: "", value: "", enabled: true },
+        ];
   };
 
   const getBodyData = () => {
@@ -42,20 +52,22 @@ const RequestEditorArea = ({ tab, updateTab }: Props) => {
   };
 
   const handleHeadersChange = (
-    data: { key: string; value: string; enabled?: boolean }[]
+    data: { key: string; value: string; enabled?: boolean }[],
   ) => {
     const filteredHeaders = data.filter(
-      (item) => item.enabled !== false && (item.key.trim() || item.value.trim())
+      (item) =>
+        item.enabled !== false && (item.key.trim() || item.value.trim()),
     );
     updateTab(tab.id, { headers: JSON.stringify(filteredHeaders) });
     toast.success("Headers updated successfully");
   };
 
   const handleParametersChange = (
-    data: { key: string; value: string; enabled?: boolean }[]
+    data: { key: string; value: string; enabled?: boolean }[],
   ) => {
     const filteredParams = data.filter(
-      (item) => item.enabled !== false && (item.key.trim() || item.value.trim())
+      (item) =>
+        item.enabled !== false && (item.key.trim() || item.value.trim()),
     );
     updateTab(tab.id, { parameters: JSON.stringify(filteredParams) });
     toast.success("Parameters updated successfully");
@@ -69,17 +81,26 @@ const RequestEditorArea = ({ tab, updateTab }: Props) => {
   return (
     <Tabs
       defaultValue="parameters"
-      className="bg-zinc-900 rounded-md w-full px-4 py-4"
+      className="bg-card border rounded-sm w-full px-6 py-6 shadow-sm"
     >
-      <TabsList className="bg-zinc-800 rounded-t-md">
-        <TabsTrigger value="parameters" className="flex-1">
-          Parameters
+      <TabsList className="bg-muted rounded-lg p-1 mb-6">
+        <TabsTrigger
+          value="parameters"
+          className="flex-1 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-sm transition-all"
+        >
+          <span className="font-medium text-foreground">Parameters</span>
         </TabsTrigger>
-        <TabsTrigger value="headers" className="flex-1">
-          Headers
+        <TabsTrigger
+          value="headers"
+          className="flex-1 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-sm transition-all"
+        >
+          <span className="font-medium text-foreground">Headers</span>
         </TabsTrigger>
-        <TabsTrigger value="body" className="flex-1">
-          Body
+        <TabsTrigger
+          value="body"
+          className="flex-1 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-sm transition-all"
+        >
+          <span className="font-medium text-foreground">Body</span>
         </TabsTrigger>
       </TabsList>
 

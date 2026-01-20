@@ -50,7 +50,7 @@ const SearchBar = () => {
   const filtered = workspaces.filter((w: Workspace) =>
     // lowercase me filter kar rahe hain (case-insensitive search)
 
-    w.name.toLowerCase().includes(search.toLowerCase())
+    w.name.toLowerCase().includes(search.toLowerCase()),
   );
 
   // Open workspace on click
@@ -93,7 +93,7 @@ const SearchBar = () => {
       {/* Compact search bar UI on navbar  */}
       <button
         onClick={() => setOpen(true)}
-        className="relative flex flex-1 cursor-text items-center justify-between self-stretch rounded bg-zinc-900 px-4 py-2 text-gray-500 transition hover:bg-zinc-800 hover:text-gray-200 focus-visible:bg-zinc-700 focus-visible:text-gray-200 overflow-hidden"
+        className="relative flex flex-1 cursor-text items-center justify-between self-stretch rounded bg-muted px-4 py-2 text-muted-foreground transition hover:bg-muted/80 hover:text-foreground focus-visible:bg-accent focus-visible:text-foreground overflow-hidden"
       >
         <span className="inline-flex flex-1 items-center">
           <Search size={16} className="mr-2" />
@@ -102,39 +102,39 @@ const SearchBar = () => {
 
         {/* Keyboard shortcut hint */}
         <span className="flex space-x-1">
-          <kbd className="px-1 py-0.5 text-xs bg-zinc-700 rounded">Ctrl</kbd>
-          <kbd className="px-1 py-0.5 text-xs bg-zinc-700 rounded">K</kbd>
+          <kbd className="px-1 py-0.5 text-xs bg-border rounded">Ctrl</kbd>
+          <kbd className="px-1 py-0.5 text-xs bg-border rounded">K</kbd>
         </span>
       </button>
 
       {/* Command Dialog (opens when Ctrl+K or clicked) */}
 
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <div className="bg-zinc-900 border border-zinc-800">
+        <div className="bg-card border rounded-lg">
           {/* Input field for searching workspaces */}
           <CommandInput
             placeholder="Search workspaces..."
             value={search}
             onValueChange={setSearch}
-            className="bg-transparent border-none text-gray-300 placeholder:text-gray-500"
+            className="bg-transparent border-none text-foreground placeholder:text-muted-foreground"
           />
 
           {/* Workspace list container */}
           <CommandList>
             {isLoading && (
               <div className="p-2 text-sm">
-                <Loader2 className="w-6 h-6 text-indigo-400 animate-spin" />
+                <Loader2 className="w-6 h-6 text-primary animate-spin" />
               </div>
             )}
 
             {isError && (
-              <div className="p-2 text-sm text-red-500">
+              <div className="p-2 text-sm text-destructive">
                 Error loading workspaces
               </div>
             )}
 
             {recentSearches.length === 0 && search.trim() === "" && (
-              <div className="text-gray-500 py-6 text-center">
+              <div className="text-muted-foreground py-6 text-center">
                 Search routeX
               </div>
             )}
@@ -147,7 +147,10 @@ const SearchBar = () => {
                       key={ws.id}
                       onSelect={() => handleOpenWorkspace(ws)}
                     >
-                      <Clock size={14} className="mt-0.5 text-gray-500" />
+                      <Clock
+                        size={14}
+                        className="mt-0.5 text-muted-foreground"
+                      />
                       <div className="flex flex-col">
                         <span>{ws.name}</span>
                         <span className="text-sm text-muted-foreground">
@@ -172,10 +175,10 @@ const SearchBar = () => {
                           onSelect={() => handleOpenWorkspace(w)}
                         >
                           <div className="flex flex-col">
-                            <span className="font-medium text-white">
+                            <span className="font-medium text-foreground">
                               {w.name}
                             </span>
-                            <span className="text-gray-400 text-xs">
+                            <span className="text-muted-foreground text-xs">
                               {w.description || "No description"}
                             </span>
                           </div>
@@ -190,26 +193,26 @@ const SearchBar = () => {
 
           {/* Keyboard navigation hints at the bottom */}
 
-          <div className="flex items-center justify-between px-3 py-2 border-t border-zinc-800 bg-zinc-900">
-            <div className="flex items-center space-x-4 text-xs text-gray-500">
+          <div className="flex items-center justify-between px-3 py-2 border-t bg-card">
+            <div className="flex items-center space-x-4 text-xs text-muted-foreground">
               <div className="flex items-center space-x-1">
-                <kbd className="px-1.5 py-0.5 bg-zinc-800 text-gray-400 rounded text-xs">
+                <kbd className="px-1.5 py-0.5 bg-muted text-foreground rounded text-xs">
                   ↑
                 </kbd>
-                <kbd className="px-1.5 py-0.5 bg-zinc-800 text-gray-400 rounded text-xs">
+                <kbd className="px-1.5 py-0.5 bg-muted text-foreground rounded text-xs">
                   ↓
                 </kbd>
                 <span>to navigate</span>
               </div>
               <div className="flex items-center space-x-1">
-                <kbd className="px-1.5 py-0.5 bg-zinc-800 text-gray-400 rounded text-xs">
+                <kbd className="px-1.5 py-0.5 bg-muted text-foreground rounded text-xs">
                   ↵
                 </kbd>
                 <span>to select</span>
               </div>
             </div>
-            <div className="flex items-center space-x-1 text-xs text-gray-500">
-              <kbd className="px-1.5 py-0.5 bg-zinc-800 text-gray-400 rounded text-xs">
+            <div className="flex items-center space-x-1 text-xs text-muted-foreground">
+              <kbd className="px-1.5 py-0.5 bg-muted text-foreground rounded text-xs">
                 ESC
               </kbd>
               <span>to close</span>

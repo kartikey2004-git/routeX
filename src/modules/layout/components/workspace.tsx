@@ -45,13 +45,11 @@ const Workspace = () => {
   }, [workspaces, selectedWorkspace, setSelectedWorkspace]);
 
   if (isLoading) {
-    return <Loader2 className="animate-spin size-4 text-blue-400" />;
+    return <Loader2 className="animate-spin size-4 text-primary" />;
   }
 
   if (!workspaces || workspaces.length === 0) {
-    return (
-      <div className="font-semibold text-blue-400">No Workspace Found</div>
-    );
+    return <div className="font-semibold text-primary">No Workspace Found</div>;
   }
 
   return (
@@ -67,7 +65,7 @@ const Workspace = () => {
           }}
         >
           <SelectTrigger className="border flex flex-row items-center space-x-1">
-            <User className="size-4 text-white" />
+            <User className="size-4 text-primary" />
             <span className="text-sm  font-semibold">
               <SelectValue placeholder="Select workspace" />
 
@@ -81,10 +79,10 @@ const Workspace = () => {
                 })}
 
                 <Separator className="my-1" />
-                <div className="flex items-center justify-between text-sm font-semibold text-zinc-600">
+                <div className="flex items-center justify-between text-sm font-semibold text-muted-foreground">
                   {/* here show all created workspaces and all workspaces where we are a member */}
 
-                  <span className="text-sm ml-1 font-semibold text-zinc-500">
+                  <span className="text-sm ml-1 font-semibold text-muted-foreground">
                     My Workspaces
                   </span>
 

@@ -46,21 +46,21 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
           <Header user={user} /> {/* main section of our app */}
           <main className="max-h-[calc(100vh-4rem)] h-[calc(100vh-4rem)] flex flex-1 overflow-hidden">
             <div className="flex h-full w-full">
-              <div className="flex-1 bg-zinc-900">{children}</div>
+              <div className="flex-1 bg-slate-50">{children}</div>
 
-              <div className="border-l border-zinc-700"></div>
+              <div className="border-l border-slate-200"></div>
 
-              <div className="w-12 border-zinc-800 bg-zinc-900">
+              <div className="w-12 border-slate-200 bg-white">
                 {/* Tabbed left panel */}
                 <TabbedLeftPanel />
               </div>
             </div>
           </main>
-          <footer className="w-full border-t border-white/10 bg-zinc-900/90 text-gray-300">
+          <footer className="w-full border-t border-slate-200 bg-slate-50 text-slate-600">
             <div className="max-w-6xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
               {/* Left Section */}
-              <div className="text-sm text-gray-400">
-                © {new Date().getFullYear()} routeX. All rights reserved.
+              <div className="text-sm text-slate-500">
+                &copy; {new Date().getFullYear()} routeX. All rights reserved.
               </div>
 
               <TooltipProvider>
@@ -72,7 +72,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
                         href="https://www.linkedin.com/in/kartikey-bhatnagar-2702a4337"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hover:text-white transition-colors duration-200"
+                        className="hover:text-slate-900 transition-colors duration-200"
                       >
                         <Linkedin className="h-5 w-5" />
                       </a>
@@ -87,7 +87,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
                     <TooltipTrigger asChild>
                       <a
                         href="mailto:kartikeybhatnagar247@gmail.com"
-                        className="hover:text-white transition-colors duration-200"
+                        className="hover:text-slate-900 transition-colors duration-200"
                       >
                         <Mail className="h-5 w-5" />
                       </a>

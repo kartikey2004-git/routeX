@@ -74,7 +74,7 @@ const AddNameModal = ({
           {/* input for renaming tab title */}
 
           <Input
-            className="w-full p-2 border rounded bg-zinc-900 text-white"
+            className="w-full p-2 border rounded bg-white border-slate-200 text-slate-900"
             placeholder="Request Name..."
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -118,11 +118,13 @@ const AddNameModal = ({
             {suggestions.map((suggestion, index) => (
               <div
                 key={index}
-                className="flex flex-row justify-between items-center p-2 border rounded bg-zinc-900 hover:bg-zinc-800 cursor-pointer"
+                className="flex flex-row justify-between items-center p-2 border rounded bg-white hover:bg-slate-50 cursor-pointer border-slate-200"
                 onClick={() => setName(suggestion.name)}
               >
-                <span className="text-sm text-white">{suggestion.name}</span>
-                <span className="text-xs text-gray-400">
+                <span className="text-sm text-slate-900">
+                  {suggestion.name}
+                </span>
+                <span className="text-xs text-slate-500">
                   {suggestion.reasoning}
                 </span>
               </div>

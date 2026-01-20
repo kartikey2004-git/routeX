@@ -71,14 +71,14 @@ const CollectionFolder = ({ collection }: Props) => {
     isError,
   } = useGetAllRequestFromCollection(collection.id);
 
-  const { openRequestTab } = useRequestPlaygroundStore()
+  const { openRequestTab } = useRequestPlaygroundStore();
 
   const requestColorMap: Record<REST_METHOD, string> = {
-    [REST_METHOD.GET]: "text-green-500",
-    [REST_METHOD.POST]: "text-blue-500",
-    [REST_METHOD.PUT]: "text-yellow-500",
-    [REST_METHOD.DELETE]: "text-red-500",
-    [REST_METHOD.PATCH]: "text-orange-500",
+    [REST_METHOD.GET]: "text-green-600",
+    [REST_METHOD.POST]: "text-blue-600",
+    [REST_METHOD.PUT]: "text-yellow-600",
+    [REST_METHOD.DELETE]: "text-red-600",
+    [REST_METHOD.PATCH]: "text-orange-600",
   };
 
   // we have requests if we have requestData and uski length zero se jyada hai
@@ -93,21 +93,21 @@ const CollectionFolder = ({ collection }: Props) => {
         className="w-full"
       >
         <div className="flex flex-col w-full">
-          <div className="flex flex-row justify-between items-center p-2 flex-1 w-full hover:bg-zinc-900 rounded-md">
+          <div className="flex flex-row justify-between items-center p-2 flex-1 w-full hover:bg-muted rounded-md">
             {/* Collection Header */}
 
             <CollapsibleTrigger className="flex flex-row justify-start items-center space-x-2 flex-1">
               <div className="flex items-center space-x-1">
                 {isCollapsed ? (
-                  <ChevronDown className="w-4 h-4 text-zinc-400" />
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 ) : (
-                  <ChevronRight className="w-4 h-4 text-zinc-400" />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 )}
-                <Folder className="w-5 h-5 text-zinc-400" />
+                <Folder className="w-5 h-5 text-muted-foreground" />
               </div>
 
               <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium text-zinc-200 capitalize">
+                <span className="text-sm font-medium text-foreground capitalize">
                   {collection.name}
                 </span>
               </div>
@@ -115,14 +115,14 @@ const CollectionFolder = ({ collection }: Props) => {
 
             <div className="flex flex-row justify-center items-center space-x-2">
               <FilePlus
-                className="w-4 h-4 text-zinc-400 hover:text-indigo-400 cursor-pointer"
+                className="w-4 h-4 text-muted-foreground hover:text-primary cursor-pointer"
                 onClick={() => setIsAddRequestOpen(true)}
               />
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="p-1 hover:bg-zinc-800 rounded">
-                    <EllipsisVertical className="w-4 h-4 text-zinc-400 hover:text-indigo-400" />
+                  <button className="p-1 hover:bg-muted rounded">
+                    <EllipsisVertical className="w-4 h-4 text-muted-foreground hover:text-primary" />
                   </button>
                 </DropdownMenuTrigger>
 
@@ -138,10 +138,10 @@ const CollectionFolder = ({ collection }: Props) => {
                   <DropdownMenuItem onClick={() => setIsAddRequestOpen(true)}>
                     <div className="flex flex-row justify-between items-center w-full">
                       <div className="font-semibold flex justify-center items-center">
-                        <FilePlus className="text-green-400 mr-2 w-4 h-4" />
+                        <FilePlus className="text-green-600 mr-2 w-4 h-4" />
                         Add Request
                       </div>
-                      <span className="text-xs text-zinc-400 bg-zinc-700 px-1 rounded">
+                      <span className="text-xs text-muted-foreground bg-muted px-1 rounded">
                         ⌘R
                       </span>
                     </div>
@@ -149,10 +149,10 @@ const CollectionFolder = ({ collection }: Props) => {
                   <DropdownMenuItem onClick={() => setIsEditOpen(true)}>
                     <div className="flex flex-row justify-between items-center w-full">
                       <div className="font-semibold flex justify-center items-center">
-                        <Edit className="text-blue-400 mr-2 w-4 h-4" />
+                        <Edit className="text-blue-600 mr-2 w-4 h-4" />
                         Edit
                       </div>
-                      <span className="text-xs text-zinc-400 bg-zinc-700 px-1 rounded">
+                      <span className="text-xs text-muted-foreground bg-muted px-1 rounded">
                         ⌘E
                       </span>
                     </div>
@@ -160,10 +160,10 @@ const CollectionFolder = ({ collection }: Props) => {
                   <DropdownMenuItem onClick={() => setIsDeleteOpen(true)}>
                     <div className="flex flex-row justify-between items-center w-full">
                       <div className="font-semibold flex justify-center items-center">
-                        <Trash className="text-red-400 mr-2 w-4 h-4" />
+                        <Trash className="text-red-600 mr-2 w-4 h-4" />
                         Delete
                       </div>
-                      <span className="text-xs text-zinc-400 bg-zinc-700 px-1 rounded">
+                      <span className="text-xs text-muted-foreground bg-muted px-1 rounded">
                         ⌘D
                       </span>
                     </div>
@@ -179,19 +179,19 @@ const CollectionFolder = ({ collection }: Props) => {
             {isPending ? (
               <div className="pl-8 py-2">
                 <div className="flex items-center space-x-2">
-                  <Loader2 size={16} className="text-indigo-400 animate-spin" />
+                  <Loader2 size={16} className="text-primary animate-spin" />
                 </div>
               </div>
             ) : isError ? (
               // Error state agar requests of particular collection nahi aa rhe
 
               <div className="pl-8 py-2">
-                <span className="text-xs text-red-400">
+                <span className="text-xs text-destructive">
                   Failed to load requests
                 </span>
               </div>
             ) : hasRequests ? (
-              <div className="ml-6 border-l border-zinc-800 pl-4 space-y-1">
+              <div className="ml-6 border-l border pl-4 space-y-1">
                 {requestData.map((request: any) => {
                   // console.log(requestData);
 
@@ -201,7 +201,7 @@ const CollectionFolder = ({ collection }: Props) => {
                     <div
                       key={request.id}
                       onClick={() => openRequestTab(request)}
-                      className="flex items-center justify-between py-2 px-3 hover:bg-zinc-900/50 rounded-md cursor-pointer group transition-colors"
+                      className="flex items-center justify-between py-2 px-3 hover:bg-muted/50 rounded-md cursor-pointer group transition-colors"
                     >
                       <div className="flex items-center space-x-3 flex-1">
                         <div className="flex items-center space-x-2">
@@ -215,16 +215,16 @@ const CollectionFolder = ({ collection }: Props) => {
                             {request.method}
                           </span>
 
-                          <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse shadow-sm shadow-green-400/50"></div>
+                          <div className="w-1.5 h-1.5 bg-green-600 rounded-full animate-pulse shadow-sm shadow-green-600/50"></div>
                         </div>
 
                         <div className="flex flex-col flex-1 min-w-0">
-                          <span className="text-sm text-zinc-200 truncate font-medium">
+                          <span className="text-sm text-foreground truncate font-medium">
                             {request.name || request.url}
                           </span>
 
                           {request.url && request.name && (
-                            <span className="text-xs text-zinc-500 truncate">
+                            <span className="text-xs text-muted-foreground truncate">
                               {request.url}
                             </span>
                           )}
@@ -236,8 +236,8 @@ const CollectionFolder = ({ collection }: Props) => {
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <button className="p-1 hover:bg-zinc-800 rounded">
-                              <EllipsisVertical className="w-3 h-3 text-zinc-400" />
+                            <button className="p-1 hover:bg-muted rounded">
+                              <EllipsisVertical className="w-3 h-3 text-muted-foreground" />
                             </button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent className="w-32">
@@ -247,7 +247,7 @@ const CollectionFolder = ({ collection }: Props) => {
                                 setIsEditReqOpen(true);
                               }}
                             >
-                              <Edit className="text-blue-400 mr-2 w-3 h-3" />
+                              <Edit className="text-blue-600 mr-2 w-3 h-3" />
                               Edit
                             </DropdownMenuItem>
                             <DropdownMenuItem
@@ -256,7 +256,7 @@ const CollectionFolder = ({ collection }: Props) => {
                                 setIsDelReqOpen(true);
                               }}
                             >
-                              <Trash className="text-red-400 mr-2 w-3 h-3" />
+                              <Trash className="text-red-600 mr-2 w-3 h-3" />
                               Delete
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -297,7 +297,7 @@ const CollectionFolder = ({ collection }: Props) => {
               </div>
             ) : (
               <div className="pl-8 py-2">
-                <span className="text-xs text-zinc-500 italic">
+                <span className="text-xs text-muted-foreground italic">
                   No requests yet
                 </span>
               </div>
