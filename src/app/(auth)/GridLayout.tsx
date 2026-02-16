@@ -17,9 +17,12 @@ export default function GridLayout({
         <div className="border-r border-white/10">
           {sections.map((child, index) => {
             const childWithIndex = React.isValidElement(child)
-              ? React.cloneElement(child as React.ReactElement<any>, {
-                  index: index + 1,
-                })
+              ? React.cloneElement(
+                  child as React.ReactElement<{ index?: number }>,
+                  {
+                    index: index + 1,
+                  },
+                )
               : child;
 
             return <div key={index}>{childWithIndex}</div>;

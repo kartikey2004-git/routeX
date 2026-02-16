@@ -599,7 +599,7 @@ export default function Page() {
             {/* CENTER QUOTE */}
             <div className="p-12 border-r border-white/10 flex flex-col justify-center transition-all duration-500 ease-in-out">
               <div className="text-white/90 leading-relaxed text-lg mb-8 transition-opacity duration-500">
-                "{testimonials[currentTestimonial].content}"
+                &ldquo;{testimonials[currentTestimonial].content}&rdquo;
               </div>
 
               <div className="space-y-2">
