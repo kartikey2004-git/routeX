@@ -1,4 +1,4 @@
-// Yeh Prisma client generate karega jo JS/TS code me use hota hai matlab DB ko directly JS/TS code ke through access kar payenge
+// Prisma client generates JavaScript/TypeScript code that allows direct access to the database.
 
 generator client {
  provider = "prisma-client-js"
@@ -6,14 +6,10 @@ generator client {
 
 datasource db {
  provider = "postgresql"
- // Database ka provider PostgreSQL hai
-
  url = env("DATABASE_URL")
-
- // DATABASE_URL environment variable se DB ka connection string aayega isme DB ka host, username, password, port, etc. hota hai
 }
 
-// cuid: Prisma ka built-in function hai jo unique string ID generate karta hai jo globally unique hota hai, collision chance almost zero.
+// cuid: Prisma's built-in function that generates a unique string ID that is globally unique with almost zero collision chance.
 
 model Test {
  id   String @id @default(cuid())
@@ -91,7 +87,7 @@ model Workspace {
  name        String  
  description String?
  ownerId     String
- owner       User    @relation("UserWorkspaces", fields: [ownerId], references: [id]) // for making relation with all the users
+ owner       User    @relation("UserWorkspaces", fields: [ownerId], references: [id])
 
  members     WorkspaceMember[]
  invites     WorkspaceInvite[]
@@ -102,8 +98,6 @@ model Workspace {
 
  @@unique([name, ownerId])
 }
-
-// In this we learn more by solving small tricky problems and next level experience
 
 enum MEMBER_ROLE {
  ADMIN
@@ -142,17 +136,7 @@ model WorkspaceMember {
  @@unique([userId, workspaceId])
 }
 
-// Ab humne workspace and workspace ke members ka schema build kr liya hai 
-
-// The main work to build any app is DB design and architecture/diagram , design schema accordingly
-
-//
-/**
- * ------------Collections and Requests--------
- */
-//
-
-// A collection always belong to particular workspace and onDeleting any particular workspace , all collections related to that workspace are also deleted
+//------------Collections and Requests--------
 
 model Collection {
  id   String @id @default(cuid())
@@ -175,15 +159,11 @@ enum REST_METHOD {
  DELETE
 }
 
-// A request always belong to particular collection and onDeleting any particular collection, all requests related to that collection are also deleted
-
 model Request {
  id     String      @id @default(cuid())
  name   String
  method REST_METHOD @default(GET)
  url    String
-
- // there is no need to pass parameter, body , response and headers like authorization intially , we can pass it later when call the endpoint
 
  parameters Json?
  headers    Json?
@@ -206,12 +186,12 @@ model RequestRun {
  requestId String
  request   Request @relation(fields: [requestId], references: [id], onDelete: Cascade)
 
- status     Int // status of HTTP request
- statusText String? // status text getting in response
+ status     Int 
+ statusText String?
 
  headers    Json?
  body       Json?
- durationMs Int? // how many time taken by particular request to run (in ms)
+ durationMs Int?
 
  createdAt DateTime @default(now())
 }
