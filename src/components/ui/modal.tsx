@@ -67,7 +67,7 @@ const Modal: React.FC<ModalProps> = ({
             </Button>
             {onSubmit && (
               <Button
-                className="border border-foreground/10 bg-accent/5 text-slate-900 hover:bg-accent/50 transition-colors duration-200"
+                className="border border-border bg-accent text-accent-foreground hover:bg-accent/80 transition-colors duration-200"
                 onClick={handleSubmit}
               >
                 {submitText}

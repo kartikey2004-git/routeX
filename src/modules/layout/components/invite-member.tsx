@@ -27,11 +27,11 @@ const InviteMember = () => {
   const { selectedWorkspace } = useWorkspaceStore();
 
   const { mutateAsync, isPending } = useGenerateWorkspaceInvite(
-    selectedWorkspace?.id || ""
+    selectedWorkspace?.id || "",
   );
 
   const { data: workspaceMembers, isLoading } = useGetWorkspaceMembers(
-    selectedWorkspace?.id || ""
+    selectedWorkspace?.id || "",
   );
 
   console.log("Selected Workspace members: ", workspaceMembers);
@@ -61,8 +61,8 @@ const InviteMember = () => {
     <DropdownMenu>
       <Hint label="Invite Member">
         <DropdownMenuTrigger asChild>
-          <Button className="border border-gray-400/10 bg-gray-400/10 hover:bg-gray-400/20 text-gray-400 hover:text-gray-300">
-            <UserPlus className="size-4 text-black" />
+          <Button variant="outline" className="h-9 rounded-md">
+            <UserPlus className="size-4" />
           </Button>
         </DropdownMenuTrigger>
       </Hint>
@@ -116,7 +116,7 @@ const InviteMember = () => {
 
           {/* Generate Button */}
           <Button
-            className="mt-3 w-full bg-zinc-800 hover:bg-zinc-900 text-white font-light"
+            className="mt-3 w-full rounded-md bg-primary font-normal text-primary-foreground hover:bg-primary/90"
             onClick={generateInviteLink}
             disabled={isPending}
           >

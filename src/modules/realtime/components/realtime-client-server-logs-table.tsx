@@ -70,8 +70,8 @@ const RealtimeClientServerLogsTable = () => {
       selectedMessageIndex === -1
         ? 0
         : selectedMessageIndex + 1 < messages.length
-        ? selectedMessageIndex + 1
-        : -1;
+          ? selectedMessageIndex + 1
+          : -1;
 
     setSelectedMessageIndex(newIndex);
 
@@ -119,20 +119,20 @@ const RealtimeClientServerLogsTable = () => {
 
   const getMessageTypeIcon = (type: "sent" | "received") => {
     return type === "sent" ? (
-      <ArrowUpRight size={16} className="text-blue-400" />
+      <ArrowUpRight size={16} className="text-primary" />
     ) : (
-      <ArrowDownLeft size={16} className="text-green-400" />
+      <ArrowDownLeft size={16} className="text-green-600 dark:text-green-400" />
     );
   };
 
   return (
-    <div className="flex flex-col h-full bg-zinc-900 rounded-md">
+    <div className="flex h-full flex-col rounded-lg border border-border bg-card">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-700">
+      <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div className="flex items-center gap-2">
-          <Clock size={18} className="text-zinc-400" />
-          <h3 className="text-white font-medium">Message Logs</h3>
-          <span className="text-xs text-zinc-500">
+          <Clock size={18} className="text-muted-foreground" />
+          <h3 className="font-medium text-foreground">Message Logs</h3>
+          <span className="text-xs text-muted-foreground">
             ({messages.length} messages)
           </span>
         </div>
@@ -144,7 +144,7 @@ const RealtimeClientServerLogsTable = () => {
             size="sm"
             onClick={handleNavigateUp}
             disabled={messages.length === 0}
-            className="h-8 w-8 p-0 text-zinc-400 hover:text-white hover:bg-zinc-700"
+            className="h-8 w-8 p-0 text-muted-foreground hover:bg-muted hover:text-foreground"
             title="Navigate up (previous message)"
           >
             <ChevronUp size={16} />
@@ -155,13 +155,13 @@ const RealtimeClientServerLogsTable = () => {
             size="sm"
             onClick={handleNavigateDown}
             disabled={messages.length === 0}
-            className="h-8 w-8 p-0 text-zinc-400 hover:text-white hover:bg-zinc-700"
+            className="h-8 w-8 p-0 text-muted-foreground hover:bg-muted hover:text-foreground"
             title="Navigate down (next message)"
           >
             <ChevronDown size={16} />
           </Button>
 
-          <div className="w-px h-6 bg-zinc-700 mx-1" />
+          <div className="mx-1 h-6 w-px bg-border" />
 
           {/* Clear messages */}
           <Button
@@ -169,7 +169,7 @@ const RealtimeClientServerLogsTable = () => {
             size="sm"
             onClick={clearMessages}
             disabled={messages.length === 0}
-            className="h-8 w-8 p-0 text-zinc-400 hover:text-red-400 hover:bg-zinc-700"
+            className="h-8 w-8 p-0 text-muted-foreground hover:bg-muted hover:text-destructive"
             title="Clear all messages"
           >
             <Trash2 size={16} />
@@ -180,7 +180,7 @@ const RealtimeClientServerLogsTable = () => {
       {/* Messages Table */}
       <div ref={tableRef} className="flex-1 overflow-auto">
         {messages.length === 0 ? (
-          <div className="flex items-center justify-center h-32 text-zinc-500">
+          <div className="flex h-32 items-center justify-center text-muted-foreground">
             No messages yet. Connect to a WebSocket to see message logs.
           </div>
         ) : (
@@ -192,12 +192,12 @@ const RealtimeClientServerLogsTable = () => {
                   rowRefs.current[index] = el;
                 }}
                 className={`
-                  border-l-4 rounded-r-md p-3 cursor-pointer transition-all duration-200
+                  cursor-pointer rounded-md border border-border p-3 transition-colors duration-200
                
                   ${
                     selectedMessageIndex === index
-                      ? "ring-2 ring-zinc-400 bg-zinc-800/50"
-                      : "hover:bg-zinc-800/30"
+                      ? "bg-muted ring-1 ring-ring"
+                      : "hover:bg-muted/60"
                   }
                 `}
                 onClick={() => handleRowClick(index)}
@@ -208,17 +208,19 @@ const RealtimeClientServerLogsTable = () => {
                     <span
                       className={`text-sm font-medium capitalize ${
                         message.type === "sent"
-                          ? "text-blue-300"
-                          : "text-green-300"
+                          ? "text-primary"
+                          : "text-green-600 dark:text-green-400"
                       }`}
                     >
                       {message.type}
                     </span>
-                    <span className="text-xs text-zinc-500">#{index + 1}</span>
+                    <span className="text-xs text-muted-foreground">
+                      #{index + 1}
+                    </span>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-zinc-400">
+                    <span className="text-xs text-muted-foreground">
                       {formatTimestamp(message.timestamp)}
                     </span>
                     <Button
@@ -227,10 +229,10 @@ const RealtimeClientServerLogsTable = () => {
                       onClick={(e) => {
                         e.stopPropagation();
                         copyToClipboard(
-                          message.raw || formatMessageData(message.data)
+                          message.raw || formatMessageData(message.data),
                         );
                       }}
-                      className="h-6 w-6 p-0 text-zinc-400 hover:text-white"
+                      className="h-6 w-6 p-0 text-muted-foreground hover:bg-muted hover:text-foreground"
                       title="Copy message"
                     >
                       <Copy size={12} />
@@ -238,10 +240,10 @@ const RealtimeClientServerLogsTable = () => {
                   </div>
                 </div>
 
-                <div className="text-xs text-zinc-300">
-                  <div className="font-mono bg-zinc-800 rounded p-2 overflow-x-auto">
+                <div className="text-xs text-foreground">
+                  <div className="overflow-x-auto rounded-md border border-border bg-background p-2 font-mono">
                     {selectedMessageIndex === index ? (
-                      <pre className="whitespace-pre-wrap break-words">
+                      <pre className="whitespace-pre-wrap wrap-break-word">
                         {formatMessageData(message.data)}
                       </pre>
                     ) : (
@@ -257,10 +259,10 @@ const RealtimeClientServerLogsTable = () => {
                 {selectedMessageIndex === index &&
                   message.raw &&
                   message.raw !== formatMessageData(message.data) && (
-                    <div className="mt-2 text-xs text-zinc-400">
-                      <div className="text-zinc-500 mb-1">Raw:</div>
-                      <div className="font-mono bg-zinc-800 rounded p-2 overflow-x-auto">
-                        <pre className="whitespace-pre-wrap break-words">
+                    <div className="mt-2 text-xs text-muted-foreground">
+                      <div className="mb-1 text-muted-foreground">Raw:</div>
+                      <div className="overflow-x-auto rounded-md border border-border bg-background p-2 font-mono">
+                        <pre className="whitespace-pre-wrap wrap-break-word">
                           {message.raw}
                         </pre>
                       </div>
@@ -274,7 +276,7 @@ const RealtimeClientServerLogsTable = () => {
 
       {/* Footer with selection info */}
       {selectedMessageIndex >= 0 && (
-        <div className="px-4 py-2 border-t border-zinc-700 text-xs text-zinc-500">
+        <div className="border-t border-border px-4 py-2 text-xs text-muted-foreground">
           Message {selectedMessageIndex + 1} of {messages.length} selected
           {selectedMessageIndex < messages.length - 1 && (
             <span> • Press ↓ for next</span>

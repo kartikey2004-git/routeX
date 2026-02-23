@@ -6,7 +6,7 @@ import TabbedLeftPanel from "@/modules/workspace/components/tabbed-left-panel";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import React from "react";
-import { Github, Linkedin, Mail } from "lucide-react";
+import { Linkedin, Mail } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -44,22 +44,22 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
       {user && (
         <>
           <Header user={user} /> {/* main section of our app */}
-          <main className="max-h-[calc(100vh-4rem)] h-[calc(100vh-4rem)] flex flex-1 overflow-hidden">
+          <main className="max-h-[calc(100vh-4rem)] h-[calc(100vh-4rem)] flex flex-1 overflow-hidden bg-background">
             <div className="flex h-full w-full">
-              <div className="flex-1 bg-slate-50">{children}</div>
+              <div className="flex-1 bg-background">{children}</div>
 
-              <div className="border-l border-slate-200"></div>
+              <div className="border-l border-border"></div>
 
-              <div className="w-12 border-slate-200 bg-white">
+              <div className="w-12 border-border bg-card">
                 {/* Tabbed left panel */}
                 <TabbedLeftPanel />
               </div>
             </div>
           </main>
-          <footer className="w-full border-t border-slate-200 bg-slate-50 text-slate-600">
+          <footer className="w-full border-t border-border bg-background text-muted-foreground">
             <div className="max-w-6xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
               {/* Left Section */}
-              <div className="text-sm text-slate-500">
+              <div className="text-sm text-muted-foreground">
                 &copy; {new Date().getFullYear()} routeX. All rights reserved.
               </div>
 
@@ -72,7 +72,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
                         href="https://www.linkedin.com/in/kartikey-bhatnagar-2702a4337"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hover:text-slate-900 transition-colors duration-200"
+                        className="hover:text-foreground transition-colors duration-200"
                       >
                         <Linkedin className="h-5 w-5" />
                       </a>
@@ -87,7 +87,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
                     <TooltipTrigger asChild>
                       <a
                         href="mailto:kartikeybhatnagar247@gmail.com"
-                        className="hover:text-slate-900 transition-colors duration-200"
+                        className="hover:text-foreground transition-colors duration-200"
                       >
                         <Mail className="h-5 w-5" />
                       </a>

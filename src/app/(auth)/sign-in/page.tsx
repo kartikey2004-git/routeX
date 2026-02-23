@@ -3,8 +3,6 @@
 import GridLayout from "../GridLayout";
 import {
   Database,
-  Wallet,
-  Rocket,
   Repeat,
   ShieldCheck,
   Users,
@@ -22,12 +20,20 @@ import {
   ChevronRight,
   Linkedin,
   Instagram,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { FaGithub, FaXTwitter } from "react-icons/fa6";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Hint } from "@/components/ui/hint";
 import { authClient } from "@/lib/auth-client";
+import { useTheme } from "next-themes";
+import {
+  ThemeAnimationType,
+  useModeAnimation,
+} from "react-theme-switch-animation";
+import Image from "next/image";
 
 // Add smooth scrolling
 if (typeof window !== "undefined") {
@@ -35,6 +41,28 @@ if (typeof window !== "undefined") {
 }
 
 export default function Page() {
+  const { resolvedTheme, setTheme } = useTheme();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const isDarkTheme = resolvedTheme === "dark";
+
+  const {
+    ref: themeSwitchRef,
+    toggleSwitchTheme,
+    isDarkMode,
+  } = useModeAnimation({
+    animationType: ThemeAnimationType.BLUR_CIRCLE,
+    duration: 650,
+    blurAmount: 4,
+    globalClassName: "dark",
+    isDarkMode: isDarkTheme,
+    onDarkModeChange: (isDark) => setTheme(isDark ? "dark" : "light"),
+  });
+
   const features = [
     {
       title: "Smart API Testing",
@@ -205,6 +233,7 @@ export default function Page() {
   ];
 
   const [isSigningIn, setIsSigningIn] = useState(false);
+  const testimonialCount = testimonials.length;
 
   async function signInWithGithub() {
     try {
@@ -223,64 +252,77 @@ export default function Page() {
   // Rotate testimonials
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+      setCurrentTestimonial((prev) => (prev + 1) % testimonialCount);
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [testimonialCount]);
 
   return (
     <>
+      <div className="fixed right-4 top-4 z-50 sm:right-6 sm:top-6">
+        <button
+          ref={themeSwitchRef as React.Ref<HTMLButtonElement>}
+          type="button"
+          onClick={toggleSwitchTheme}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-card text-foreground shadow-sm transition-colors hover:bg-muted"
+          aria-label="Toggle theme"
+        >
+          {!isMounted ? (
+            <Sun className="h-4 w-4" />
+          ) : isDarkMode ? (
+            <Sun className="h-4 w-4" />
+          ) : (
+            <Moon className="h-4 w-4" />
+          )}
+        </button>
+      </div>
       <GridLayout>
         <section
           id="hero"
-          className="relative min-h-[90vh] flex items-center justify-center text-center px-4 sm:px-6"
+          className="relative flex min-h-[78dvh] items-center justify-center px-4 text-center sm:px-6"
         >
-          <div className="absolute inset-0 -z-10">
-            <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-red-500/10 blur-[140px] rounded-full" />
-          </div>
-
-          <div className="max-w-4xl mx-auto">
-            <p className="text-sm text-red-400 mb-6 mt-10 tracking-wide">
+          <div className="mx-auto max-w-4xl">
+            <p className="mb-5 mt-8 text-sm tracking-wide text-muted-foreground">
               Built for modern API developers and collaborative teams
             </p>
 
-            <h1 className="text-5xl md:text-7xl font-semibold leading-tight tracking-tight">
+            <h1 className="text-4xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
               Build, test and collaborate on{" "}
-              <span className="bg-gradient-to-r from-red-400 to-red-500 bg-clip-text text-transparent">
-                APIs
-              </span>
+              <span className="text-foreground">APIs</span>
             </h1>
 
-            <p className="mt-8 text-lg text-white/70 max-w-2xl mx-auto">
+            <p className="mx-auto mt-6 max-w-2xl text-base text-muted-foreground sm:text-lg">
               The complete API development platform with REST & WebSocket
               testing, AI-powered assistance, and real-time team collaboration.
             </p>
 
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
               <button
                 onClick={signInWithGithub}
                 disabled={isSigningIn}
                 className={cn(
-                  "flex items-center gap-2 px-8 py-6 text-base border rounded-md transition-colors",
+                  "flex items-center gap-2 rounded-md border px-6 py-4 text-sm transition-colors sm:px-8 sm:text-base",
                   isSigningIn
-                    ? "border-gray-300 bg-gray-100 text-gray-800"
-                    : "border-white/20 bg-black text-white hover:border-white/30",
+                    ? "border-border bg-muted text-muted-foreground"
+                    : "border-border bg-card text-foreground hover:bg-muted",
                 )}
               >
                 {isSigningIn ? (
                   <>
-                    <span className="w-4 h-4 border-2 border-gray-300 border-t-gray-700 rounded-full animate-spin" />
-                    <span className="text-gray-800">Redirecting...</span>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-border border-t-foreground" />
+                    <span className="text-muted-foreground">
+                      Redirecting...
+                    </span>
                   </>
                 ) : (
                   <>
                     <FaGithub className="h-4 w-4" />
-                    <span className="text-white">Continue with GitHub</span>
+                    <span>Continue with GitHub</span>
                   </>
                 )}
               </button>
 
-              <button className="px-8 py-6 text-base bg-white rounded-md text-black border text-md border-white/20 hover:scale-[1.03] active:scale-[0.97] transition-all duration-200 hover:border-white/30">
+              <button className="rounded-md border border-border bg-primary px-6 py-4 text-sm text-primary-foreground transition-colors hover:bg-primary/90 sm:px-8 sm:text-base">
                 Built by{" "}
                 <a
                   href="https://kartikcodes.vercel.app/"
@@ -301,23 +343,23 @@ export default function Page() {
 
         <div
           id="how-it-works"
-          className="text-center mx-auto px-4 sm:px-6 py-16 md:py-24 max-w-3xl"
+          className="mx-auto max-w-3xl px-4 py-14 text-center sm:px-6 md:py-20"
         >
-          <p className="text-sm text-red-400 mb-6 tracking-[0.2em] uppercase">
+          <p className="mb-4 text-sm uppercase tracking-[0.18em] text-muted-foreground">
             How it works
           </p>
-          <h2 className="font-semibold tracking-tight leading-tight text-4xl md:text-6xl">
+          <h2 className="text-3xl font-semibold leading-tight tracking-tight sm:text-4xl md:text-5xl">
             Designed for Developers
           </h2>
-          <p className="mt-8 text-white/70 leading-relaxed text-lg">
+          <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
             RouteX empowers developers and teams to build, test, and manage APIs
             with powerful collaboration features and intelligent automation.
           </p>
         </div>
 
-        <section className="border-t border-white/10">
-          <div className="grid grid-cols-1 md:grid-cols-2 min-h-[600px]">
-            <div className="border-r border-white/10">
+        <section className="border-t border-border">
+          <div className="grid min-h-152 grid-cols-1 md:grid-cols-2">
+            <div className="border-r border-border">
               {features.map((feature, index) => {
                 const isActive = active === index;
 
@@ -326,15 +368,15 @@ export default function Page() {
                     key={index}
                     onClick={() => setActive(index)}
                     className={cn(
-                      "w-full text-left p-10 border-b border-white/10 transition-all duration-200",
-                      "hover:bg-white/[0.02] hover:-translate-y-1",
+                      "w-full border-b border-border p-8 text-left transition-colors sm:p-10",
+                      "hover:bg-muted/40",
                     )}
                   >
-                    {/* Top red indicator */}
+                    {/* Top indicator */}
                     <div
                       className={cn(
-                        "h-[2px] w-full mb-6 transition-all duration-300",
-                        isActive ? "bg-red-500" : "bg-transparent",
+                        "h-0.5 w-full mb-6 transition-all duration-300",
+                        isActive ? "bg-foreground" : "bg-transparent",
                       )}
                     />
 
@@ -342,7 +384,7 @@ export default function Page() {
                       {feature.title}
                     </h3>
 
-                    <p className="text-white/60 leading-relaxed max-w-md">
+                    <p className="max-w-md leading-relaxed text-muted-foreground">
                       {feature.description}
                     </p>
                   </button>
@@ -351,12 +393,9 @@ export default function Page() {
             </div>
 
             {/* RIGHT PANEL */}
-            <div className="relative bg-black">
-              {/* Subtle dotted background */}
-              <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:16px_16px]" />
-
+            <div className="relative bg-muted/20">
               <div className="relative h-full flex items-center justify-center">
-                <div className="w-[420px] h-[260px] rounded-xl border border-white/10 bg-white/[0.03] backdrop-blur-xl flex items-center justify-center text-white/60 transition-all duration-300">
+                <div className="flex h-64 w-[92%] max-w-3xl items-center justify-center rounded-lg border border-border bg-card text-muted-foreground shadow-sm">
                   Preview for: {features[active].title}
                 </div>
               </div>
@@ -367,30 +406,30 @@ export default function Page() {
         {/* Inline SectionIntro - Features */}
         <div
           id="platform-features"
-          className="text-center mx-auto px-4 sm:px-6 py-24 md:py-32 max-w-4xl"
+          className="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 md:py-24"
         >
-          <p className="text-sm text-red-400 mb-6 tracking-[0.2em] uppercase">
+          <p className="mb-4 text-sm uppercase tracking-[0.18em] text-muted-foreground">
             Platform Features
           </p>
-          <h2 className="font-semibold tracking-tight leading-tight text-5xl md:text-7xl">
+          <h2 className="text-3xl font-semibold leading-tight tracking-tight sm:text-4xl md:text-5xl">
             Built for Modern Development
           </h2>
-          <p className="mt-8 text-white/70 leading-relaxed text-xl max-w-3xl mx-auto">
+          <p className="mx-auto mt-5 max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             Complete API development platform with AI assistance, real-time
             collaboration, and powerful testing capabilities for modern
             development teams.
           </p>
         </div>
 
-        <section className="border-t border-white/10">
+        <section className="border-t border-border">
           <div className="grid grid-cols-1 md:grid-cols-2">
             {/* LEFT FEATURE */}
-            <div className="p-12 border-r border-white/10">
+            <div className="p-12 border-r border-border">
               <div className="mb-8">
                 <h3 className="text-2xl font-semibold mb-4">
                   AI Request Generation
                 </h3>
-                <p className="text-white/60 max-w-lg leading-relaxed">
+                <p className="max-w-lg leading-relaxed text-muted-foreground">
                   Automatically generate meaningful request names and structured
                   JSON bodies using Google AI based on your API requirements.
                 </p>
@@ -403,7 +442,7 @@ export default function Page() {
                 <h3 className="text-2xl font-semibold mb-4">
                   Intelligent JSON Builder
                 </h3>
-                <p className="text-white/60 max-w-lg leading-relaxed">
+                <p className="max-w-lg leading-relaxed text-muted-foreground">
                   Describe your API endpoint and generate structured JSON
                   instantly. Edit, refine, and save requests to your organized
                   collections.
@@ -413,20 +452,20 @@ export default function Page() {
           </div>
         </section>
 
-        <section className="border-t border-white/10 py-28">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-16 px-6 sm:px-8 md:px-12">
+        <section className="border-t border-border py-20 md:py-24">
+          <div className="grid grid-cols-1 gap-8 px-6 sm:px-8 md:grid-cols-3 md:gap-12 md:px-12">
             {items.map((item, index) => {
               const Icon = item.icon;
 
               return (
                 <div key={index} className="space-y-5">
-                  <div className="text-white/70">
+                  <div className="text-muted-foreground">
                     <Icon size={22} strokeWidth={1.5} />
                   </div>
 
                   <h4 className="text-xl font-semibold">{item.title}</h4>
 
-                  <p className="text-white/60 leading-relaxed max-w-sm">
+                  <p className="max-w-sm leading-relaxed text-muted-foreground">
                     {item.description}
                   </p>
                 </div>
@@ -438,22 +477,22 @@ export default function Page() {
         {/* Inline SectionIntro - Use Cases */}
         <div
           id="use-cases"
-          className="text-center mx-auto px-4 sm:px-6 py-24 md:py-32 max-w-4xl"
+          className="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 md:py-24"
         >
-          <p className="text-sm text-red-400 mb-6 tracking-[0.2em] uppercase">
+          <p className="mb-4 text-sm uppercase tracking-[0.18em] text-muted-foreground">
             Use Cases
           </p>
-          <h2 className="font-semibold tracking-tight leading-tight text-5xl md:text-7xl">
+          <h2 className="text-3xl font-semibold leading-tight tracking-tight sm:text-4xl md:text-5xl">
             Across Development Workflows
           </h2>
-          <p className="mt-8 text-white/70 leading-relaxed text-xl max-w-3xl mx-auto">
+          <p className="mx-auto mt-5 max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             From backend development to integration testing, RouteX fits
             seamlessly into every stage of the API development lifecycle.
           </p>
         </div>
 
-        <section className="border-t border-white/10 py-32">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10 px-6 sm:px-8 md:px-12">
+        <section className="border-t border-border py-20 md:py-24">
+          <div className="grid grid-cols-1 gap-6 px-6 sm:px-8 md:grid-cols-3 md:gap-8 md:px-12">
             {cases.map((item, index) => {
               const Icon = item.icon;
 
@@ -461,23 +500,22 @@ export default function Page() {
                 <div
                   key={index}
                   className="
-                rounded-2xl
-                bg-gradient-to-br from-white/[0.05] to-white/[0.02]
-                border border-white/10
+                rounded-lg
+                bg-card
+                border border-border
                 p-8
-                transition-all duration-200
-                hover:border-white/20
-                hover:-translate-y-1
-                hover:shadow-lg
+                transition-colors duration-200
+                hover:border-foreground/20
+                hover:bg-muted/30
               "
                 >
-                  <div className="mb-6 text-red-400">
+                  <div className="mb-6 text-foreground">
                     <Icon size={24} strokeWidth={1.5} />
                   </div>
 
                   <h4 className="text-xl font-semibold mb-4">{item.title}</h4>
 
-                  <p className="text-white/60 leading-relaxed">
+                  <p className="leading-relaxed text-muted-foreground">
                     {item.description}
                   </p>
                 </div>
@@ -489,22 +527,22 @@ export default function Page() {
         {/* Inline SectionIntro - Benefits */}
         <div
           id="productivity-benefits"
-          className="text-center mx-auto px-4 sm:px-6 py-24 md:py-32 max-w-4xl"
+          className="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 md:py-24"
         >
-          <p className="text-sm text-red-400 mb-6 tracking-[0.2em] uppercase">
+          <p className="mb-4 text-sm uppercase tracking-[0.18em] text-muted-foreground">
             Productivity Benefits
           </p>
-          <h2 className="font-semibold tracking-tight leading-tight text-5xl md:text-7xl">
+          <h2 className="text-3xl font-semibold leading-tight tracking-tight sm:text-4xl md:text-5xl">
             Making Developers 10x Productive
           </h2>
-          <p className="mt-8 text-white/70 leading-relaxed text-xl max-w-3xl mx-auto">
+          <p className="mx-auto mt-5 max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             Streamline your API development workflow with intelligent features
             designed to eliminate friction and boost team productivity.
           </p>
         </div>
 
-        <section className="border-t border-white/10 py-32">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 px-6 sm:px-8 md:px-12">
+        <section className="border-t border-border py-20 md:py-24">
+          <div className="grid grid-cols-1 gap-8 px-6 sm:px-8 md:grid-cols-3 md:gap-10 md:px-12">
             {/* LEFT COLUMN */}
             <div className="space-y-10">
               {left.map((item, i) => {
@@ -514,22 +552,22 @@ export default function Page() {
                   <div
                     key={i}
                     className="
-                  rounded-2xl
-                  bg-gradient-to-br from-white/[0.05] to-white/[0.02]
-                  border border-white/10
+                  rounded-lg
+                  bg-card
+                  border border-border
                   p-8
-                  transition
-                  hover:translate-y-[-4px]
-                  hover:border-white/20
+                  transition-colors
+                  hover:border-foreground/20
+                  hover:bg-muted/30
                 "
                   >
-                    <div className="text-red-400 mb-5">
+                    <div className="mb-5 text-foreground">
                       <Icon size={22} strokeWidth={1.5} />
                     </div>
 
                     <h4 className="text-lg font-semibold mb-3">{item.title}</h4>
 
-                    <p className="text-white/60 leading-relaxed text-sm">
+                    <p className="text-sm leading-relaxed text-muted-foreground">
                       {item.description}
                     </p>
                   </div>
@@ -538,10 +576,7 @@ export default function Page() {
             </div>
 
             {/* CENTER VISUAL */}
-            <div className="relative rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-8 flex items-center justify-center">
-              {/* dotted grid */}
-              <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:18px_18px]" />
-            </div>
+            <div className="relative flex items-center justify-center rounded-lg border border-border bg-card p-8 shadow-sm"></div>
 
             {/* RIGHT COLUMN */}
             <div className="space-y-10">
@@ -552,22 +587,22 @@ export default function Page() {
                   <div
                     key={i}
                     className="
-                  rounded-2xl
-                  bg-gradient-to-br from-white/[0.05] to-white/[0.02]
-                  border border-white/10
+                  rounded-lg
+                  bg-card
+                  border border-border
                   p-8
-                  transition
-                  hover:translate-y-[-4px]
-                  hover:border-white/20
+                  transition-colors
+                  hover:border-foreground/20
+                  hover:bg-muted/30
                 "
                   >
-                    <div className="text-red-400 mb-5">
+                    <div className="mb-5 text-foreground">
                       <Icon size={22} strokeWidth={1.5} />
                     </div>
 
                     <h4 className="text-lg font-semibold mb-3">{item.title}</h4>
 
-                    <p className="text-white/60 leading-relaxed text-sm">
+                    <p className="text-sm leading-relaxed text-muted-foreground">
                       {item.description}
                     </p>
                   </div>
@@ -578,15 +613,17 @@ export default function Page() {
         </section>
 
         {/* Enhanced Testimonial Section */}
-        <section className="border-t border-white/10">
-          <div className="grid grid-cols-1 md:grid-cols-3 border-b border-white/10">
+        <section className="border-t border-border">
+          <div className="grid grid-cols-1 md:grid-cols-3 border-b border-border">
             {/* LEFT AVATAR */}
-            <div className="border-r border-white/10 p-12 flex items-center justify-center bg-gradient-to-br from-white/[0.02] to-white/[0.01]">
+            <div className="flex items-center justify-center border-r border-border bg-muted/20 p-10 md:p-12">
               <div className="relative">
-                <img
+                <Image
                   src={testimonials[currentTestimonial].avatar}
                   alt={testimonials[currentTestimonial].name}
-                  className="w-24 h-24 rounded-full object-cover transition-all duration-500 ease-in-out"
+                  height={60}
+                  width={60}
+                  className="h-24 w-24 rounded-full object-cover"
                   onError={(e) => {
                     // Fallback to initials avatar if image fails
                     const target = e.target as HTMLImageElement;
@@ -597,16 +634,16 @@ export default function Page() {
             </div>
 
             {/* CENTER QUOTE */}
-            <div className="p-12 border-r border-white/10 flex flex-col justify-center transition-all duration-500 ease-in-out">
-              <div className="text-white/90 leading-relaxed text-lg mb-8 transition-opacity duration-500">
+            <div className="flex flex-col justify-center border-r border-border p-10 md:p-12">
+              <div className="mb-8 text-base leading-relaxed text-foreground sm:text-lg">
                 &ldquo;{testimonials[currentTestimonial].content}&rdquo;
               </div>
 
               <div className="space-y-2">
-                <p className="font-semibold text-white">
+                <p className="font-semibold text-foreground">
                   {testimonials[currentTestimonial].name}
                 </p>
-                <p className="text-white/60 text-sm">
+                <p className="text-sm text-muted-foreground">
                   {testimonials[currentTestimonial].role} at{" "}
                   {testimonials[currentTestimonial].company}
                 </p>
@@ -618,10 +655,10 @@ export default function Page() {
                   <button
                     key={index}
                     onClick={() => setCurrentTestimonial(index)}
-                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    className={`h-2 rounded-full transition-colors ${
                       index === currentTestimonial
-                        ? "bg-red-500 w-6"
-                        : "bg-white/20 hover:bg-white/40"
+                        ? "w-6 bg-foreground"
+                        : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
                     }`}
                     aria-label={`Go to testimonial ${index + 1}`}
                   />
@@ -630,12 +667,12 @@ export default function Page() {
             </div>
 
             {/* RIGHT METRIC */}
-            <div className="p-12 flex flex-col justify-center items-end bg-gradient-to-br from-white/[0.02] to-transparent">
+            <div className="flex flex-col items-end justify-center bg-muted/20 p-10 md:p-12">
               <div className="text-right">
-                <div className="text-6xl md:text-7xl font-bold mb-2 bg-gradient-to-r from-red-400 to-red-500 bg-clip-text text-transparent transition-all duration-500">
+                <div className="mb-2 text-5xl font-bold text-foreground md:text-6xl">
                   {testimonials[currentTestimonial].metric}
                 </div>
-                <p className="text-white/60 text-sm uppercase tracking-wider">
+                <p className="text-sm uppercase tracking-wider text-muted-foreground">
                   {currentTestimonial === 0
                     ? "API Efficiency"
                     : currentTestimonial === 1
@@ -651,36 +688,38 @@ export default function Page() {
       </GridLayout>
 
       {/* Premium Footer */}
-      <footer className="border-t border-white/10 bg-gradient-to-b from-black to-black/95">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-12 md:py-16">
+      <footer className="border-t border-border bg-card">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 md:px-8 md:py-14">
           {/* Main Footer Content */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 mb-12 md:mb-16">
             {/* BRAND COLUMN */}
             <div className="space-y-6">
               <div className="flex items-center space-x-3">
-                <span className="text-xl font-semibold text-white">RouteX</span>
+                <span className="text-xl font-semibold text-foreground">
+                  RouteX
+                </span>
               </div>
 
-              <p className="text-white/60 leading-relaxed max-w-xs">
+              <p className="max-w-xs leading-relaxed text-muted-foreground">
                 The complete API development platform for modern teams. Build,
                 test, and collaborate with confidence.
               </p>
 
               <button
                 onClick={() => scrollToSection("hero")}
-                className="group px-6 py-3 bg-white text-black rounded-md text-sm font-medium hover:opacity-90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg hover:shadow-white/20 flex items-center space-x-2"
+                className="group flex items-center space-x-2 rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
               >
                 <span>Start building</span>
                 <Send
                   size={14}
-                  className="group-hover:translate-x-0.5 transition-transform"
+                  className="transition-transform group-hover:translate-x-0.5"
                 />
               </button>
             </div>
 
             {/* PRODUCT COLUMN */}
             <div className="space-y-6">
-              <h4 className="text-white/90 text-sm font-semibold uppercase tracking-wider">
+              <h4 className="text-sm font-semibold uppercase tracking-wider text-foreground">
                 Product
               </h4>
 
@@ -688,7 +727,7 @@ export default function Page() {
                 <li>
                   <button
                     onClick={() => scrollToSection("platform-features")}
-                    className="group text-white/60 hover:text-white transition-all duration-200 flex items-center space-x-2 hover:translate-x-1"
+                    className="group flex items-center space-x-2 text-muted-foreground transition-colors duration-200 hover:text-foreground"
                     aria-label="Scroll to API Testing features"
                   >
                     <span>API Testing</span>
@@ -701,7 +740,7 @@ export default function Page() {
                 <li>
                   <button
                     onClick={() => scrollToSection("platform-features")}
-                    className="group text-white/60 hover:text-white transition-all duration-200 flex items-center space-x-2 hover:translate-x-1"
+                    className="group flex items-center space-x-2 text-muted-foreground transition-colors duration-200 hover:text-foreground"
                     aria-label="Scroll to Collaboration features"
                   >
                     <span>Collaboration</span>
@@ -714,7 +753,7 @@ export default function Page() {
                 <li>
                   <button
                     onClick={() => scrollToSection("platform-features")}
-                    className="group text-white/60 hover:text-white transition-all duration-200 flex items-center space-x-2 hover:translate-x-1"
+                    className="group flex items-center space-x-2 text-muted-foreground transition-colors duration-200 hover:text-foreground"
                     aria-label="Scroll to AI Assistant features"
                   >
                     <span>AI Assistant</span>
@@ -727,7 +766,7 @@ export default function Page() {
                 <li>
                   <button
                     onClick={() => scrollToSection("platform-features")}
-                    className="group text-white/60 hover:text-white transition-all duration-200 flex items-center space-x-2 hover:translate-x-1"
+                    className="group flex items-center space-x-2 text-muted-foreground transition-colors duration-200 hover:text-foreground"
                     aria-label="Scroll to WebSocket Testing features"
                   >
                     <span>WebSocket Testing</span>
@@ -742,7 +781,7 @@ export default function Page() {
 
             {/* COMPANY COLUMN */}
             <div className="space-y-6">
-              <h4 className="text-white/90 text-sm font-semibold uppercase tracking-wider">
+              <h4 className="text-sm font-semibold uppercase tracking-wider text-foreground">
                 Company
               </h4>
 
@@ -750,7 +789,7 @@ export default function Page() {
                 <li>
                   <button
                     onClick={() => scrollToSection("hero")}
-                    className="group text-white/60 hover:text-white transition-all duration-200 flex items-center space-x-2 hover:translate-x-1"
+                    className="group flex items-center space-x-2 text-muted-foreground transition-colors duration-200 hover:text-foreground"
                     aria-label="Scroll to About section"
                   >
                     <span>About</span>
@@ -763,7 +802,7 @@ export default function Page() {
                 <li>
                   <button
                     onClick={() => scrollToSection("use-cases")}
-                    className="group text-white/60 hover:text-white transition-all duration-200 flex items-center space-x-2 hover:translate-x-1"
+                    className="group flex items-center space-x-2 text-muted-foreground transition-colors duration-200 hover:text-foreground"
                     aria-label="Scroll to Use Cases section"
                   >
                     <span>Use Cases</span>
@@ -776,7 +815,7 @@ export default function Page() {
                 <li>
                   <button
                     onClick={() => scrollToSection("productivity-benefits")}
-                    className="group text-white/60 hover:text-white transition-all duration-200 flex items-center space-x-2 hover:translate-x-1"
+                    className="group flex items-center space-x-2 text-muted-foreground transition-colors duration-200 hover:text-foreground"
                     aria-label="Scroll to Pricing section"
                   >
                     <span>Pricing</span>
@@ -791,7 +830,7 @@ export default function Page() {
 
             {/* CONNECT COLUMN */}
             <div className="space-y-6">
-              <h4 className="text-white/90 text-sm font-semibold uppercase tracking-wider">
+              <h4 className="text-sm font-semibold uppercase tracking-wider text-foreground">
                 Connect with me
               </h4>
 
@@ -801,7 +840,7 @@ export default function Page() {
                     href="https://x.com/Bh20291Kartikey"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-lg border border-white/20 flex items-center justify-center text-white/60 transition-all duration-200 hover:scale-[1.05]"
+                    className="flex h-10 w-10 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors duration-200 hover:bg-muted hover:text-foreground"
                     aria-label="Follow me on X"
                   >
                     <FaXTwitter size={18} />
@@ -812,7 +851,7 @@ export default function Page() {
                     href="https://www.linkedin.com/in/kartikey-bhatnagar-2702a4337"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-lg border border-white/20 flex items-center justify-center text-white/60 transition-all duration-200 hover:scale-[1.05]"
+                    className="flex h-10 w-10 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors duration-200 hover:bg-muted hover:text-foreground"
                     aria-label="Connect with me on LinkedIn"
                   >
                     <Linkedin size={18} />
@@ -823,7 +862,7 @@ export default function Page() {
                     href="https://www.instagram.com/_k4rtik.exe/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-lg border border-white/20 flex items-center justify-center text-white/60 transition-all duration-200 hover:scale-[1.05]"
+                    className="flex h-10 w-10 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors duration-200 hover:bg-muted hover:text-foreground"
                     aria-label="Follow me on Instagram"
                   >
                     <Instagram size={18} />
@@ -831,29 +870,29 @@ export default function Page() {
                 </Hint>
               </div>
 
-              <p className="text-white/40 text-sm leading-relaxed">
+              <p className="text-sm leading-relaxed text-muted-foreground">
                 Join thousands of developers building better APIs together.
               </p>
             </div>
           </div>
 
           {/* Divider */}
-          <div className="border-t border-white/10 mb-8" />
+          <div className="mb-8 border-t border-border" />
 
           {/* Bottom Section */}
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="text-white/40 text-sm">
+            <p className="text-sm text-muted-foreground">
               © 2024 RouteX. All rights reserved.
             </p>
 
-            <div className="flex items-center space-x-6 text-white/40 text-sm">
-              <button className="hover:text-white/60 transition-colors">
+            <div className="flex items-center space-x-6 text-sm text-muted-foreground">
+              <button className="transition-colors hover:text-foreground">
                 Privacy
               </button>
-              <button className="hover:text-white/60 transition-colors">
+              <button className="transition-colors hover:text-foreground">
                 Terms
               </button>
-              <button className="hover:text-white/60 transition-colors">
+              <button className="transition-colors hover:text-foreground">
                 Security
               </button>
             </div>

@@ -150,36 +150,38 @@ const TabbedSidebar = ({ currentWorkspace }: Props) => {
   };
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-full min-h-0 w-full bg-background">
       {/* Sidebar */}
-      <div className="w-14 bg-card border-r flex flex-col items-center py-4 space-y-3">
-        {/* 
+      <div className="w-14 shrink-0 border-r bg-card py-3">
+        <div className="flex flex-col items-center gap-2.5">
+          {/* 
         
         Sidebar ke saare items ko map karke render kar rahe hain aur click par active tab ka background change hota hai.
 
         */}
 
-        {sidebarItems.map((item, index) => (
-          <Hint label={item.label} key={index} side="right" className="">
-            <div
-              key={index}
-              onClick={() => setactiveTab(item.label)}
-              className={`w-10 h-10 rounded-sm flex items-center justify-center cursor-pointer 
+          {sidebarItems.map((item, index) => (
+            <Hint label={item.label} key={index} side="right" className="">
+              <div
+                key={index}
+                onClick={() => setactiveTab(item.label)}
+                className={`flex h-9 w-9 items-center justify-center rounded-md cursor-pointer 
           transition-all duration-200 ease-in-out
           ${
             activeTab === item.label
               ? "bg-muted"
               : "text-muted-foreground hover:text-foreground hover:bg-muted"
           }`}
-            >
-              <item.icon className="w-5 h-5" />
-            </div>
-          </Hint>
-        ))}
+              >
+                <item.icon className="w-5 h-5" />
+              </div>
+            </Hint>
+          ))}
+        </div>
       </div>
 
       {/* Main content */}
-      <div className="flex-1 bg-card overflow-y-auto scrollbar-light">
+      <div className="min-h-0 flex-1 overflow-y-auto bg-card scrollbar-light">
         {/* Tab content will render here */}
         {renderTabContent()}
       </div>

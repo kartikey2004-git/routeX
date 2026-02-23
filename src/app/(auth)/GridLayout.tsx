@@ -10,11 +10,11 @@ export default function GridLayout({
   const sections = React.Children.toArray(children);
 
   return (
-    <div className="relative bg-black text-white min-h-screen w-full overflow-hidden">
-      <div className="relative grid grid-cols-[1fr_minmax(0,1200px)_1fr] w-full">
-        <div className="border-r border-white/10" />
+    <div className="relative min-h-dvh w-full overflow-hidden bg-background text-foreground">
+      <div className="relative grid w-full grid-cols-[minmax(1rem,1fr)_minmax(0,80rem)_minmax(1rem,1fr)]">
+        <div />
 
-        <div className="border-r border-white/10">
+        <div className="w-full">
           {sections.map((child, index) => {
             const childWithIndex = React.isValidElement(child)
               ? React.cloneElement(

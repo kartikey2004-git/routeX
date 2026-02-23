@@ -10,6 +10,7 @@ import Editor from "@monaco-editor/react";
 import { toast } from "sonner";
 import { useWsStore } from "../hooks/useWs";
 import RealtimeClientServerLogsTable from "./realtime-client-server-logs-table";
+import { useTheme } from "next-themes";
 
 const RealtimeMessageEditor = () => {
   const { send, status, isConnected, draftMessage, setDraftMessage, messages } =
@@ -19,6 +20,7 @@ const RealtimeMessageEditor = () => {
   const [lastSent, setLastSent] = useState("");
   const editorRef = useRef(null);
   const monacoRef = useRef(null);
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     if (!draftMessage) {
@@ -64,7 +66,7 @@ const RealtimeMessageEditor = () => {
       console.error("Error sending message:", error);
       toast.error(
         "Error sending message: " +
-          (error instanceof Error ? error.message : String(error))
+          (error instanceof Error ? error.message : String(error)),
       );
     } finally {
       setIsSending(false);
@@ -87,7 +89,6 @@ const RealtimeMessageEditor = () => {
 
       // Set editor options
       editor.updateOptions({
-        theme: "vs-dark",
         fontSize: 14,
         minimap: { enabled: false },
         scrollBeyondLastLine: false,
@@ -101,7 +102,7 @@ const RealtimeMessageEditor = () => {
         handleSendMessage();
       });
     },
-    [handleSendMessage]
+    [handleSendMessage],
   );
 
   const handleFormatJSON = useCallback(() => {
@@ -141,16 +142,18 @@ const RealtimeMessageEditor = () => {
   }, [draftMessage]);
 
   return (
-    <div className="flex flex-col space-y-4 bg-zinc-800 rounded-sm p-4">
+    <div className="flex flex-col space-y-4 rounded-lg border border-border bg-card p-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-white">Message Editor</h3>
+        <h3 className="text-lg font-semibold text-foreground">
+          Message Editor
+        </h3>
         <div className="flex items-center gap-2">
           <span
-            className={`text-xs px-2 py-1 rounded ${
+            className={`rounded-md px-2 py-1 text-xs ${
               status === "connected"
-                ? "bg-green-500/20 text-green-400"
-                : "bg-red-500/20 text-red-400"
+                ? "bg-green-500/15 text-green-600 dark:text-green-400"
+                : "bg-destructive/10 text-destructive"
             }`}
           >
             {status === "connected" ? "Connected" : "Disconnected"}
@@ -160,12 +163,12 @@ const RealtimeMessageEditor = () => {
 
       {/* Editor */}
       <div className="relative">
-        <div className="border border-zinc-700 rounded-sm overflow-hidden">
+        <div className="overflow-hidden rounded-md border border-border">
           {/* Monaco Editor */}
           <Editor
             height="150px"
             language="json"
-            theme="vs-dark"
+            theme={resolvedTheme === "dark" ? "vs-dark" : "vs-light"}
             value={draftMessage}
             onChange={(value) => setDraftMessage(value || "")}
             onMount={handleEditorDidMount}
@@ -187,8 +190,8 @@ const RealtimeMessageEditor = () => {
               mouseWheelZoom: false,
             }}
             loading={
-              <div className="w-full h-64 bg-zinc-900 flex items-center justify-center">
-                <div className="text-zinc-400 text-sm">
+              <div className="flex h-64 w-full items-center justify-center bg-background">
+                <div className="text-sm text-muted-foreground">
                   Loading Monaco Editor...
                 </div>
               </div>
@@ -202,7 +205,7 @@ const RealtimeMessageEditor = () => {
             size="sm"
             variant="ghost"
             onClick={handleFormatJSON}
-            className="h-6 w-6 p-0 text-zinc-400 hover:text-white hover:bg-zinc-700"
+            className="h-6 w-6 p-0 text-muted-foreground hover:bg-muted hover:text-foreground"
           >
             <RefreshCw size={12} />
           </Button>
@@ -210,7 +213,7 @@ const RealtimeMessageEditor = () => {
             size="sm"
             variant="ghost"
             onClick={handleCopyMessage}
-            className="h-6 w-6 p-0 text-zinc-400 hover:text-white hover:bg-zinc-700"
+            className="h-6 w-6 p-0 text-muted-foreground hover:bg-muted hover:text-foreground"
           >
             <Copy size={12} />
           </Button>
@@ -218,7 +221,7 @@ const RealtimeMessageEditor = () => {
             size="sm"
             variant="ghost"
             onClick={handleClearMessage}
-            className="h-6 w-6 p-0 text-zinc-400 hover:text-white hover:bg-zinc-700"
+            className="h-6 w-6 p-0 text-muted-foreground hover:bg-muted hover:text-foreground"
           >
             <Trash2 size={12} />
           </Button>
@@ -227,13 +230,13 @@ const RealtimeMessageEditor = () => {
 
       {/* Send Button and Info */}
       <div className="flex items-center justify-between">
-        <div className="text-xs text-zinc-400">
+        <div className="text-xs text-muted-foreground">
           Press Ctrl+Enter to send • JSON auto-validation enabled
         </div>
         <Button
           onClick={handleSendMessage}
           disabled={status !== "connected" || isSending}
-          className="bg-zinc-700 hover:bg-zinc-600 text-white font-medium"
+          className="font-medium"
         >
           <Send size={16} className="mr-2" />
           {isSending ? "Sending..." : "Send Message"}

@@ -5,7 +5,7 @@ import React from "react";
 
 const RealtimePage = () => {
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full min-h-0 flex-col">
       <div className="px-6 py-6 space-y-2">
         <h1 className="text-2xl font-semibold">WebSocket</h1>
         <p className="text-sm text-muted-foreground">
@@ -13,7 +13,7 @@ const RealtimePage = () => {
         </p>
         <RealtimeConnectionBar />
       </div>
-      <div className="flex-1 overflow-auto flex flex-col px-6 pb-6">
+      <div className="flex min-h-0 flex-1 flex-col overflow-auto px-6 pb-6">
         <RealtimeMessageEditor />
       </div>
     </div>

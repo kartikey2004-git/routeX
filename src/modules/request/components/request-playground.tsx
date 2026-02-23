@@ -103,33 +103,33 @@ const RequestPlayground = () => {
       <div className="flex h-full items-center justify-center bg-background">
         <div className="flex flex-col items-center text-center max-w-sm">
           {/* Icon Circle */}
-          <div className="flex items-center justify-center w-20 h-20 rounded-full bg-slate-100 ring-1 ring-slate-200">
-            <Zap size={36} className="text-slate-700" strokeWidth={1.5} />
+          <div className="flex h-20 w-20 items-center justify-center rounded-lg border border-border bg-muted/40">
+            <Zap size={34} className="text-foreground" strokeWidth={1.5} />
           </div>
 
           {/* Title */}
-          <h3 className="mt-6 text-lg font-semibold text-slate-900">
+          <h3 className="mt-6 text-lg font-semibold text-foreground">
             Quick Actions
           </h3>
 
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Use keyboard shortcuts to work faster
           </p>
 
           {/* Shortcuts */}
           <div className="mt-6 w-full space-y-3">
-            <div className="flex items-center justify-between rounded-md border border-slate-200 bg-white px-4 py-2.5">
-              <span className="text-sm text-slate-700">New Request</span>
+            <div className="flex items-center justify-between rounded-md border border-border bg-card px-4 py-2.5">
+              <span className="text-sm text-foreground">New Request</span>
 
-              <kbd className="rounded bg-slate-100 px-2 py-1 text-xs font-medium text-slate-800">
+              <kbd className="rounded-md bg-muted px-2 py-1 text-xs font-medium text-foreground">
                 Ctrl + G
               </kbd>
             </div>
 
-            <div className="flex items-center justify-between rounded-md border border-slate-200 bg-white px-4 py-2.5">
-              <span className="text-sm text-slate-700">Save Request</span>
+            <div className="flex items-center justify-between rounded-md border border-border bg-card px-4 py-2.5">
+              <span className="text-sm text-foreground">Save Request</span>
 
-              <kbd className="rounded bg-slate-100 px-2 py-1 text-xs font-medium text-slate-800">
+              <kbd className="rounded-md bg-muted px-2 py-1 text-xs font-medium text-foreground">
                 Ctrl + S
               </kbd>
             </div>
@@ -140,9 +140,9 @@ const RequestPlayground = () => {
   }
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="flex h-full min-h-0 flex-col bg-background">
       <TabBar />
-      <div className="flex-1 overflow-auto scrollbar-light">
+      <div className="flex-1 min-h-0 overflow-auto scrollbar-light">
         <RequestEditor />
       </div>
       <SaveRequestToCollectionModal

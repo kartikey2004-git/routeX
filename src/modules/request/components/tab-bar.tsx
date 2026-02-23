@@ -60,7 +60,7 @@ const TabBar = () => {
               >
                 <span
                   className={`font-semibold transition-colors duration-200 ${
-                    requestColorMap[tab.method] || "text-slate-500"
+                    requestColorMap[tab.method] || "text-muted-foreground"
                   }`}
                 >
                   {tab.method}

@@ -20,6 +20,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useRequestPlaygroundStore } from "../store/useRequestStore";
+import { useTheme } from "next-themes";
 
 type HeadersMap = Record<string, string>;
 
@@ -54,6 +55,7 @@ interface Props {
 const ResponseViewer = ({ responseData }: Props) => {
   const [activeTab, setActiveTab] = useState("json");
   const { clearResponseViewerData } = useRequestPlaygroundStore();
+  const { resolvedTheme } = useTheme();
 
   const getStatusColor = (status?: number): string => {
     const s = typeof status === "number" ? status : 0;
@@ -61,7 +63,7 @@ const ResponseViewer = ({ responseData }: Props) => {
     if (s >= 300 && s < 400) return "text-yellow-600";
     if (s >= 400 && s < 500) return "text-orange-600";
     if (s >= 500) return "text-red-600";
-    return "text-slate-500";
+    return "text-muted-foreground";
   };
 
   const formatBytes = (bytes?: number): string => {
@@ -107,17 +109,18 @@ const ResponseViewer = ({ responseData }: Props) => {
     responseData.result?.duration ?? responseData.requestRun?.durationMs;
   const size: number | undefined = responseData.result?.size;
   const rawBody = responseData.requestRun?.body;
+  const editorTheme = resolvedTheme === "dark" ? "vs-dark" : "vs-light";
 
   return (
-    <div className="w-full bg-slate-50 min-h-full">
+    <div className="min-h-full w-full bg-background">
       <div className="w-full mx-auto max-w-6xl px-6 py-8">
         {/* Status Header */}
-        <Card className="bg-white border-slate-200 shadow-lg rounded-lg mb-8">
+        <Card className="mb-6 rounded-lg border-border bg-card shadow-sm">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <span className="text-slate-600">Status:</span>
+                  <span className="text-muted-foreground">Status:</span>
                   <Badge
                     className={`${getStatusColor(
                       status,
@@ -127,15 +130,15 @@ const ResponseViewer = ({ responseData }: Props) => {
                   </Badge>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-slate-600" />
-                  <span className="text-slate-600">Time:</span>
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">Time:</span>
                   <span className="text-primary">
                     {duration ? `${duration} ms` : "—"}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <HardDrive className="w-4 h-4 text-slate-600" />
-                  <span className="text-slate-600">Size:</span>
+                  <HardDrive className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">Size:</span>
                   <span className="text-green-600">{formatBytes(size)}</span>
                 </div>
               </div>
@@ -178,7 +181,7 @@ const ResponseViewer = ({ responseData }: Props) => {
         </Card>
 
         {/* Response Tabs */}
-        <Card className="bg-white border-slate-200 shadow-lg rounded-lg">
+        <Card className="rounded-lg border-border bg-card shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-foreground">Response Body</CardTitle>
           </CardHeader>
@@ -188,25 +191,25 @@ const ResponseViewer = ({ responseData }: Props) => {
               onValueChange={setActiveTab}
               className="w-full"
             >
-              <div className="px-6 border-b border-slate-200">
+              <div className="border-b border-border px-6">
                 <TabsList className="bg-transparent p-0 h-auto">
                   <TabsTrigger
                     value="json"
-                    className="bg-transparent data-[state=active]:bg-white data-[state=active]:text-slate-900 text-slate-600 rounded-t-lg rounded-b-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:shadow-sm px-4 py-2 transition-all"
+                    className="rounded-none border-b-2 border-transparent bg-transparent px-4 py-2 text-muted-foreground transition-all data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground"
                   >
                     <Code className="w-4 h-4 mr-2" />
                     JSON
                   </TabsTrigger>
                   <TabsTrigger
                     value="raw"
-                    className="bg-transparent data-[state=active]:bg-white data-[state=active]:text-slate-900 text-slate-600 rounded-t-lg rounded-b-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:shadow-sm px-4 py-2 transition-all"
+                    className="rounded-none border-b-2 border-transparent bg-transparent px-4 py-2 text-muted-foreground transition-all data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground"
                   >
                     <FileText className="w-4 h-4 mr-2" />
                     Raw
                   </TabsTrigger>
                   <TabsTrigger
                     value="headers"
-                    className="bg-transparent data-[state=active]:bg-white data-[state=active]:text-slate-900 text-slate-600 rounded-t-lg rounded-b-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:shadow-sm px-4 py-2 transition-all"
+                    className="rounded-none border-b-2 border-transparent bg-transparent px-4 py-2 text-muted-foreground transition-all data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground"
                   >
                     <Settings className="w-4 h-4 mr-2" />
                     Headers
@@ -223,7 +226,7 @@ const ResponseViewer = ({ responseData }: Props) => {
 
                   <TabsTrigger
                     value="test"
-                    className="bg-transparent data-[state=active]:bg-white data-[state=active]:text-slate-900 text-slate-600 rounded-t-lg rounded-b-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:shadow-sm px-4 py-2 transition-all"
+                    className="rounded-none border-b-2 border-transparent bg-transparent px-4 py-2 text-muted-foreground transition-all data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground"
                   >
                     <TestTube className="w-4 h-4 mr-2" />
                     Test Results
@@ -236,13 +239,13 @@ const ResponseViewer = ({ responseData }: Props) => {
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="text-slate-600 hover:text-slate-900 bg-white/80 backdrop-blur-sm border border-slate-200 rounded-lg shadow-sm transition-all"
+                      className="rounded-md border border-border bg-card/90 text-muted-foreground shadow-sm transition-colors hover:text-foreground"
                       onClick={() => copyToClipboard(formattedJsonString)}
                     >
                       <Copy className="w-4 h-4" />
                     </Button>
                   </div>
-                  <div className="h-96 bg-white rounded-lg border border-slate-200 overflow-hidden">
+                  <div className="h-96 overflow-hidden rounded-lg border border-border bg-card">
                     <Editor
                       defaultLanguage="json"
                       value={formattedJsonString}
@@ -267,7 +270,7 @@ const ResponseViewer = ({ responseData }: Props) => {
                           horizontalScrollbarSize: 8,
                         },
                       }}
-                      theme="vs-light"
+                      theme={editorTheme}
                     />
                   </div>
                 </div>
@@ -279,13 +282,13 @@ const ResponseViewer = ({ responseData }: Props) => {
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="text-slate-600 hover:text-slate-900 bg-white/80 backdrop-blur-sm border border-slate-200 rounded-lg shadow-sm"
+                      className="rounded-md border border-border bg-card/90 text-muted-foreground shadow-sm transition-colors hover:text-foreground"
                       onClick={() => copyToClipboard(String(rawBody ?? ""))}
                     >
                       <Copy className="w-4 h-4" />
                     </Button>
                   </div>
-                  <div className="h-96 bg-white rounded-lg border border-slate-200 overflow-hidden">
+                  <div className="h-96 overflow-hidden rounded-lg border border-border bg-card">
                     <Editor
                       height="100%"
                       defaultLanguage="text"
@@ -311,14 +314,14 @@ const ResponseViewer = ({ responseData }: Props) => {
                           horizontalScrollbarSize: 8,
                         },
                       }}
-                      theme="vs-light"
+                      theme={editorTheme}
                     />
                   </div>
                 </div>
               </TabsContent>
 
               <TabsContent value="headers" className="mt-0">
-                <ScrollArea className="h-96 bg-white rounded-lg border border-slate-200">
+                <ScrollArea className="h-96 rounded-lg border border-border bg-card">
                   <div className="p-6">
                     <div className="space-y-3">
                       {Object.entries(
@@ -326,20 +329,20 @@ const ResponseViewer = ({ responseData }: Props) => {
                       ).map(([key, value]) => (
                         <div
                           key={key}
-                          className="flex items-start justify-between py-3 border-b border-slate-200 last:border-b-0"
+                          className="flex items-start justify-between border-b border-border py-3 last:border-b-0"
                         >
                           <div className="flex-1 min-w-0">
-                            <div className="font-medium text-slate-900 text-sm">
+                            <div className="text-sm font-medium text-foreground">
                               {key}
                             </div>
-                            <div className="text-slate-600 text-sm break-all">
+                            <div className="text-sm text-muted-foreground break-all">
                               {value}
                             </div>
                           </div>
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-slate-600 hover:text-slate-900 ml-2 border border-slate-200 rounded-lg shadow-sm hover:shadow-md transition-all"
+                            className="ml-2 rounded-md border border-border text-muted-foreground shadow-sm transition-colors hover:text-foreground"
                             onClick={() => copyToClipboard(`${key}: ${value}`)}
                           >
                             <Copy className="w-3 h-3" />

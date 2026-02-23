@@ -319,8 +319,8 @@ const KeyValueFormEditor: React.FC<KeyValueFormEditorProps> = ({
                               className={cn(
                                 "h-5 w-5 p-0 rounded-none border transition-colors",
                                 checkBoxField.value
-                                  ? "bg-black border-primary text-primary-foreground hover:bg-black/90 hover:text-primary-foreground"
-                                  : "bg-black border border-muted hover:bg-black/80",
+                                  ? "bg-primary border-primary text-primary-foreground hover:bg-primary/90"
+                                  : "bg-background border-border text-muted-foreground hover:bg-muted",
                               )}
                             >
                               {checkBoxField.value ? (
