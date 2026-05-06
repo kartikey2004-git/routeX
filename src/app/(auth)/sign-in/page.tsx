@@ -22,6 +22,8 @@ import {
   Instagram,
   Moon,
   Sun,
+  ArrowRight,
+  Star,
 } from "lucide-react";
 import { FaGithub, FaXTwitter } from "react-icons/fa6";
 import { useState, useEffect } from "react";
@@ -35,9 +37,26 @@ import {
 } from "react-theme-switch-animation";
 import Image from "next/image";
 
-// Add smooth scrolling
+// Custom animation classes
 if (typeof window !== "undefined") {
-  document.documentElement.style.scrollBehavior = "smooth";
+  const style = document.createElement("style");
+  style.textContent = `
+    @keyframes float-slow {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+    @keyframes pulse-slow {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .animate-float-slow {
+      animation: float-slow 6s ease-in-out infinite;
+    }
+    .animate-pulse-slow {
+      animation: pulse-slow 3s ease-in-out infinite;
+    }
+  `;
+  document.head.appendChild(style);
 }
 
 export default function Page() {
@@ -259,480 +278,567 @@ export default function Page() {
 
   return (
     <>
-      <div className="fixed right-4 top-4 z-50 sm:right-6 sm:top-6">
-        <button
-          ref={themeSwitchRef as React.Ref<HTMLButtonElement>}
-          type="button"
-          onClick={toggleSwitchTheme}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-card text-foreground shadow-sm transition-colors hover:bg-muted"
-          aria-label="Toggle theme"
-        >
-          {!isMounted ? (
-            <Sun className="h-4 w-4" />
-          ) : isDarkMode ? (
-            <Sun className="h-4 w-4" />
-          ) : (
-            <Moon className="h-4 w-4" />
-          )}
-        </button>
-      </div>
       <GridLayout>
         <section
           id="hero"
-          className="relative flex min-h-[78dvh] items-center justify-center px-4 text-center sm:px-6"
+          className="relative flex min-h-screen items-center justify-center px-3 sm:px-4 md:px-6 lg:px-[30px] pt-12 sm:pt-16 md:pt-20 lg:pt-[100px] pb-8 sm:pb-12 md:pb-16 lg:pb-[80px] overflow-hidden"
         >
-          <div className="mx-auto max-w-4xl">
-            <p className="mb-5 mt-8 text-sm tracking-wide text-muted-foreground">
-              Built for modern API developers and collaborative teams
-            </p>
+          <div className="mx-auto max-w-[1160px] w-full">
+            {/* Version Tag with Live Indicator */}
+            <div className="mb-3 sm:mb-4 md:mb-6 flex justify-center">
+              <div className="inline-flex items-center gap-1 sm:gap-1.5 md:gap-2 rounded-full bg-[rgba(249,117,24,0.1)] px-2 sm:px-2.5 md:px-3 py-0.5 sm:py-1">
+                <div className="relative w-1 h-1 sm:w-1.5 sm:h-1.5 md:w-2 md:h-2 rounded-full bg-[#f97518]">
+                  <div className="absolute inset-0 rounded-full bg-[#f97518] animate-pulse-slow" />
+                </div>
+                <span className="text-[10px] sm:text-xs md:text-sm font-medium text-[#f97518]">
+                  Live
+                </span>
+                <span className="text-[10px] sm:text-xs md:text-sm text-[rgba(30,13,1,0.6)]">
+                  v2.0
+                </span>
+              </div>
+            </div>
 
-            <h1 className="text-4xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+            {/* Hero Headline */}
+            <h1 className="mb-3 sm:mb-4 md:mb-6 text-center text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[64px] leading-tight sm:leading-tight md:leading-tight lg:leading-[60px] xl:leading-[64px] tracking-[-0.5px] sm:tracking-[-1px] md:tracking-[-1.5px] lg:tracking-[-2.5px] xl:tracking-[-3.5px] font-medium max-w-[95%] sm:max-w-[90%] md:max-w-[630px] mx-auto px-2 sm:px-2 md:px-2">
               Build, test and collaborate on{" "}
-              <span className="text-foreground">APIs</span>
+              <span className="text-[#f97518]">APIs</span>
             </h1>
 
-            <p className="mx-auto mt-6 max-w-2xl text-base text-muted-foreground sm:text-lg">
+            {/* Hero Subtext */}
+            <p className="mx-auto mb-4 sm:mb-6 md:mb-8 max-w-[95%] sm:max-w-[90%] md:max-w-[630px] text-center text-xs sm:text-sm md:text-base lg:text-[18px] leading-relaxed sm:leading-relaxed md:leading-relaxed lg:leading-[28px] text-[rgba(30,13,1,0.6)] px-3 sm:px-3 md:px-2">
               The complete API development platform with REST & WebSocket
               testing, AI-powered assistance, and real-time team collaboration.
             </p>
 
-            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+            {/* Primary CTA Pill Button */}
+            <div className="flex justify-center mb-3 sm:mb-4 md:mb-6">
               <button
                 onClick={signInWithGithub}
                 disabled={isSigningIn}
-                className={cn(
-                  "flex items-center gap-2 rounded-md border px-6 py-4 text-sm transition-colors sm:px-8 sm:text-base",
-                  isSigningIn
-                    ? "border-border bg-muted text-muted-foreground"
-                    : "border-border bg-card text-foreground hover:bg-muted",
-                )}
+                className="group relative flex items-center justify-center gap-1.5 sm:gap-2 rounded-full bg-[#f97518] px-4 sm:px-5 md:px-6 lg:px-7 xl:px-8 py-2 sm:py-2.5 md:py-3 lg:py-3.5 xl:py-4 text-xs sm:text-sm md:text-sm lg:text-sm xl:text-[16px] font-semibold text-white opacity-90 transition-all  active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed w-full max-w-[240px] sm:max-w-[280px] md:max-w-xs lg:max-w-sm xl:w-auto"
               >
                 {isSigningIn ? (
                   <>
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-border border-t-foreground" />
-                    <span className="text-muted-foreground">
+                    <span className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <span className="text-xs sm:text-sm md:text-sm">
                       Redirecting...
                     </span>
                   </>
                 ) : (
                   <>
-                    <FaGithub className="h-4 w-4" />
-                    <span>Continue with GitHub</span>
+                    <FaGithub className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4" />
+                    <span className="text-xs sm:text-sm md:text-sm">
+                      Continue with GitHub
+                    </span>
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 overflow-hidden">
+                      <ArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 transition-transform group-hover:translate-x-1" />
+                    </div>
                   </>
                 )}
               </button>
+            </div>
 
-              <button className="rounded-md border border-border bg-primary px-6 py-4 text-sm text-primary-foreground transition-colors hover:bg-primary/90 sm:px-8 sm:text-base">
-                Built by{" "}
-                <a
-                  href="https://kartikcodes.vercel.app/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    window.open("https://kartikcodes.vercel.app/", "_blank");
-                  }}
-                >
-                  kartikey
-                </a>
-              </button>
+            {/* Rating Pill */}
+            <div className="flex justify-center">
+              <div className="inline-flex items-center gap-1 sm:gap-1.5 md:gap-2 lg:gap-3">
+                {/* Avatar Stack */}
+                <div className="flex -space-x-1 sm:-space-x-1.5 md:-space-x-2">
+                  <Image
+                    src="https://i.pravatar.cc/150?img=12"
+                    alt="User"
+                    width={16}
+                    height={16}
+                    className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 rounded-full border-2 border-white"
+                  />
+                  <Image
+                    src="https://i.pravatar.cc/150?img=32"
+                    alt="User"
+                    width={16}
+                    height={16}
+                    className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 rounded-full border-2 border-white"
+                  />
+                  <Image
+                    src="https://i.pravatar.cc/150?img=28"
+                    alt="User"
+                    width={16}
+                    height={16}
+                    className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 rounded-full border-2 border-white"
+                  />
+                </div>
+
+                {/* Separator */}
+                <div className="w-px h-2 sm:h-2.5 md:h-3 lg:h-4 bg-[rgba(30,13,1,0.1)]" />
+
+                {/* Review Count */}
+                <span className="text-[10px] sm:text-xs md:text-xs lg:text-sm text-[rgba(30,13,1,0.6)]">
+                  2,847 reviews
+                </span>
+
+                {/* Stars */}
+                <div className="flex items-center gap-0.5 sm:gap-0.5 md:gap-0.5 lg:gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className="h-2 w-2 sm:h-2.5 sm:w-2.5 md:h-3 md:w-3 lg:h-4 lg:w-4 fill-[#eba100] text-[#eba100]"
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
+
+          {/* Floating Dashboard Mockup - Responsive */}
         </section>
 
+        {/* Section Intro */}
         <div
           id="how-it-works"
-          className="mx-auto max-w-3xl px-4 py-14 text-center sm:px-6 md:py-20"
+          className="mx-auto max-w-[1160px] px-4 sm:px-6 lg:px-[30px] py-12 sm:py-16 lg:py-24 text-center"
         >
-          <p className="mb-4 text-sm uppercase tracking-[0.18em] text-muted-foreground">
+          <p className="mb-4 text-xs sm:text-sm uppercase tracking-[0.18em] text-[rgba(30,13,1,0.4)]">
             How it works
           </p>
-          <h2 className="text-3xl font-semibold leading-tight tracking-tight sm:text-4xl md:text-5xl">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium leading-tight tracking-tight">
             Designed for Developers
           </h2>
-          <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
+          <p className="mx-auto mt-4 sm:mt-5 max-w-3xl text-base sm:text-[18px] leading-relaxed sm:leading-[28px] text-[rgba(30,13,1,0.6)] px-2">
             RouteX empowers developers and teams to build, test, and manage APIs
             with powerful collaboration features and intelligent automation.
           </p>
         </div>
 
-        <section className="border-t border-border">
-          <div className="grid min-h-152 grid-cols-1 md:grid-cols-2">
-            <div className="border-r border-border">
-              {features.map((feature, index) => {
-                const isActive = active === index;
+        {/* Features Section with Glass Cards */}
+        <section className="py-12 sm:py-16 lg:py-24">
+          <div className="mx-auto max-w-[1160px] px-4 sm:px-6 lg:px-[30px]">
+            <div className="grid min-h-[500px] sm:min-h-[600px] grid-cols-1 lg:grid-cols-2">
+              <div className="border-r border-[rgba(30,13,1,0.1)] lg:border-r-0 lg:border-b">
+                {features.map((feature, index) => {
+                  const isActive = active === index;
 
-                return (
-                  <button
-                    key={index}
-                    onClick={() => setActive(index)}
-                    className={cn(
-                      "w-full border-b border-border p-8 text-left transition-colors sm:p-10",
-                      "hover:bg-muted/40",
-                    )}
-                  >
-                    {/* Top indicator */}
-                    <div
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => setActive(index)}
                       className={cn(
-                        "h-0.5 w-full mb-6 transition-all duration-300",
-                        isActive ? "bg-foreground" : "bg-transparent",
+                        "w-full border-b border-[rgba(30,13,1,0.1)] lg:border-b-0 p-4 sm:p-6 lg:p-8 text-left transition-all duration-300",
+                        "hover:bg-[rgba(249,117,24,0.05)]",
                       )}
-                    />
+                    >
+                      {/* Top indicator */}
+                      <div
+                        className={cn(
+                          "h-0.5 w-full mb-4 sm:mb-6 transition-all duration-300",
+                          isActive ? "bg-[#f97518]" : "bg-transparent",
+                        )}
+                      />
 
-                    <h3 className="text-xl font-semibold mb-3">
-                      {feature.title}
-                    </h3>
+                      <h3 className="text-lg sm:text-xl font-medium mb-2 sm:mb-3 text-[#1e0d01]">
+                        {feature.title}
+                      </h3>
 
-                    <p className="max-w-md leading-relaxed text-muted-foreground">
-                      {feature.description}
-                    </p>
-                  </button>
-                );
-              })}
-            </div>
+                      <p className="max-w-md leading-relaxed text-sm sm:text-base text-[rgba(30,13,1,0.6)]">
+                        {feature.description}
+                      </p>
+                    </button>
+                  );
+                })}
+              </div>
 
-            {/* RIGHT PANEL */}
-            <div className="relative bg-muted/20">
-              <div className="relative h-full flex items-center justify-center">
-                <div className="flex h-64 w-[92%] max-w-3xl items-center justify-center rounded-lg border border-border bg-card text-muted-foreground shadow-sm">
-                  Preview for: {features[active].title}
+              {/* RIGHT PANEL - Glass Card */}
+              <div className="relative bg-[#fbfbfc] lg:bg-transparent">
+                <div className="relative h-full flex items-center justify-center p-4 sm:p-6 lg:p-8">
+                  <div className="w-full max-w-3xl p-4 sm:p-6 lg:p-8 bg-white/20 backdrop-blur-md border border-[rgba(30,13,1,0.05)] rounded-[16px] sm:rounded-[24px]">
+                    <div className="rounded-[8px] sm:rounded-[12px] border border-[rgba(30,13,1,0.1)] bg-[#fbfbfc] p-4 sm:p-6 lg:p-8 text-center">
+                      <h4 className="text-lg sm:text-xl font-medium mb-3 sm:mb-4 text-[#1e0d01]">
+                        {features[active].title}
+                      </h4>
+                      <p className="text-sm sm:text-base text-[rgba(30,13,1,0.6)] leading-relaxed">
+                        {features[active].description}
+                      </p>
+                      {/* Demo visualization */}
+                      <div className="mt-4 sm:mt-6 h-48 sm:h-64 rounded-xl flex items-center justify-center overflow-hidden">
+                        <img
+                          src={
+                            active === 0
+                              ? "/smart-api-testing.png"
+                              : active === 1
+                                ? "/collaborative-workspaces.png"
+                                : "/real-time-api-testing.png"
+                          }
+                          alt={`${features[active].title} Demo`}
+                          className="w-full h-full object-contain rounded-xl"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Inline SectionIntro - Features */}
+        {/* Platform Features */}
         <div
           id="platform-features"
-          className="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 md:py-24"
+          className="mx-auto max-w-[1160px] px-4 sm:px-6 lg:px-[30px] py-12 sm:py-16 lg:py-24 text-center"
         >
-          <p className="mb-4 text-sm uppercase tracking-[0.18em] text-muted-foreground">
+          <p className="mb-4 text-xs sm:text-sm uppercase tracking-[0.18em] text-[rgba(30,13,1,0.4)]">
             Platform Features
           </p>
-          <h2 className="text-3xl font-semibold leading-tight tracking-tight sm:text-4xl md:text-5xl">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium leading-tight tracking-tight">
             Built for Modern Development
           </h2>
-          <p className="mx-auto mt-5 max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+          <p className="mx-auto mt-4 sm:mt-5 max-w-3xl text-base sm:text-[18px] leading-relaxed sm:leading-[28px] text-[rgba(30,13,1,0.6)] px-2">
             Complete API development platform with AI assistance, real-time
             collaboration, and powerful testing capabilities for modern
             development teams.
           </p>
         </div>
 
-        <section className="border-t border-border">
-          <div className="grid grid-cols-1 md:grid-cols-2">
-            {/* LEFT FEATURE */}
-            <div className="p-12 border-r border-border">
-              <div className="mb-8">
-                <h3 className="text-2xl font-semibold mb-4">
-                  AI Request Generation
-                </h3>
-                <p className="max-w-lg leading-relaxed text-muted-foreground">
-                  Automatically generate meaningful request names and structured
-                  JSON bodies using Google AI based on your API requirements.
-                </p>
-              </div>
-            </div>
-
-            {/* RIGHT FEATURE */}
-            <div className="p-12">
-              <div className="mb-8">
-                <h3 className="text-2xl font-semibold mb-4">
-                  Intelligent JSON Builder
-                </h3>
-                <p className="max-w-lg leading-relaxed text-muted-foreground">
-                  Describe your API endpoint and generate structured JSON
-                  instantly. Edit, refine, and save requests to your organized
-                  collections.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="border-t border-border py-20 md:py-24">
-          <div className="grid grid-cols-1 gap-8 px-6 sm:px-8 md:grid-cols-3 md:gap-12 md:px-12">
-            {items.map((item, index) => {
-              const Icon = item.icon;
-
-              return (
-                <div key={index} className="space-y-5">
-                  <div className="text-muted-foreground">
-                    <Icon size={22} strokeWidth={1.5} />
-                  </div>
-
-                  <h4 className="text-xl font-semibold">{item.title}</h4>
-
-                  <p className="max-w-sm leading-relaxed text-muted-foreground">
-                    {item.description}
+        {/* Feature Cards Grid */}
+        <section className="py-12 sm:py-16 lg:py-24">
+          <div className="mx-auto max-w-[1160px] px-4 sm:px-6 lg:px-[30px]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
+              {/* LEFT FEATURE */}
+              <div className="group p-4 sm:p-6 lg:p-8 bg-white/20 backdrop-blur-md border border-[rgba(30,13,1,0.05)] rounded-[16px] sm:rounded-[24px]">
+                <div className="mb-6 sm:mb-8">
+                  <h3 className="text-xl sm:text-2xl font-medium mb-3 sm:mb-4 text-[#1e0d01]">
+                    AI Request Generation
+                  </h3>
+                  <p className="leading-relaxed text-sm sm:text-base text-[rgba(30,13,1,0.6)]">
+                    Automatically generate meaningful request names and
+                    structured JSON bodies using Google AI based on your API
+                    requirements.
                   </p>
                 </div>
-              );
-            })}
+                <div className="h-48 sm:h-64 rounded-xl flex items-center justify-center group-hover:bg-[rgba(249,117,24,0.15)] transition-colors overflow-hidden">
+                  <img
+                    src="/ai-request-generation.png"
+                    alt="AI Request Generation Demo"
+                    className="w-full h-full object-cover rounded-xl"
+                  />
+                </div>
+              </div>
+
+              {/* RIGHT FEATURE */}
+              <div className="group p-4 sm:p-6 lg:p-8 bg-white/20 backdrop-blur-md border border-[rgba(30,13,1,0.05)] rounded-[16px] sm:rounded-[24px]">
+                <div className="mb-6 sm:mb-8">
+                  <h3 className="text-xl sm:text-2xl font-medium mb-3 sm:mb-4 text-[#1e0d01]">
+                    Intelligent JSON Builder
+                  </h3>
+                  <p className="leading-relaxed text-sm sm:text-base text-[rgba(30,13,1,0.6)]">
+                    Describe your API endpoint and generate structured JSON
+                    instantly. Edit, refine, and save requests to your organized
+                    collections.
+                  </p>
+                </div>
+                <div className="h-48 sm:h-64 rounded-xl flex items-center justify-center group-hover:bg-[rgba(249,117,24,0.15)] transition-colors overflow-hidden">
+                  <img
+                    src="/intelligent-json-builder.png"
+                    alt="Intelligent JSON Builder Demo"
+                    className="w-full h-full object-cover rounded-xl"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* Inline SectionIntro - Use Cases */}
+        {/* Features Grid */}
+        <section className="py-12 sm:py-16 lg:py-24">
+          <div className="mx-auto max-w-[1160px] px-4 sm:px-6 lg:px-[30px]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+              {items.map((item, index) => {
+                const Icon = item.icon;
+
+                return (
+                  <div
+                    key={index}
+                    className="group space-y-4 sm:space-y-5 p-4 sm:p-6 lg:p-8 bg-white/20 backdrop-blur-md border border-[rgba(30,13,1,0.05)] rounded-[16px] sm:rounded-[24px] transition-all duration-300"
+                  >
+                    <div className="text-[#f97518]">
+                      <Icon size={20} strokeWidth={1.5} />
+                    </div>
+
+                    <h4 className="text-lg sm:text-xl font-medium text-[#1e0d01]">
+                      {item.title}
+                    </h4>
+
+                    <p className="leading-relaxed text-sm sm:text-base text-[rgba(30,13,1,0.6)]">
+                      {item.description}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* Use Cases Section */}
         <div
           id="use-cases"
-          className="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 md:py-24"
+          className="mx-auto max-w-[1160px] px-4 sm:px-6 lg:px-[30px] py-12 sm:py-16 lg:py-24 text-center"
         >
-          <p className="mb-4 text-sm uppercase tracking-[0.18em] text-muted-foreground">
+          <p className="mb-4 text-xs sm:text-sm uppercase tracking-[0.18em] text-[rgba(30,13,1,0.4)]">
             Use Cases
           </p>
-          <h2 className="text-3xl font-semibold leading-tight tracking-tight sm:text-4xl md:text-5xl">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium leading-tight tracking-tight">
             Across Development Workflows
           </h2>
-          <p className="mx-auto mt-5 max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+          <p className="mx-auto mt-4 sm:mt-5 max-w-3xl text-base sm:text-[18px] leading-relaxed sm:leading-[28px] text-[rgba(30,13,1,0.6)] px-2">
             From backend development to integration testing, RouteX fits
             seamlessly into every stage of the API development lifecycle.
           </p>
         </div>
 
-        <section className="border-t border-border py-20 md:py-24">
-          <div className="grid grid-cols-1 gap-6 px-6 sm:px-8 md:grid-cols-3 md:gap-8 md:px-12">
-            {cases.map((item, index) => {
-              const Icon = item.icon;
+        {/* Use Cases Grid */}
+        <section className="py-12 sm:py-16 lg:py-24">
+          <div className="mx-auto max-w-[1160px] px-4 sm:px-6 lg:px-[30px]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {cases.map((item, index) => {
+                const Icon = item.icon;
 
-              return (
-                <div
-                  key={index}
-                  className="
-                rounded-lg
-                bg-card
-                border border-border
-                p-8
-                transition-colors duration-200
-                hover:border-foreground/20
-                hover:bg-muted/30
-              "
-                >
-                  <div className="mb-6 text-foreground">
-                    <Icon size={24} strokeWidth={1.5} />
+                return (
+                  <div
+                    key={index}
+                    className="group p-4 sm:p-6 lg:p-8 bg-white/20 backdrop-blur-md border border-[rgba(30,13,1,0.05)] rounded-[16px] sm:rounded-[24px] transition-all duration-300"
+                  >
+                    <div className="mb-4 sm:mb-6 text-[#f97518]">
+                      <Icon size={20} strokeWidth={1.5} />
+                    </div>
+
+                    <h4 className="text-lg sm:text-xl font-medium mb-3 sm:mb-4 text-[#1e0d01]">
+                      {item.title}
+                    </h4>
+
+                    <p className="leading-relaxed text-sm sm:text-base text-[rgba(30,13,1,0.6)]">
+                      {item.description}
+                    </p>
                   </div>
-
-                  <h4 className="text-xl font-semibold mb-4">{item.title}</h4>
-
-                  <p className="leading-relaxed text-muted-foreground">
-                    {item.description}
-                  </p>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </section>
 
-        {/* Inline SectionIntro - Benefits */}
+        {/* Productivity Benefits Section */}
         <div
           id="productivity-benefits"
-          className="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 md:py-24"
+          className="mx-auto max-w-[1160px] px-4 sm:px-6 lg:px-[30px] py-12 sm:py-16 lg:py-24 text-center"
         >
-          <p className="mb-4 text-sm uppercase tracking-[0.18em] text-muted-foreground">
+          <p className="mb-4 text-xs sm:text-sm uppercase tracking-[0.18em] text-[rgba(30,13,1,0.4)]">
             Productivity Benefits
           </p>
-          <h2 className="text-3xl font-semibold leading-tight tracking-tight sm:text-4xl md:text-5xl">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium leading-tight tracking-tight">
             Making Developers 10x Productive
           </h2>
-          <p className="mx-auto mt-5 max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+          <p className="mx-auto mt-4 sm:mt-5 max-w-3xl text-base sm:text-[18px] leading-relaxed sm:leading-[28px] text-[rgba(30,13,1,0.6)] px-2">
             Streamline your API development workflow with intelligent features
             designed to eliminate friction and boost team productivity.
           </p>
         </div>
 
-        <section className="border-t border-border py-20 md:py-24">
-          <div className="grid grid-cols-1 gap-8 px-6 sm:px-8 md:grid-cols-3 md:gap-10 md:px-12">
-            {/* LEFT COLUMN */}
-            <div className="space-y-10">
-              {left.map((item, i) => {
-                const Icon = item.icon;
+        {/* Productivity Grid */}
+        <section className="py-12 sm:py-16 lg:py-24">
+          <div className="mx-auto max-w-[1160px] px-4 sm:px-6 lg:px-[30px]">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
+              {/* LEFT COLUMN */}
+              <div className="space-y-6 lg:space-y-10">
+                {left.map((item, i) => {
+                  const Icon = item.icon;
 
-                return (
-                  <div
-                    key={i}
-                    className="
-                  rounded-lg
-                  bg-card
-                  border border-border
-                  p-8
-                  transition-colors
-                  hover:border-foreground/20
-                  hover:bg-muted/30
-                "
-                  >
-                    <div className="mb-5 text-foreground">
-                      <Icon size={22} strokeWidth={1.5} />
+                  return (
+                    <div
+                      key={i}
+                      className="group p-4 sm:p-6 lg:p-8 bg-white/20 backdrop-blur-md border border-[rgba(30,13,1,0.05)] rounded-[16px] sm:rounded-[24px] transition-all duration-300"
+                    >
+                      <div className="mb-3 sm:mb-5 text-[#f97518]">
+                        <Icon size={18} strokeWidth={1.5} />
+                      </div>
+
+                      <h4 className="text-base sm:text-lg font-medium mb-2 sm:mb-3 text-[#1e0d01]">
+                        {item.title}
+                      </h4>
+
+                      <p className="text-xs sm:text-sm leading-relaxed text-[rgba(30,13,1,0.6)]">
+                        {item.description}
+                      </p>
                     </div>
+                  );
+                })}
+              </div>
 
-                    <h4 className="text-lg font-semibold mb-3">{item.title}</h4>
-
-                    <p className="text-sm leading-relaxed text-muted-foreground">
-                      {item.description}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* CENTER VISUAL */}
-            <div className="relative flex items-center justify-center rounded-lg border border-border bg-card p-8 shadow-sm"></div>
-
-            {/* RIGHT COLUMN */}
-            <div className="space-y-10">
-              {right.map((item, i) => {
-                const Icon = item.icon;
-
-                return (
-                  <div
-                    key={i}
-                    className="
-                  rounded-lg
-                  bg-card
-                  border border-border
-                  p-8
-                  transition-colors
-                  hover:border-foreground/20
-                  hover:bg-muted/30
-                "
-                  >
-                    <div className="mb-5 text-foreground">
-                      <Icon size={22} strokeWidth={1.5} />
+              {/* CENTER VISUAL */}
+              <div className="relative flex items-center justify-center order-first lg:order-none mb-8 lg:mb-0">
+                <div className="w-full p-4 sm:p-6 lg:p-8 bg-white/20 backdrop-blur-md border border-[rgba(30,13,1,0.05)] rounded-[16px] sm:rounded-[24px]">
+                  <div className="rounded-[8px] sm:rounded-[12px] border border-[rgba(30,13,1,0.1)] bg-[#fbfbfc] p-4 sm:p-6 lg:p-8 text-center">
+                    <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#f97518] mb-3 sm:mb-4">
+                      10x
                     </div>
-
-                    <h4 className="text-lg font-semibold mb-3">{item.title}</h4>
-
-                    <p className="text-sm leading-relaxed text-muted-foreground">
-                      {item.description}
-                    </p>
+                    <div className="text-base sm:text-lg font-medium text-[#1e0d01]">
+                      Productivity Boost
+                    </div>
                   </div>
-                );
-              })}
+                </div>
+              </div>
+
+              {/* RIGHT COLUMN */}
+              <div className="space-y-6 lg:space-y-10">
+                {right.map((item, i) => {
+                  const Icon = item.icon;
+
+                  return (
+                    <div
+                      key={i}
+                      className="group p-4 sm:p-6 lg:p-8 bg-white/20 backdrop-blur-md border border-[rgba(30,13,1,0.05)] rounded-[16px] sm:rounded-[24px] transition-all duration-300"
+                    >
+                      <div className="mb-3 sm:mb-5 text-[#f97518]">
+                        <Icon size={18} strokeWidth={1.5} />
+                      </div>
+
+                      <h4 className="text-base sm:text-lg font-medium mb-2 sm:mb-3 text-[#1e0d01]">
+                        {item.title}
+                      </h4>
+
+                      <p className="text-xs sm:text-sm leading-relaxed text-[rgba(30,13,1,0.6)]">
+                        {item.description}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </section>
 
         {/* Enhanced Testimonial Section */}
-        <section className="border-t border-border">
-          <div className="grid grid-cols-1 md:grid-cols-3 border-b border-border">
-            {/* LEFT AVATAR */}
-            <div className="flex items-center justify-center border-r border-border bg-muted/20 p-10 md:p-12">
-              <div className="relative">
-                <Image
-                  src={testimonials[currentTestimonial].avatar}
-                  alt={testimonials[currentTestimonial].name}
-                  height={60}
-                  width={60}
-                  className="h-24 w-24 rounded-full object-cover"
-                  onError={(e) => {
-                    // Fallback to initials avatar if image fails
-                    const target = e.target as HTMLImageElement;
-                    target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${testimonials[currentTestimonial].name}`;
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* CENTER QUOTE */}
-            <div className="flex flex-col justify-center border-r border-border p-10 md:p-12">
-              <div className="mb-8 text-base leading-relaxed text-foreground sm:text-lg">
-                &ldquo;{testimonials[currentTestimonial].content}&rdquo;
-              </div>
-
-              <div className="space-y-2">
-                <p className="font-semibold text-foreground">
-                  {testimonials[currentTestimonial].name}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {testimonials[currentTestimonial].role} at{" "}
-                  {testimonials[currentTestimonial].company}
-                </p>
-              </div>
-
-              {/* Testimonial dots */}
-              <div className="flex gap-2 mt-6">
-                {testimonials.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentTestimonial(index)}
-                    className={`h-2 rounded-full transition-colors ${
-                      index === currentTestimonial
-                        ? "w-6 bg-foreground"
-                        : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
-                    }`}
-                    aria-label={`Go to testimonial ${index + 1}`}
+        <section className="py-12 sm:py-16 lg:py-24">
+          <div className="mx-auto max-w-[1160px] px-4 sm:px-6 lg:px-[30px]">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-8">
+              {/* LEFT AVATAR */}
+              <div className="flex items-center justify-center lg:justify-end">
+                <div className="relative">
+                  <Image
+                    src={testimonials[currentTestimonial].avatar}
+                    alt={testimonials[currentTestimonial].name}
+                    height={64}
+                    width={64}
+                    className="h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24 rounded-full object-cover border-4 border-white shadow-lg"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${testimonials[currentTestimonial].name}`;
+                    }}
                   />
-                ))}
-              </div>
-            </div>
-
-            {/* RIGHT METRIC */}
-            <div className="flex flex-col items-end justify-center bg-muted/20 p-10 md:p-12">
-              <div className="text-right">
-                <div className="mb-2 text-5xl font-bold text-foreground md:text-6xl">
-                  {testimonials[currentTestimonial].metric}
                 </div>
-                <p className="text-sm uppercase tracking-wider text-muted-foreground">
-                  {currentTestimonial === 0
-                    ? "API Efficiency"
-                    : currentTestimonial === 1
-                      ? "Time Saved"
-                      : currentTestimonial === 2
-                        ? "Team Adoption"
-                        : "Manual Work Reduced"}
-                </p>
+              </div>
+
+              {/* CENTER QUOTE */}
+              <div className="flex flex-col justify-center p-4 sm:p-6 lg:p-8">
+                <div className="mb-6 sm:mb-8 text-base sm:text-[18px] leading-relaxed sm:leading-[28px] text-[#1e0d01] italic">
+                  &ldquo;{testimonials[currentTestimonial].content}&rdquo;
+                </div>
+
+                <div className="space-y-1 sm:space-y-2 mb-4 sm:mb-6">
+                  <p className="font-medium text-[#1e0d01] text-sm sm:text-base">
+                    {testimonials[currentTestimonial].name}
+                  </p>
+                  <p className="text-xs sm:text-sm text-[rgba(30,13,1,0.6)]">
+                    {testimonials[currentTestimonial].role} at{" "}
+                    {testimonials[currentTestimonial].company}
+                  </p>
+                </div>
+
+                {/* Testimonial dots */}
+                <div className="flex gap-1.5 sm:gap-2 justify-center lg:justify-start">
+                  {testimonials.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentTestimonial(index)}
+                      className={`h-2 rounded-full transition-all ${
+                        index === currentTestimonial
+                          ? "w-6 bg-[#f97518]"
+                          : "bg-[rgba(30,13,1,0.3)] hover:bg-[rgba(30,13,1,0.5)]"
+                      }`}
+                      aria-label={`Go to testimonial ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* RIGHT METRIC */}
+              <div className="flex flex-col items-start lg:items-end justify-center">
+                <div className="text-left lg:text-right">
+                  <div className="mb-2 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#f97518]">
+                    {testimonials[currentTestimonial].metric}
+                  </div>
+                  <p className="text-xs sm:text-sm uppercase tracking-wider text-[rgba(30,13,1,0.6)]">
+                    {currentTestimonial === 0
+                      ? "API Efficiency"
+                      : currentTestimonial === 1
+                        ? "Time Saved"
+                        : currentTestimonial === 2
+                          ? "Team Adoption"
+                          : "Manual Work Reduced"}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </section>
       </GridLayout>
 
-      {/* Premium Footer */}
-      <footer className="border-t border-border bg-card">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 md:px-8 md:py-14">
+      {/* Solar SaaS UI Footer */}
+      <footer className="border-t border-[rgba(30,13,1,0.1)] bg-[#fbfbfc] py-8 sm:py-12 lg:py-16">
+        <div className="mx-auto max-w-[1160px] px-4 sm:px-6 lg:px-[30px]">
           {/* Main Footer Content */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 mb-12 md:mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 md:gap-12 mb-8 sm:mb-12">
             {/* BRAND COLUMN */}
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6 lg:col-span-1 sm:col-span-2">
               <div className="flex items-center space-x-3">
-                <span className="text-xl font-semibold text-foreground">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#f97518] rounded-xl flex items-center justify-center">
+                  <span className="text-white font-bold text-sm sm:text-lg">
+                    R
+                  </span>
+                </div>
+                <span className="text-lg sm:text-xl font-medium text-[#1e0d01]">
                   RouteX
                 </span>
               </div>
 
-              <p className="max-w-xs leading-relaxed text-muted-foreground">
+              <p className="max-w-xs leading-relaxed text-sm sm:text-base text-[rgba(30,13,1,0.6)]">
                 The complete API development platform for modern teams. Build,
                 test, and collaborate with confidence.
               </p>
 
               <button
                 onClick={() => scrollToSection("hero")}
-                className="group flex items-center space-x-2 rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                className="group flex items-center justify-between sm:justify-center sm:space-x-2 rounded-full bg-[#f97518] px-4 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm font-medium text-white transition-all w-full sm:w-auto"
               >
                 <span>Start building</span>
                 <Send
-                  size={14}
+                  size={12}
                   className="transition-transform group-hover:translate-x-0.5"
                 />
               </button>
             </div>
 
             {/* PRODUCT COLUMN */}
-            <div className="space-y-6">
-              <h4 className="text-sm font-semibold uppercase tracking-wider text-foreground">
+            <div className="space-y-4 sm:space-y-6">
+              <h4 className="text-xs sm:text-sm font-medium uppercase tracking-wider text-[#1e0d01]">
                 Product
               </h4>
 
-              <ul className="space-y-3">
+              <ul className="space-y-2 sm:space-y-3">
                 <li>
                   <button
                     onClick={() => scrollToSection("platform-features")}
-                    className="group flex items-center space-x-2 text-muted-foreground transition-colors duration-200 hover:text-foreground"
+                    className="group flex items-center space-x-2 text-sm sm:text-base text-[rgba(30,13,1,0.6)] transition-colors duration-200 hover:text-[#f97518]"
                     aria-label="Scroll to API Testing features"
                   >
                     <span>API Testing</span>
                     <ChevronRight
-                      size={14}
+                      size={12}
                       className="opacity-0 group-hover:opacity-100 transition-opacity"
                     />
                   </button>
@@ -740,12 +846,12 @@ export default function Page() {
                 <li>
                   <button
                     onClick={() => scrollToSection("platform-features")}
-                    className="group flex items-center space-x-2 text-muted-foreground transition-colors duration-200 hover:text-foreground"
+                    className="group flex items-center space-x-2 text-sm sm:text-base text-[rgba(30,13,1,0.6)] transition-colors duration-200 hover:text-[#f97518]"
                     aria-label="Scroll to Collaboration features"
                   >
                     <span>Collaboration</span>
                     <ChevronRight
-                      size={14}
+                      size={12}
                       className="opacity-0 group-hover:opacity-100 transition-opacity"
                     />
                   </button>
@@ -753,25 +859,12 @@ export default function Page() {
                 <li>
                   <button
                     onClick={() => scrollToSection("platform-features")}
-                    className="group flex items-center space-x-2 text-muted-foreground transition-colors duration-200 hover:text-foreground"
+                    className="group flex items-center space-x-2 text-sm sm:text-base text-[rgba(30,13,1,0.6)] transition-colors duration-200 hover:text-[#f97518]"
                     aria-label="Scroll to AI Assistant features"
                   >
                     <span>AI Assistant</span>
                     <ChevronRight
-                      size={14}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity"
-                    />
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => scrollToSection("platform-features")}
-                    className="group flex items-center space-x-2 text-muted-foreground transition-colors duration-200 hover:text-foreground"
-                    aria-label="Scroll to WebSocket Testing features"
-                  >
-                    <span>WebSocket Testing</span>
-                    <ChevronRight
-                      size={14}
+                      size={12}
                       className="opacity-0 group-hover:opacity-100 transition-opacity"
                     />
                   </button>
@@ -780,21 +873,21 @@ export default function Page() {
             </div>
 
             {/* COMPANY COLUMN */}
-            <div className="space-y-6">
-              <h4 className="text-sm font-semibold uppercase tracking-wider text-foreground">
+            <div className="space-y-4 sm:space-y-6">
+              <h4 className="text-xs sm:text-sm font-medium uppercase tracking-wider text-[#1e0d01]">
                 Company
               </h4>
 
-              <ul className="space-y-3">
+              <ul className="space-y-2 sm:space-y-3">
                 <li>
                   <button
                     onClick={() => scrollToSection("hero")}
-                    className="group flex items-center space-x-2 text-muted-foreground transition-colors duration-200 hover:text-foreground"
+                    className="group flex items-center space-x-2 text-sm sm:text-base text-[rgba(30,13,1,0.6)] transition-colors duration-200 hover:text-[#f97518]"
                     aria-label="Scroll to About section"
                   >
                     <span>About</span>
                     <ChevronRight
-                      size={14}
+                      size={12}
                       className="opacity-0 group-hover:opacity-100 transition-opacity"
                     />
                   </button>
@@ -802,25 +895,12 @@ export default function Page() {
                 <li>
                   <button
                     onClick={() => scrollToSection("use-cases")}
-                    className="group flex items-center space-x-2 text-muted-foreground transition-colors duration-200 hover:text-foreground"
+                    className="group flex items-center space-x-2 text-sm sm:text-base text-[rgba(30,13,1,0.6)] transition-colors duration-200 hover:text-[#f97518]"
                     aria-label="Scroll to Use Cases section"
                   >
                     <span>Use Cases</span>
                     <ChevronRight
-                      size={14}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity"
-                    />
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => scrollToSection("productivity-benefits")}
-                    className="group flex items-center space-x-2 text-muted-foreground transition-colors duration-200 hover:text-foreground"
-                    aria-label="Scroll to Pricing section"
-                  >
-                    <span>Pricing</span>
-                    <ChevronRight
-                      size={14}
+                      size={12}
                       className="opacity-0 group-hover:opacity-100 transition-opacity"
                     />
                   </button>
@@ -829,21 +909,21 @@ export default function Page() {
             </div>
 
             {/* CONNECT COLUMN */}
-            <div className="space-y-6">
-              <h4 className="text-sm font-semibold uppercase tracking-wider text-foreground">
-                Connect with me
+            <div className="space-y-4 sm:space-y-6 lg:col-span-1 sm:col-span-2">
+              <h4 className="text-xs sm:text-sm font-medium uppercase tracking-wider text-[#1e0d01]">
+                Connect
               </h4>
 
-              <div className="flex space-x-3">
+              <div className="flex space-x-2 sm:space-x-3">
                 <Hint label="Follow me on X">
                   <a
                     href="https://x.com/Bh20291Kartikey"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex h-10 w-10 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors duration-200 hover:bg-muted hover:text-foreground"
+                    className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full border border-[rgba(30,13,1,0.2)] text-[rgba(30,13,1,0.6)] transition-colors duration-200 hover:border-[#f97518] hover:text-[#f97518]"
                     aria-label="Follow me on X"
                   >
-                    <FaXTwitter size={18} />
+                    <FaXTwitter size={14} />
                   </a>
                 </Hint>
                 <Hint label="Connect on LinkedIn">
@@ -851,10 +931,10 @@ export default function Page() {
                     href="https://www.linkedin.com/in/kartikey-bhatnagar-2702a4337"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex h-10 w-10 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors duration-200 hover:bg-muted hover:text-foreground"
+                    className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full border border-[rgba(30,13,1,0.2)] text-[rgba(30,13,1,0.6)] transition-colors duration-200 hover:border-[#f97518] hover:text-[#f97518]"
                     aria-label="Connect with me on LinkedIn"
                   >
-                    <Linkedin size={18} />
+                    <Linkedin size={14} />
                   </a>
                 </Hint>
                 <Hint label="Follow on Instagram">
@@ -862,37 +942,37 @@ export default function Page() {
                     href="https://www.instagram.com/_k4rtik.exe/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex h-10 w-10 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors duration-200 hover:bg-muted hover:text-foreground"
+                    className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full border border-[rgba(30,13,1,0.2)] text-[rgba(30,13,1,0.6)] transition-colors duration-200 hover:border-[#f97518] hover:text-[#f97518]"
                     aria-label="Follow me on Instagram"
                   >
-                    <Instagram size={18} />
+                    <Instagram size={14} />
                   </a>
                 </Hint>
               </div>
 
-              <p className="text-sm leading-relaxed text-muted-foreground">
+              <p className="text-xs sm:text-sm leading-relaxed text-[rgba(30,13,1,0.6)]">
                 Join thousands of developers building better APIs together.
               </p>
             </div>
           </div>
 
           {/* Divider */}
-          <div className="mb-8 border-t border-border" />
+          <div className="mb-6 sm:mb-8 border-t border-[rgba(30,13,1,0.1)]" />
 
           {/* Bottom Section */}
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs sm:text-sm text-[rgba(30,13,1,0.6)]">
               © 2024 RouteX. All rights reserved.
             </p>
 
-            <div className="flex items-center space-x-6 text-sm text-muted-foreground">
-              <button className="transition-colors hover:text-foreground">
+            <div className="flex items-center space-x-4 sm:space-x-6 text-xs sm:text-sm text-[rgba(30,13,1,0.6)]">
+              <button className="transition-colors hover:text-[#f97518]">
                 Privacy
               </button>
-              <button className="transition-colors hover:text-foreground">
+              <button className="transition-colors hover:text-[#f97518]">
                 Terms
               </button>
-              <button className="transition-colors hover:text-foreground">
+              <button className="transition-colors hover:text-[#f97518]">
                 Security
               </button>
             </div>
