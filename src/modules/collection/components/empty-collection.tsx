@@ -1,5 +1,6 @@
 import { Archive, Upload } from "lucide-react";
 import React from "react";
+import { Button } from "@/components/ui/button";
 
 const EmptyCollections = () => {
   return (
@@ -14,11 +15,11 @@ const EmptyCollections = () => {
         <p className="mb-8 text-center text-xs text-muted-foreground">
           Import or create a collection
         </p>
-        <div className="space-y-3 w-full max-w-xs">
-          <button className="flex w-full items-center justify-center space-x-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">
+        <div className="w-full max-w-xs">
+          <Button className="w-full">
             <Upload className="w-4 h-4" />
-            <span>Import</span>
-          </button>
+            Import
+          </Button>
         </div>
       </>
     </div>

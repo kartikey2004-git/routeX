@@ -25,10 +25,11 @@ import EditCollectionModal from "./edit-collection-modal";
 import DeleteCollectionModal from "./delete-collection-modal";
 import SaveRequestToCollectionModal from "./add-request-modal";
 import { useGetAllRequestFromCollection } from "@/modules/request/hooks/request";
-import { REST_METHOD } from "@prisma/client";
 import EditRequestModal from "@/modules/request/components/edit-request-modal";
 import DeleteRequestModal from "@/modules/request/components/delete-request-modal";
 import { useRequestPlaygroundStore } from "@/modules/request/store/useRequestStore";
+import { Button } from "@/components/ui/button";
+import { getMethodColor } from "@/lib/status-colors";
 
 interface Props {
   collection: {
@@ -73,14 +74,6 @@ const CollectionFolder = ({ collection }: Props) => {
 
   const { openRequestTab } = useRequestPlaygroundStore();
 
-  const requestColorMap: Record<REST_METHOD, string> = {
-    [REST_METHOD.GET]: "text-green-600",
-    [REST_METHOD.POST]: "text-blue-600",
-    [REST_METHOD.PUT]: "text-yellow-600",
-    [REST_METHOD.DELETE]: "text-red-600",
-    [REST_METHOD.PATCH]: "text-orange-600",
-  };
-
   // we have requests if we have requestData and uski length zero se jyada hai
 
   const hasRequests = requestData && requestData.length > 0;
@@ -121,9 +114,13 @@ const CollectionFolder = ({ collection }: Props) => {
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="p-1 hover:bg-muted rounded">
-                    <EllipsisVertical className="w-4 h-4 text-muted-foreground hover:text-primary" />
-                  </button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-muted-foreground hover:text-primary"
+                  >
+                    <EllipsisVertical className="w-4 h-4" />
+                  </Button>
                 </DropdownMenuTrigger>
 
                 {/* 
@@ -138,10 +135,10 @@ const CollectionFolder = ({ collection }: Props) => {
                   <DropdownMenuItem onClick={() => setIsAddRequestOpen(true)}>
                     <div className="flex flex-row justify-between items-center w-full">
                       <div className="font-semibold flex justify-center items-center">
-                        <FilePlus className="text-green-600 mr-2 w-4 h-4" />
+                        <FilePlus className="text-success mr-2 w-4 h-4" />
                         Add Request
                       </div>
-                      <span className="text-xs text-muted-foreground bg-muted px-1 rounded">
+                      <span className="text-xs text-muted-foreground bg-muted px-1 rounded-sm">
                         ⌘R
                       </span>
                     </div>
@@ -149,10 +146,10 @@ const CollectionFolder = ({ collection }: Props) => {
                   <DropdownMenuItem onClick={() => setIsEditOpen(true)}>
                     <div className="flex flex-row justify-between items-center w-full">
                       <div className="font-semibold flex justify-center items-center">
-                        <Edit className="text-blue-600 mr-2 w-4 h-4" />
+                        <Edit className="text-blue-600 dark:text-blue-400 mr-2 w-4 h-4" />
                         Edit
                       </div>
-                      <span className="text-xs text-muted-foreground bg-muted px-1 rounded">
+                      <span className="text-xs text-muted-foreground bg-muted px-1 rounded-sm">
                         ⌘E
                       </span>
                     </div>
@@ -160,10 +157,10 @@ const CollectionFolder = ({ collection }: Props) => {
                   <DropdownMenuItem onClick={() => setIsDeleteOpen(true)}>
                     <div className="flex flex-row justify-between items-center w-full">
                       <div className="font-semibold flex justify-center items-center">
-                        <Trash className="text-red-600 mr-2 w-4 h-4" />
+                        <Trash className="text-destructive mr-2 w-4 h-4" />
                         Delete
                       </div>
-                      <span className="text-xs text-muted-foreground bg-muted px-1 rounded">
+                      <span className="text-xs text-muted-foreground bg-muted px-1 rounded-sm">
                         ⌘D
                       </span>
                     </div>
@@ -179,7 +176,7 @@ const CollectionFolder = ({ collection }: Props) => {
             {isPending ? (
               <div className="pl-8 py-2">
                 <div className="flex items-center space-x-2">
-                  <Loader2 size={16} className="text-primary animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                 </div>
               </div>
             ) : isError ? (
@@ -206,16 +203,14 @@ const CollectionFolder = ({ collection }: Props) => {
                       <div className="flex items-center space-x-3 flex-1">
                         <div className="flex items-center space-x-2">
                           <span
-                            className={`text-xs font-medium px-2 py-1 rounded ${
-                              requestColorMap[
-                                request.method as keyof typeof requestColorMap
-                              ] ?? ""
-                            }`}
+                            className={`text-xs font-medium px-2 py-1 rounded-sm ${getMethodColor(
+                              request.method,
+                            )}`}
                           >
                             {request.method}
                           </span>
 
-                          <div className="w-1.5 h-1.5 bg-green-600 rounded-full animate-pulse shadow-sm shadow-green-600/50"></div>
+                          <div className="w-1.5 h-1.5 bg-success rounded-full animate-pulse shadow-sm shadow-success/50"></div>
                         </div>
 
                         <div className="flex flex-col flex-1 min-w-0">
@@ -236,9 +231,13 @@ const CollectionFolder = ({ collection }: Props) => {
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <button className="p-1 hover:bg-muted rounded">
-                              <EllipsisVertical className="w-3 h-3 text-muted-foreground" />
-                            </button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 text-muted-foreground"
+                            >
+                              <EllipsisVertical className="w-3.5 h-3.5" />
+                            </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent className="w-32">
                             <DropdownMenuItem
@@ -247,7 +246,7 @@ const CollectionFolder = ({ collection }: Props) => {
                                 setIsEditReqOpen(true);
                               }}
                             >
-                              <Edit className="text-blue-600 mr-2 w-3 h-3" />
+                              <Edit className="text-blue-600 dark:text-blue-400 mr-2 w-3.5 h-3.5" />
                               Edit
                             </DropdownMenuItem>
                             <DropdownMenuItem
@@ -256,7 +255,7 @@ const CollectionFolder = ({ collection }: Props) => {
                                 setIsDelReqOpen(true);
                               }}
                             >
-                              <Trash className="text-red-600 mr-2 w-3 h-3" />
+                              <Trash className="text-destructive mr-2 w-3.5 h-3.5" />
                               Delete
                             </DropdownMenuItem>
                           </DropdownMenuContent>

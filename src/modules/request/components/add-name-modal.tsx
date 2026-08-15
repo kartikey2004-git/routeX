@@ -9,6 +9,7 @@ import { useSuggestRequestName } from "@/modules/ai/hooks/ai-suggestion";
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { REST_METHOD } from "@prisma/client";
+import { cn } from "@/lib/utils";
 
 const AddNameModal = ({
   isModalOpen,
@@ -74,7 +75,7 @@ const AddNameModal = ({
           {/* input for renaming tab title */}
 
           <Input
-            className="w-full p-2 border rounded bg-white border-slate-200 text-slate-900"
+            className="w-full"
             placeholder="Request Name..."
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -109,7 +110,9 @@ const AddNameModal = ({
             }}
             disabled={isPending}
           >
-            <Sparkles className="h-5 w-5 text-indigo-500" />
+            <Sparkles
+              className={cn("h-5 w-5", isPending && "animate-pulse")}
+            />
           </Button>
         </div>
 
@@ -118,13 +121,13 @@ const AddNameModal = ({
             {suggestions.map((suggestion, index) => (
               <div
                 key={index}
-                className="flex flex-row justify-between items-center p-2 border rounded bg-white hover:bg-slate-50 cursor-pointer border-slate-200"
+                className="flex flex-row justify-between items-center gap-3 p-2 border border-input rounded-md bg-background hover:bg-accent cursor-pointer transition-colors"
                 onClick={() => setName(suggestion.name)}
               >
-                <span className="text-sm text-slate-900">
+                <span className="text-sm text-foreground">
                   {suggestion.name}
                 </span>
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-muted-foreground">
                   {suggestion.reasoning}
                 </span>
               </div>

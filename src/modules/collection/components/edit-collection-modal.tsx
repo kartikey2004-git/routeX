@@ -1,4 +1,5 @@
 import Modal from "@/components/ui/modal";
+import { Input } from "@/components/ui/input";
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { useEditCollection } from "../hooks/collection";
@@ -51,8 +52,7 @@ const EditCollectionModal = ({
       submitVariant="default"
     >
       <div className="space-y-4">
-        <input
-          className="w-full p-2 border rounded"
+        <Input
           placeholder="Collection name..."
           value={name}
           onChange={(e) => setName(e.target.value)}

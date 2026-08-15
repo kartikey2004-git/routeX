@@ -9,8 +9,10 @@ import {
   Clock,
   ArrowUpRight,
   ArrowDownLeft,
+  Inbox,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 const RealtimeClientServerLogsTable = () => {
   const { messages, clearMessages } = useWsStore();
@@ -121,12 +123,12 @@ const RealtimeClientServerLogsTable = () => {
     return type === "sent" ? (
       <ArrowUpRight size={16} className="text-primary" />
     ) : (
-      <ArrowDownLeft size={16} className="text-green-600 dark:text-green-400" />
+      <ArrowDownLeft size={16} className="text-success" />
     );
   };
 
   return (
-    <div className="flex h-full flex-col rounded-lg border border-border bg-card">
+    <Card className="flex h-full flex-col gap-0 py-0">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div className="flex items-center gap-2">
@@ -141,10 +143,10 @@ const RealtimeClientServerLogsTable = () => {
           {/* Navigation arrows */}
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={handleNavigateUp}
             disabled={messages.length === 0}
-            className="h-8 w-8 p-0 text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="h-8 w-8 text-muted-foreground hover:bg-muted hover:text-foreground"
             title="Navigate up (previous message)"
           >
             <ChevronUp size={16} />
@@ -152,10 +154,10 @@ const RealtimeClientServerLogsTable = () => {
 
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={handleNavigateDown}
             disabled={messages.length === 0}
-            className="h-8 w-8 p-0 text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="h-8 w-8 text-muted-foreground hover:bg-muted hover:text-foreground"
             title="Navigate down (next message)"
           >
             <ChevronDown size={16} />
@@ -166,10 +168,10 @@ const RealtimeClientServerLogsTable = () => {
           {/* Clear messages */}
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={clearMessages}
             disabled={messages.length === 0}
-            className="h-8 w-8 p-0 text-muted-foreground hover:bg-muted hover:text-destructive"
+            className="h-8 w-8 text-muted-foreground hover:bg-muted hover:text-destructive"
             title="Clear all messages"
           >
             <Trash2 size={16} />
@@ -180,8 +182,11 @@ const RealtimeClientServerLogsTable = () => {
       {/* Messages Table */}
       <div ref={tableRef} className="flex-1 overflow-auto">
         {messages.length === 0 ? (
-          <div className="flex h-32 items-center justify-center text-muted-foreground">
-            No messages yet. Connect to a WebSocket to see message logs.
+          <div className="flex h-32 flex-col items-center justify-center gap-2 text-center px-4">
+            <Inbox className="h-6 w-6 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">
+              No messages yet. Connect to a WebSocket to see message logs.
+            </p>
           </div>
         ) : (
           <div className="space-y-1 p-2">
@@ -209,7 +214,7 @@ const RealtimeClientServerLogsTable = () => {
                       className={`text-sm font-medium capitalize ${
                         message.type === "sent"
                           ? "text-primary"
-                          : "text-green-600 dark:text-green-400"
+                          : "text-success"
                       }`}
                     >
                       {message.type}
@@ -225,14 +230,14 @@ const RealtimeClientServerLogsTable = () => {
                     </span>
                     <Button
                       variant="ghost"
-                      size="sm"
+                      size="icon"
                       onClick={(e) => {
                         e.stopPropagation();
                         copyToClipboard(
                           message.raw || formatMessageData(message.data),
                         );
                       }}
-                      className="h-6 w-6 p-0 text-muted-foreground hover:bg-muted hover:text-foreground"
+                      className="h-6 w-6 text-muted-foreground hover:bg-muted hover:text-foreground"
                       title="Copy message"
                     >
                       <Copy size={12} />
@@ -284,7 +289,7 @@ const RealtimeClientServerLogsTable = () => {
           {selectedMessageIndex > 0 && <span> • Press ↑ for previous</span>}
         </div>
       )}
-    </div>
+    </Card>
   );
 };
 

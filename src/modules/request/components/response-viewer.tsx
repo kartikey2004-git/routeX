@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useRequestPlaygroundStore } from "../store/useRequestStore";
 import { useTheme } from "next-themes";
+import { getStatusColor } from "@/lib/status-colors";
 
 type HeadersMap = Record<string, string>;
 
@@ -56,15 +57,6 @@ const ResponseViewer = ({ responseData }: Props) => {
   const [activeTab, setActiveTab] = useState("json");
   const { clearResponseViewerData } = useRequestPlaygroundStore();
   const { resolvedTheme } = useTheme();
-
-  const getStatusColor = (status?: number): string => {
-    const s = typeof status === "number" ? status : 0;
-    if (s >= 200 && s < 300) return "text-green-600";
-    if (s >= 300 && s < 400) return "text-yellow-600";
-    if (s >= 400 && s < 500) return "text-orange-600";
-    if (s >= 500) return "text-red-600";
-    return "text-muted-foreground";
-  };
 
   const formatBytes = (bytes?: number): string => {
     if (!bytes || bytes === 0) return "0 B";
@@ -139,7 +131,7 @@ const ResponseViewer = ({ responseData }: Props) => {
                 <div className="flex items-center gap-2">
                   <HardDrive className="h-4 w-4 text-muted-foreground" />
                   <span className="text-muted-foreground">Size:</span>
-                  <span className="text-green-600">{formatBytes(size)}</span>
+                  <span className="text-success">{formatBytes(size)}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -191,25 +183,25 @@ const ResponseViewer = ({ responseData }: Props) => {
               onValueChange={setActiveTab}
               className="w-full"
             >
-              <div className="border-b border-border px-6">
+              <div className="px-6">
                 <TabsList className="bg-transparent p-0 h-auto">
                   <TabsTrigger
                     value="json"
-                    className="rounded-none border-b-2 border-transparent bg-transparent px-4 py-2 text-muted-foreground transition-all data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground"
+                    className="bg-transparent px-4 py-2 text-muted-foreground transition-all data-[state=active]:bg-transparent data-[state=active]:text-foreground"
                   >
                     <Code className="w-4 h-4 mr-2" />
                     JSON
                   </TabsTrigger>
                   <TabsTrigger
                     value="raw"
-                    className="rounded-none border-b-2 border-transparent bg-transparent px-4 py-2 text-muted-foreground transition-all data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground"
+                    className="bg-transparent px-4 py-2 text-muted-foreground transition-all data-[state=active]:bg-transparent data-[state=active]:text-foreground"
                   >
                     <FileText className="w-4 h-4 mr-2" />
                     Raw
                   </TabsTrigger>
                   <TabsTrigger
                     value="headers"
-                    className="rounded-none border-b-2 border-transparent bg-transparent px-4 py-2 text-muted-foreground transition-all data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground"
+                    className="bg-transparent px-4 py-2 text-muted-foreground transition-all data-[state=active]:bg-transparent data-[state=active]:text-foreground"
                   >
                     <Settings className="w-4 h-4 mr-2" />
                     Headers
@@ -226,7 +218,7 @@ const ResponseViewer = ({ responseData }: Props) => {
 
                   <TabsTrigger
                     value="test"
-                    className="rounded-none border-b-2 border-transparent bg-transparent px-4 py-2 text-muted-foreground transition-all data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground"
+                    className="bg-transparent px-4 py-2 text-muted-foreground transition-all data-[state=active]:bg-transparent data-[state=active]:text-foreground"
                   >
                     <TestTube className="w-4 h-4 mr-2" />
                     Test Results
@@ -357,8 +349,8 @@ const ResponseViewer = ({ responseData }: Props) => {
               <TabsContent value="test" className="mt-0">
                 <div className="p-6">
                   <div className="flex items-center gap-2 mb-4">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                    <span className="text-green-600 font-medium">
+                    <CheckCircle className="w-5 h-5 text-success" />
+                    <span className="text-success font-medium">
                       All tests passed
                     </span>
                   </div>
@@ -367,19 +359,19 @@ const ResponseViewer = ({ responseData }: Props) => {
                       <span className="text-foreground">
                         Status code is 200
                       </span>
-                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <CheckCircle className="w-4 h-4 text-success" />
                     </div>
                     <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                       <span className="text-foreground">
                         Response time is less than 3000ms
                       </span>
-                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <CheckCircle className="w-4 h-4 text-success" />
                     </div>
                     <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                       <span className="text-foreground">
                         Content-Type is present
                       </span>
-                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <CheckCircle className="w-4 h-4 text-success" />
                     </div>
                   </div>
                 </div>

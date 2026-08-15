@@ -6,16 +6,17 @@ import {
   Code,
   ExternalLink,
   HelpCircle,
-  Loader2,
   Plus,
   Search,
   Share2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import CreateCollection from "./create-collection";
 import EmptyCollections from "./empty-collection";
 import CollectionFolder from "./collection-folder";
 import { Hint } from "@/components/ui/hint";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Props {
   // We can add proper types further : TODO
@@ -60,13 +61,6 @@ const TabbedSidebar = ({ currentWorkspace }: Props) => {
     currentWorkspace?.id,
   );
 
-  if (isPending)
-    return (
-      <div className="flex-1 flex items-center justify-center">
-        <Loader2 className="w-6 h-6 text-primary animate-spin" />
-      </div>
-    );
-
   // console.log(collections);
 
   const sidebarItems = [
@@ -106,11 +100,7 @@ const TabbedSidebar = ({ currentWorkspace }: Props) => {
             <div className="p-4 border-b">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search"
-                  className="w-full bg-background border border-input rounded-lg pl-10 pr-4 py-2 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent"
-                />
+                <Input type="text" placeholder="Search" className="pl-10" />
               </div>
             </div>
 
@@ -122,7 +112,13 @@ const TabbedSidebar = ({ currentWorkspace }: Props) => {
               </Button>
             </div>
 
-            {collections && collections.length > 0 ? (
+            {isPending ? (
+              <div className="flex flex-col gap-2 p-3">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <Skeleton key={index} className="h-9 w-full" />
+                ))}
+              </div>
+            ) : collections && collections.length > 0 ? (
               collections.map((collection) => {
                 return (
                   <div

@@ -20,10 +20,7 @@ import {
   ChevronRight,
   Linkedin,
   Instagram,
-  Moon,
-  Sun,
   ArrowRight,
-  Star,
 } from "lucide-react";
 import { FaGithub, FaXTwitter } from "react-icons/fa6";
 import { useState, useEffect } from "react";
@@ -36,6 +33,7 @@ import {
   useModeAnimation,
 } from "react-theme-switch-animation";
 import Image from "next/image";
+import { DashboardShowcaseExample } from "@/components/ui/dashboard-showcase";
 
 // Custom animation classes
 if (typeof window !== "undefined") {
@@ -81,24 +79,6 @@ export default function Page() {
     isDarkMode: isDarkTheme,
     onDarkModeChange: (isDark) => setTheme(isDark ? "dark" : "light"),
   });
-
-  const features = [
-    {
-      title: "Smart API Testing",
-      description:
-        "Execute REST APIs with AI-powered suggestions for request names and JSON bodies. Test GET, POST, PUT, DELETE, PATCH with intelligent assistance.",
-    },
-    {
-      title: "Collaborative Workspaces",
-      description:
-        "Create shared workspaces for your team. Organize API collections, invite members via secure links, and manage permissions with role-based access.",
-    },
-    {
-      title: "Real-time API Testing",
-      description:
-        "Test WebSocket connections and real-time APIs. Monitor live data streams, debug socket communications, and validate real-time endpoints.",
-    },
-  ];
 
   const items = [
     {
@@ -202,7 +182,6 @@ export default function Page() {
     },
   ];
 
-  const [active, setActive] = useState(0);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
 
   // Smooth scroll function
@@ -338,150 +317,14 @@ export default function Page() {
                 )}
               </button>
             </div>
-
-            {/* Rating Pill */}
-            <div className="flex justify-center">
-              <div className="inline-flex items-center gap-1 sm:gap-1.5 md:gap-2 lg:gap-3">
-                {/* Avatar Stack */}
-                <div className="flex -space-x-1 sm:-space-x-1.5 md:-space-x-2">
-                  <Image
-                    src="https://i.pravatar.cc/150?img=12"
-                    alt="User"
-                    width={16}
-                    height={16}
-                    className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 rounded-full border-2 border-white"
-                  />
-                  <Image
-                    src="https://i.pravatar.cc/150?img=32"
-                    alt="User"
-                    width={16}
-                    height={16}
-                    className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 rounded-full border-2 border-white"
-                  />
-                  <Image
-                    src="https://i.pravatar.cc/150?img=28"
-                    alt="User"
-                    width={16}
-                    height={16}
-                    className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 rounded-full border-2 border-white"
-                  />
-                </div>
-
-                {/* Separator */}
-                <div className="w-px h-2 sm:h-2.5 md:h-3 lg:h-4 bg-[rgba(30,13,1,0.1)]" />
-
-                {/* Review Count */}
-                <span className="text-[10px] sm:text-xs md:text-xs lg:text-sm text-[rgba(30,13,1,0.6)]">
-                  2,847 reviews
-                </span>
-
-                {/* Stars */}
-                <div className="flex items-center gap-0.5 sm:gap-0.5 md:gap-0.5 lg:gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className="h-2 w-2 sm:h-2.5 sm:w-2.5 md:h-3 md:w-3 lg:h-4 lg:w-4 fill-[#eba100] text-[#eba100]"
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Floating Dashboard Mockup - Responsive */}
-        </section>
-
-        {/* Section Intro */}
-        <div
-          id="how-it-works"
-          className="mx-auto max-w-[1160px] px-4 sm:px-6 lg:px-[30px] py-12 sm:py-16 lg:py-24 text-center"
-        >
-          <p className="mb-4 text-xs sm:text-sm uppercase tracking-[0.18em] text-[rgba(30,13,1,0.4)]">
-            How it works
-          </p>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium leading-tight tracking-tight">
-            Designed for Developers
-          </h2>
-          <p className="mx-auto mt-4 sm:mt-5 max-w-3xl text-base sm:text-[18px] leading-relaxed sm:leading-[28px] text-[rgba(30,13,1,0.6)] px-2">
-            RouteX empowers developers and teams to build, test, and manage APIs
-            with powerful collaboration features and intelligent automation.
-          </p>
-        </div>
-
-        {/* Features Section with Glass Cards */}
-        <section className="py-12 sm:py-16 lg:py-24">
-          <div className="mx-auto max-w-[1160px] px-4 sm:px-6 lg:px-[30px]">
-            <div className="grid min-h-[500px] sm:min-h-[600px] grid-cols-1 lg:grid-cols-2">
-              <div className="border-r border-[rgba(30,13,1,0.1)] lg:border-r-0 lg:border-b">
-                {features.map((feature, index) => {
-                  const isActive = active === index;
-
-                  return (
-                    <button
-                      key={index}
-                      onClick={() => setActive(index)}
-                      className={cn(
-                        "w-full border-b border-[rgba(30,13,1,0.1)] lg:border-b-0 p-4 sm:p-6 lg:p-8 text-left transition-all duration-300",
-                        "hover:bg-[rgba(249,117,24,0.05)]",
-                      )}
-                    >
-                      {/* Top indicator */}
-                      <div
-                        className={cn(
-                          "h-0.5 w-full mb-4 sm:mb-6 transition-all duration-300",
-                          isActive ? "bg-[#f97518]" : "bg-transparent",
-                        )}
-                      />
-
-                      <h3 className="text-lg sm:text-xl font-medium mb-2 sm:mb-3 text-[#1e0d01]">
-                        {feature.title}
-                      </h3>
-
-                      <p className="max-w-md leading-relaxed text-sm sm:text-base text-[rgba(30,13,1,0.6)]">
-                        {feature.description}
-                      </p>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* RIGHT PANEL - Glass Card */}
-              <div className="relative bg-[#fbfbfc] lg:bg-transparent">
-                <div className="relative h-full flex items-center justify-center p-4 sm:p-6 lg:p-8">
-                  <div className="w-full max-w-3xl p-4 sm:p-6 lg:p-8 bg-white/20 backdrop-blur-md border border-[rgba(30,13,1,0.05)] rounded-[16px] sm:rounded-[24px]">
-                    <div className="rounded-[8px] sm:rounded-[12px] border border-[rgba(30,13,1,0.1)] bg-[#fbfbfc] p-4 sm:p-6 lg:p-8 text-center">
-                      <h4 className="text-lg sm:text-xl font-medium mb-3 sm:mb-4 text-[#1e0d01]">
-                        {features[active].title}
-                      </h4>
-                      <p className="text-sm sm:text-base text-[rgba(30,13,1,0.6)] leading-relaxed">
-                        {features[active].description}
-                      </p>
-                      {/* Demo visualization */}
-                      <div className="mt-4 sm:mt-6 h-48 sm:h-64 rounded-xl flex items-center justify-center overflow-hidden">
-                        <img
-                          src={
-                            active === 0
-                              ? "/smart-api-testing.png"
-                              : active === 1
-                                ? "/collaborative-workspaces.png"
-                                : "/real-time-api-testing.png"
-                          }
-                          alt={`${features[active].title} Demo`}
-                          className="w-full h-full object-contain rounded-xl"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </section>
 
-        {/* Platform Features */}
+        <DashboardShowcaseExample />
+
         <div
           id="platform-features"
-          className="mx-auto max-w-[1160px] px-4 sm:px-6 lg:px-[30px] py-12 sm:py-16 lg:py-24 text-center"
+          className="mx-auto max-w-[1160px] px-4 sm:px-6 lg:px-[30px] py-12 sm:py-16 lg:py-24 mt-48 text-center"
         >
           <p className="mb-4 text-xs sm:text-sm uppercase tracking-[0.18em] text-[rgba(30,13,1,0.4)]">
             Platform Features
@@ -496,8 +339,7 @@ export default function Page() {
           </p>
         </div>
 
-        {/* Feature Cards Grid */}
-        <section className="py-12 sm:py-16 lg:py-24">
+        <section className="">
           <div className="mx-auto max-w-[1160px] px-4 sm:px-6 lg:px-[30px]">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
               {/* LEFT FEATURE */}
@@ -511,13 +353,6 @@ export default function Page() {
                     structured JSON bodies using Google AI based on your API
                     requirements.
                   </p>
-                </div>
-                <div className="h-48 sm:h-64 rounded-xl flex items-center justify-center group-hover:bg-[rgba(249,117,24,0.15)] transition-colors overflow-hidden">
-                  <img
-                    src="/ai-request-generation.png"
-                    alt="AI Request Generation Demo"
-                    className="w-full h-full object-cover rounded-xl"
-                  />
                 </div>
               </div>
 
@@ -533,19 +368,11 @@ export default function Page() {
                     collections.
                   </p>
                 </div>
-                <div className="h-48 sm:h-64 rounded-xl flex items-center justify-center group-hover:bg-[rgba(249,117,24,0.15)] transition-colors overflow-hidden">
-                  <img
-                    src="/intelligent-json-builder.png"
-                    alt="Intelligent JSON Builder Demo"
-                    className="w-full h-full object-cover rounded-xl"
-                  />
-                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Features Grid */}
         <section className="py-12 sm:py-16 lg:py-24">
           <div className="mx-auto max-w-[1160px] px-4 sm:px-6 lg:px-[30px]">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
@@ -575,7 +402,6 @@ export default function Page() {
           </div>
         </section>
 
-        {/* Use Cases Section */}
         <div
           id="use-cases"
           className="mx-auto max-w-[1160px] px-4 sm:px-6 lg:px-[30px] py-12 sm:py-16 lg:py-24 text-center"
@@ -592,7 +418,6 @@ export default function Page() {
           </p>
         </div>
 
-        {/* Use Cases Grid */}
         <section className="py-12 sm:py-16 lg:py-24">
           <div className="mx-auto max-w-[1160px] px-4 sm:px-6 lg:px-[30px]">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -622,7 +447,6 @@ export default function Page() {
           </div>
         </section>
 
-        {/* Productivity Benefits Section */}
         <div
           id="productivity-benefits"
           className="mx-auto max-w-[1160px] px-4 sm:px-6 lg:px-[30px] py-12 sm:py-16 lg:py-24 text-center"
@@ -639,7 +463,6 @@ export default function Page() {
           </p>
         </div>
 
-        {/* Productivity Grid */}
         <section className="py-12 sm:py-16 lg:py-24">
           <div className="mx-auto max-w-[1160px] px-4 sm:px-6 lg:px-[30px]">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
@@ -712,83 +535,8 @@ export default function Page() {
           </div>
         </section>
 
-        {/* Enhanced Testimonial Section */}
-        <section className="py-12 sm:py-16 lg:py-24">
-          <div className="mx-auto max-w-[1160px] px-4 sm:px-6 lg:px-[30px]">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-8">
-              {/* LEFT AVATAR */}
-              <div className="flex items-center justify-center lg:justify-end">
-                <div className="relative">
-                  <Image
-                    src={testimonials[currentTestimonial].avatar}
-                    alt={testimonials[currentTestimonial].name}
-                    height={64}
-                    width={64}
-                    className="h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24 rounded-full object-cover border-4 border-white shadow-lg"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${testimonials[currentTestimonial].name}`;
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* CENTER QUOTE */}
-              <div className="flex flex-col justify-center p-4 sm:p-6 lg:p-8">
-                <div className="mb-6 sm:mb-8 text-base sm:text-[18px] leading-relaxed sm:leading-[28px] text-[#1e0d01] italic">
-                  &ldquo;{testimonials[currentTestimonial].content}&rdquo;
-                </div>
-
-                <div className="space-y-1 sm:space-y-2 mb-4 sm:mb-6">
-                  <p className="font-medium text-[#1e0d01] text-sm sm:text-base">
-                    {testimonials[currentTestimonial].name}
-                  </p>
-                  <p className="text-xs sm:text-sm text-[rgba(30,13,1,0.6)]">
-                    {testimonials[currentTestimonial].role} at{" "}
-                    {testimonials[currentTestimonial].company}
-                  </p>
-                </div>
-
-                {/* Testimonial dots */}
-                <div className="flex gap-1.5 sm:gap-2 justify-center lg:justify-start">
-                  {testimonials.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentTestimonial(index)}
-                      className={`h-2 rounded-full transition-all ${
-                        index === currentTestimonial
-                          ? "w-6 bg-[#f97518]"
-                          : "bg-[rgba(30,13,1,0.3)] hover:bg-[rgba(30,13,1,0.5)]"
-                      }`}
-                      aria-label={`Go to testimonial ${index + 1}`}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* RIGHT METRIC */}
-              <div className="flex flex-col items-start lg:items-end justify-center">
-                <div className="text-left lg:text-right">
-                  <div className="mb-2 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#f97518]">
-                    {testimonials[currentTestimonial].metric}
-                  </div>
-                  <p className="text-xs sm:text-sm uppercase tracking-wider text-[rgba(30,13,1,0.6)]">
-                    {currentTestimonial === 0
-                      ? "API Efficiency"
-                      : currentTestimonial === 1
-                        ? "Time Saved"
-                        : currentTestimonial === 2
-                          ? "Team Adoption"
-                          : "Manual Work Reduced"}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
       </GridLayout>
 
-      {/* Solar SaaS UI Footer */}
       <footer className="border-t border-[rgba(30,13,1,0.1)] bg-[#fbfbfc] py-8 sm:py-12 lg:py-16">
         <div className="mx-auto max-w-[1160px] px-4 sm:px-6 lg:px-[30px]">
           {/* Main Footer Content */}
@@ -796,11 +544,6 @@ export default function Page() {
             {/* BRAND COLUMN */}
             <div className="space-y-4 sm:space-y-6 lg:col-span-1 sm:col-span-2">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#f97518] rounded-xl flex items-center justify-center">
-                  <span className="text-white font-bold text-sm sm:text-lg">
-                    R
-                  </span>
-                </div>
                 <span className="text-lg sm:text-xl font-medium text-[#1e0d01]">
                   RouteX
                 </span>

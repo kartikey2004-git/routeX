@@ -67,7 +67,7 @@ const InviteMember = () => {
         </DropdownMenuTrigger>
       </Hint>
 
-      <DropdownMenuContent className="w-80 rounded-xl" align="end">
+      <DropdownMenuContent className="w-80" align="end">
         <div className="p-4">
           <DropdownMenuLabel className="font-light">
             Invite to {selectedWorkspace?.name}
@@ -116,7 +116,7 @@ const InviteMember = () => {
 
           {/* Generate Button */}
           <Button
-            className="mt-3 w-full rounded-md bg-primary font-normal text-primary-foreground hover:bg-primary/90"
+            className="mt-3 w-full"
             onClick={generateInviteLink}
             disabled={isPending}
           >

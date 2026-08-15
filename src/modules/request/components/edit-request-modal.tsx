@@ -110,7 +110,7 @@ const EditRequestModal = ({
             value={method}
             onValueChange={(value: REST_METHOD) => setMethod(value)}
           >
-            <SelectTrigger className="w-full focus-visible:ring-indigo-500">
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Select method" />
             </SelectTrigger>
             <SelectContent>

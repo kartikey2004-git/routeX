@@ -66,10 +66,7 @@ const Modal: React.FC<ModalProps> = ({
               {cancelText}
             </Button>
             {onSubmit && (
-              <Button
-                className="border border-border bg-accent text-accent-foreground hover:bg-accent/80 transition-colors duration-200"
-                onClick={handleSubmit}
-              >
+              <Button variant={submitVariant} onClick={handleSubmit}>
                 {submitText}
               </Button>
             )}

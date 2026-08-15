@@ -12,6 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRunRequest, useRunDirectRequest } from "../hooks/request";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+import { getMethodColor } from "@/lib/status-colors";
 
 interface Props {
   tab: RequestTab;
@@ -28,14 +30,6 @@ const RequestBar = ({ tab, updateTab }: Props) => {
     useRunDirectRequest();
 
   const isPending = isSavedPending || isDirectPending;
-
-  const requestColorMap: Record<string, string> = {
-    GET: "text-green-500",
-    POST: "text-indigo-500",
-    PUT: "text-yellow-500",
-    DELETE: "text-red-500",
-    PATCH: "text-orange-500",
-  };
 
   const onSendRequest = async () => {
     try {
@@ -65,29 +59,41 @@ const RequestBar = ({ tab, updateTab }: Props) => {
           onValueChange={(value) => updateTab(tab.id, { method: value })}
         >
           <SelectTrigger
-            className={`w-28 font-semibold text-sm focus:ring-0 border-none shadow-none ${
-              requestColorMap[tab.method] || "text-muted-foreground"
-            }`}
+            className={`w-28 font-semibold text-sm focus:ring-0 border-none shadow-none ${getMethodColor(
+              tab.method,
+            )}`}
           >
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="bg-card border">
             <SelectGroup>
-              <SelectItem value="GET" className="text-green-500 font-semibold">
+              <SelectItem
+                value="GET"
+                className={`font-semibold ${getMethodColor("GET")}`}
+              >
                 GET
               </SelectItem>
-              <SelectItem value="POST" className="text-blue-500 font-semibold">
+              <SelectItem
+                value="POST"
+                className={`font-semibold ${getMethodColor("POST")}`}
+              >
                 POST
               </SelectItem>
-              <SelectItem value="PUT" className="text-yellow-500 font-semibold">
+              <SelectItem
+                value="PUT"
+                className={`font-semibold ${getMethodColor("PUT")}`}
+              >
                 PUT
               </SelectItem>
-              <SelectItem value="DELETE" className="text-red-500 font-semibold">
+              <SelectItem
+                value="DELETE"
+                className={`font-semibold ${getMethodColor("DELETE")}`}
+              >
                 DELETE
               </SelectItem>
               <SelectItem
                 value="PATCH"
-                className="text-orange-500 font-semibold"
+                className={`font-semibold ${getMethodColor("PATCH")}`}
               >
                 PATCH
               </SelectItem>
@@ -99,7 +105,7 @@ const RequestBar = ({ tab, updateTab }: Props) => {
           value={tab?.url || ""}
           onChange={(e) => updateTab(tab.id, { url: e.target.value })}
           placeholder="Enter URL"
-          className="flex-1 bg-background text-foreground placeholder:text-muted-foreground border border-input rounded-sm px-3 py-2 focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200"
+          className="flex-1"
         />
 
         {/* button which send HTTP requests on endpoint url */}
@@ -108,11 +114,11 @@ const RequestBar = ({ tab, updateTab }: Props) => {
         type="submit"
         onClick={onSendRequest}
         disabled={!tab.url || isPending}
-        className="ml-3 flex items-center gap-2 rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground shadow-sm transition-colors duration-200 hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+        className="ml-3"
       >
         {isPending ? (
           <>
-            <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin"></div>
+            <Loader2 className="animate-spin" />
             Sending...
           </>
         ) : (

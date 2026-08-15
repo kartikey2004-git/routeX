@@ -5,6 +5,9 @@
 
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Send, Copy, Trash2, RefreshCw } from "lucide-react";
 import Editor from "@monaco-editor/react";
 import { toast } from "sonner";
@@ -142,22 +145,16 @@ const RealtimeMessageEditor = () => {
   }, [draftMessage]);
 
   return (
-    <div className="flex flex-col space-y-4 rounded-lg border border-border bg-card p-4">
+    <Card className="flex flex-col gap-4 p-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-foreground">
           Message Editor
         </h3>
         <div className="flex items-center gap-2">
-          <span
-            className={`rounded-md px-2 py-1 text-xs ${
-              status === "connected"
-                ? "bg-green-500/15 text-green-600 dark:text-green-400"
-                : "bg-destructive/10 text-destructive"
-            }`}
-          >
+          <Badge variant={status === "connected" ? "success" : "destructive"}>
             {status === "connected" ? "Connected" : "Disconnected"}
-          </span>
+          </Badge>
         </div>
       </div>
 
@@ -189,41 +186,35 @@ const RealtimeMessageEditor = () => {
               contextmenu: true,
               mouseWheelZoom: false,
             }}
-            loading={
-              <div className="flex h-64 w-full items-center justify-center bg-background">
-                <div className="text-sm text-muted-foreground">
-                  Loading Monaco Editor...
-                </div>
-              </div>
-            }
+            loading={<Skeleton className="h-[150px] w-full rounded-none" />}
           />
         </div>
 
         {/* Editor Actions */}
         <div className="absolute top-2 right-2 flex gap-1 opacity-70 hover:opacity-100 transition-opacity">
           <Button
-            size="sm"
+            size="icon"
             variant="ghost"
             onClick={handleFormatJSON}
-            className="h-6 w-6 p-0 text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="h-6 w-6 text-muted-foreground hover:bg-muted hover:text-foreground"
           >
-            <RefreshCw size={12} />
+            <RefreshCw className="size-3" />
           </Button>
           <Button
-            size="sm"
+            size="icon"
             variant="ghost"
             onClick={handleCopyMessage}
-            className="h-6 w-6 p-0 text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="h-6 w-6 text-muted-foreground hover:bg-muted hover:text-foreground"
           >
-            <Copy size={12} />
+            <Copy className="size-3" />
           </Button>
           <Button
-            size="sm"
+            size="icon"
             variant="ghost"
             onClick={handleClearMessage}
-            className="h-6 w-6 p-0 text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="h-6 w-6 text-muted-foreground hover:bg-muted hover:text-foreground"
           >
-            <Trash2 size={12} />
+            <Trash2 className="size-3" />
           </Button>
         </div>
       </div>
@@ -244,7 +235,7 @@ const RealtimeMessageEditor = () => {
       </div>
 
       <RealtimeClientServerLogsTable />
-    </div>
+    </Card>
   );
 };
 

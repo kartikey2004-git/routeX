@@ -31,6 +31,7 @@ const CreateWorkspace = ({
       setName("");
       setIsModalOpen(false);
     } catch (error) {
+      toast.error("Failed to create workspace");
       console.error("Failed to create workspace:", error);
     }
   };
@@ -47,7 +48,6 @@ const CreateWorkspace = ({
     >
       <div className="space-y-4">
         <Input
-          className="w-full p-2 border rounded-sm"
           placeholder="Workspace Name"
           value={name}
           onChange={(e) => setName(e.target.value)}

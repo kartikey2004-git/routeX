@@ -3,16 +3,16 @@
 
 import React, { useState, useEffect } from "react";
 import Modal from "@/components/ui/modal";
-import { ChevronRight, Folder, Search } from "lucide-react";
+import { ChevronRight, Folder, Loader2, Search } from "lucide-react";
 
 import { toast } from "sonner";
 import { useAddRequestToCollection } from "@/modules/request/hooks/request";
 import { REST_METHOD } from "@prisma/client";
 import { useWorkspaceStore } from "@/modules/layout/store";
 import { useGetCollections } from "../hooks/collection";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getMethodColor } from "@/lib/status-colors";
 
 interface Props {
   isModalOpen: boolean;
@@ -88,16 +88,6 @@ const SaveRequestToCollectionModal = ({
     }
   }, [isModalOpen, collections, collectionId, selectedCollectionId]);
 
-  // here utility/hashmap for mapping color according to different HTTP requests
-
-  const requestColorMap: Record<REST_METHOD, string> = {
-    [REST_METHOD.GET]: "text-green-500",
-    [REST_METHOD.POST]: "text-indigo-500",
-    [REST_METHOD.PUT]: "text-yellow-500",
-    [REST_METHOD.DELETE]: "text-red-500",
-    [REST_METHOD.PATCH]: "text-orange-500",
-  };
-
   // Logic to filter collection of particular workspace on basis of search input
 
   const filteredCollections =
@@ -167,7 +157,7 @@ const SaveRequestToCollectionModal = ({
               value={requestName}
               onChange={(e) => setRequestName(e.target.value)}
               autoFocus
-              className="w-full p-3 bg-background border border-input rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent pr-20"
+              className="pr-20"
               placeholder="Enter request name..."
             />
 
@@ -175,9 +165,9 @@ const SaveRequestToCollectionModal = ({
 
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
               <span
-                className={`text-xs font-semibold px-2 py-1 rounded ${
-                  requestColorMap[requestData.method]
-                }`}
+                className={`text-xs font-semibold px-2 py-1 rounded-sm ${getMethodColor(
+                  requestData.method,
+                )}`}
               >
                 {requestData.method}
               </span>
@@ -205,7 +195,7 @@ const SaveRequestToCollectionModal = ({
             <Input
               type="text"
               placeholder="Search"
-              className="w-full bg-background border border-input rounded-lg pl-10 pr-4 py-2 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="pl-10"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -218,7 +208,7 @@ const SaveRequestToCollectionModal = ({
 
             {isLoading ? (
               <div className="flex items-center justify-center py-8">
-                <div className="w-5 h-5 border-2 border-muted-foreground border-t-primary rounded-full animate-spin"></div>
+                <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
                 <span className="ml-2 text-sm text-muted-foreground">
                   Loading collections...
                 </span>
@@ -226,7 +216,7 @@ const SaveRequestToCollectionModal = ({
             ) : // Error state agar collections of particular workspace nahi aa rhe
 
             isError ? (
-              <div className="text-center py-4 text-red-400 text-sm">
+              <div className="text-center py-4 text-destructive text-sm">
                 Failed to load collections
               </div>
             ) : // state When there is no collections in workspace
@@ -267,12 +257,6 @@ const SaveRequestToCollectionModal = ({
                     <span className={`text-sm font-light`}>
                       {collection.name}
                     </span>
-                  </div>
-
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                      <span className="text-muted-foreground">⋯</span>
-                    </Button>
                   </div>
                 </div>
               ))

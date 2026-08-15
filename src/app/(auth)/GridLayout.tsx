@@ -83,10 +83,6 @@ export default function GridLayout({
             />
           </div>
 
-          {/* Ambient Glow - Responsive */}
-          <div className="absolute top-[200px] left-[200px] w-[600px] h-[600px] bg-[rgba(249,117,24,0.05)] blur-[120px] rounded-full hidden md:block" />
-          {/* Mobile glow */}
-          <div className="absolute top-[100px] left-1/2 transform -translate-x-1/2 w-[400px] h-[400px] bg-[rgba(249,117,24,0.03)] blur-[80px] rounded-full md:hidden" />
         </div>
       </div>
 

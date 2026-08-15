@@ -123,7 +123,7 @@ const SearchBar = () => {
           <CommandList>
             {isLoading && (
               <div className="p-2 text-sm">
-                <Loader2 className="w-6 h-6 text-primary animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
               </div>
             )}
 

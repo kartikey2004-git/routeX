@@ -39,6 +39,7 @@ import { useWorkspaceStore } from "@/modules/layout/store";
 import { useRequestPlaygroundStore } from "../store/useRequestStore";
 import { useGenerateJsonBody } from "@/modules/ai/hooks/ai-suggestion";
 import { useTheme } from "next-themes";
+import { toast } from "sonner";
 
 // This function lets you dynamically import a component. It uses React.lazy() with Suspense under the hood.
 
@@ -103,6 +104,7 @@ const BodyEditor: React.FC<BodyEditorProps> = ({
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       } catch (err) {
+        toast.error("Failed to copy to clipboard");
         console.error("Failed to copy:", err);
       }
     }
@@ -114,6 +116,7 @@ const BodyEditor: React.FC<BodyEditorProps> = ({
         const formatted = JSON.stringify(JSON.parse(bodyValue), null, 2);
         form.setValue("body", formatted);
       } catch (error) {
+        toast.error("Invalid JSON format");
         console.error("Invalid JSON format", error);
       }
     }
@@ -150,6 +153,7 @@ const BodyEditor: React.FC<BodyEditorProps> = ({
       setShowGenerateDialog(false);
       setPrompt("");
     } catch (error) {
+      toast.error("Failed to generate JSON body");
       console.error("Failed to generate JSON body:", error);
     }
   };
@@ -337,7 +341,7 @@ const BodyEditor: React.FC<BodyEditorProps> = ({
 
       {/* Generate JSON Dialog */}
       <Dialog open={showGenerateDialog} onOpenChange={setShowGenerateDialog}>
-        <DialogContent className="border-border bg-popover text-popover-foreground sm:max-w-106.25">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Generate JSON Body</DialogTitle>
           </DialogHeader>
@@ -350,7 +354,6 @@ const BodyEditor: React.FC<BodyEditorProps> = ({
                 id="prompt"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                className="border-border bg-background"
                 placeholder="e.g., Create a user registration body with email and password"
               />
             </div>
@@ -360,7 +363,6 @@ const BodyEditor: React.FC<BodyEditorProps> = ({
               type="button"
               variant="outline"
               onClick={() => setShowGenerateDialog(false)}
-              className="border-border text-muted-foreground"
             >
               Cancel
             </Button>
@@ -368,7 +370,6 @@ const BodyEditor: React.FC<BodyEditorProps> = ({
               type="submit"
               onClick={() => onGenerateBody(prompt)}
               disabled={!prompt.trim() || isPending}
-              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {isPending ? "Generating..." : "Generate"}
             </Button>

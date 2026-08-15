@@ -2,9 +2,11 @@
 
 import React, { useState } from "react";
 import { useRequestPlaygroundStore } from "../store/useRequestStore";
-import { X } from "lucide-react";
+import { X, Plus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import AddNameModal from "./add-name-modal";
+import { Button } from "@/components/ui/button";
+import { getMethodColor } from "@/lib/status-colors";
 
 const TabBar = () => {
   const { tabs, activeTabId, addTab, setActiveTab, closeTab } =
@@ -17,16 +19,6 @@ const TabBar = () => {
   // state for handling tabId which is selected
 
   const [selectedTabId, setSelectedTabId] = useState<string | null>(null);
-
-  // here utility/hashmap for mapping color according to different HTTP requests
-
-  const requestColorMap: Record<string, string> = {
-    GET: "text-green-500",
-    POST: "text-indigo-500",
-    PUT: "text-yellow-500",
-    DELETE: "text-red-500",
-    PATCH: "text-orange-500",
-  };
 
   const onDoubleClick = (tabId: string) => {
     setSelectedTabId(tabId);
@@ -59,9 +51,9 @@ const TabBar = () => {
                 }`}
               >
                 <span
-                  className={`font-semibold transition-colors duration-200 ${
-                    requestColorMap[tab.method] || "text-muted-foreground"
-                  }`}
+                  className={`font-semibold transition-colors duration-200 ${getMethodColor(
+                    tab.method,
+                  )}`}
                 >
                   {tab.method}
                 </span>
@@ -69,7 +61,7 @@ const TabBar = () => {
                 <p className="max-w-xs truncate font-semibold flex items-center gap-1">
                   {tab.title}
                   {tab.unsavedChanges && (
-                    <span className="text-red-500 transition-opacity duration-200 group-hover:opacity-0">
+                    <span className="text-destructive transition-opacity duration-200 group-hover:opacity-0">
                       •
                     </span>
                   )}
@@ -78,7 +70,7 @@ const TabBar = () => {
                 {/* icon for calling closeTab for closing particular request tab */}
 
                 <X
-                  className="ml-2 w-4 h-4 opacity-0 group-hover:opacity-100 hover:text-red-500 transition-opacity duration-200"
+                  className="ml-2 w-4 h-4 opacity-0 group-hover:opacity-100 hover:text-destructive transition-opacity duration-200"
                   onClick={(e) => {
                     e.stopPropagation();
                     closeTab(tab.id);
@@ -90,13 +82,15 @@ const TabBar = () => {
         </AnimatePresence>
 
         {/* button to add a request tab*/}
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={addTab}
-          className="px-3 py-2 text-muted-foreground hover:text-foreground"
+          className="h-9 w-9 shrink-0 text-muted-foreground hover:text-foreground"
+          aria-label="New request tab"
         >
-          {" "}
-          +{" "}
-        </button>
+          <Plus className="w-4 h-4" />
+        </Button>
       </div>
 
       {selectedTabId && (

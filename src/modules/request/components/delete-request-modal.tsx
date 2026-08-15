@@ -44,7 +44,7 @@ const DeleteRequestModal = ({
       submitText={isPending ? "Deleting..." : "Delete"}
       submitVariant="destructive"
     >
-      <p className="text-sm text-slate-500">
+      <p className="text-sm text-muted-foreground">
         Once deleted ,request will be permanently removed.
       </p>
     </Modal>

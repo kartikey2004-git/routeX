@@ -220,7 +220,7 @@ const KeyValueFormEditor: React.FC<KeyValueFormEditorProps> = ({
 
           {/* Table-like layout */}
 
-          <div className="w-full border rounded overflow-hidden">
+          <div className="w-full border rounded-md overflow-hidden">
             {/* Table header */}
             <div className="grid grid-cols-12 bg-muted text-xs text-muted-foreground border-b">
               <div className="col-span-5 border-r font-medium px-3 py-2">
@@ -311,22 +311,15 @@ const KeyValueFormEditor: React.FC<KeyValueFormEditorProps> = ({
                       render={({ field: checkBoxField }) => (
                         <FormItem>
                           <FormControl>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => toggleEnabled(index)}
-                              className={cn(
-                                "h-5 w-5 p-0 rounded-none border transition-colors",
+                            <Checkbox
+                              checked={checkBoxField.value}
+                              onCheckedChange={() => toggleEnabled(index)}
+                              aria-label={
                                 checkBoxField.value
-                                  ? "bg-primary border-primary text-primary-foreground hover:bg-primary/90"
-                                  : "bg-background border-border text-muted-foreground hover:bg-muted",
-                              )}
-                            >
-                              {checkBoxField.value ? (
-                                <Check className="h-3 w-3" />
-                              ) : null}
-                            </Button>
+                                  ? "Disable row"
+                                  : "Enable row"
+                              }
+                            />
                           </FormControl>
                         </FormItem>
                       )}
@@ -338,17 +331,18 @@ const KeyValueFormEditor: React.FC<KeyValueFormEditorProps> = ({
                     <Button
                       type="button"
                       variant="ghost"
-                      size="sm"
+                      size="icon"
                       onClick={() => removeRow(index)}
                       disabled={fields.length <= 1}
                       className={cn(
-                        "h-5 w-5 p-0 transition-colors",
+                        "h-6 w-6 transition-colors",
                         fields.length <= 1
                           ? "text-muted-foreground cursor-not-allowed"
                           : "text-destructive hover:text-destructive/80 hover:bg-destructive/10",
                       )}
+                      aria-label="Remove row"
                     >
-                      <Trash2 className="h-3 w-3 text-muted-foreground" />
+                      <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>
                 </div>

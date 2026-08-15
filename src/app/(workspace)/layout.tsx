@@ -42,9 +42,9 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
       {/*Header */}
 
       {user && (
-        <>
+        <div className="flex h-dvh flex-col overflow-hidden">
           <Header user={user} /> {/* main section of our app */}
-          <main className="max-h-[calc(100vh-4rem)] h-[calc(100vh-4rem)] flex flex-1 overflow-hidden bg-background">
+          <main className="flex flex-1 min-h-0 overflow-hidden bg-background">
             <div className="flex h-full w-full">
               <div className="flex-1 bg-background">{children}</div>
 
@@ -56,7 +56,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
               </div>
             </div>
           </main>
-          <footer className="w-full border-t border-border bg-background text-muted-foreground">
+          <footer className="w-full shrink-0 border-t border-border bg-background text-muted-foreground">
             <div className="max-w-6xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
               {/* Left Section */}
               <div className="text-sm text-muted-foreground">
@@ -100,7 +100,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
               </TooltipProvider>
             </div>
           </footer>
-        </>
+        </div>
       )}
     </>
   );

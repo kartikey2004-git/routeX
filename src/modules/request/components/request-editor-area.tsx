@@ -81,7 +81,7 @@ const RequestEditorArea = ({ tab, updateTab }: Props) => {
   return (
     <Tabs
       defaultValue="parameters"
-      className="bg-card border rounded-sm w-full px-6 py-6 shadow-sm"
+      className="bg-card border rounded-lg w-full px-6 py-6 shadow-sm"
     >
       <TabsList className="bg-muted rounded-lg p-1 mb-6">
         <TabsTrigger

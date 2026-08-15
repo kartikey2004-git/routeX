@@ -45,11 +45,15 @@ const Workspace = () => {
   }, [workspaces, selectedWorkspace, setSelectedWorkspace]);
 
   if (isLoading) {
-    return <Loader2 className="animate-spin size-4 text-primary" />;
+    return <Loader2 className="size-4 animate-spin text-muted-foreground" />;
   }
 
   if (!workspaces || workspaces.length === 0) {
-    return <div className="font-semibold text-primary">No Workspace Found</div>;
+    return (
+      <span className="text-sm font-medium text-muted-foreground">
+        No workspace found
+      </span>
+    );
   }
 
   return (
@@ -66,41 +70,44 @@ const Workspace = () => {
         >
           <SelectTrigger className="border flex flex-row items-center space-x-1">
             <User className="size-4 text-primary" />
-            <span className="text-sm  font-semibold">
+            <span className="text-sm font-semibold">
               <SelectValue placeholder="Select workspace" />
-
-              <SelectContent>
-                {workspaces.map((ws) => {
-                  return (
-                    <SelectItem key={ws.id} value={ws.id}>
-                      {ws.name}
-                    </SelectItem>
-                  );
-                })}
-
-                <Separator className="my-1" />
-                <div className="flex items-center justify-between text-sm font-semibold text-muted-foreground">
-                  {/* here show all created workspaces and all workspaces where we are a member */}
-
-                  <span className="text-sm ml-1 font-semibold text-muted-foreground">
-                    My Workspaces
-                  </span>
-
-                  {/* now I want humein ek naya workspace create krne ka option miljayein */}
-
-                  {/* when we click on this plus icon ek modal open hona chahiye for creating new worspace */}
-
-                  <Button
-                    size={"icon"}
-                    variant={"outline"}
-                    onClick={() => setIsModalOpen(true)}
-                  >
-                    <Plus size={16} />
-                  </Button>
-                </div>
-              </SelectContent>
             </span>
           </SelectTrigger>
+
+          <SelectContent>
+            {workspaces.map((ws) => {
+              return (
+                <SelectItem key={ws.id} value={ws.id}>
+                  {ws.name}
+                </SelectItem>
+              );
+            })}
+
+            <Separator className="my-1" />
+            <div className="flex items-center justify-between px-2 py-1 text-sm font-semibold text-muted-foreground">
+              {/* here show all created workspaces and all workspaces where we are a member */}
+
+              <span className="text-sm font-semibold text-muted-foreground">
+                My Workspaces
+              </span>
+
+              {/* now I want humein ek naya workspace create krne ka option miljayein */}
+
+              {/* when we click on this plus icon ek modal open hona chahiye for creating new worspace */}
+
+              <Button
+                size={"icon"}
+                variant={"outline"}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsModalOpen(true);
+                }}
+              >
+                <Plus size={16} />
+              </Button>
+            </div>
+          </SelectContent>
         </Select>
       </Hint>
 
