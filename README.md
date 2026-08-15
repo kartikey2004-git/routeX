@@ -1,4 +1,4 @@
-# ⚡ RouteX
+#  RouteX
 
 RouteX is a collaborative platform for managing workspaces, API collections, and request execution history, built as a monolithic Next.js App Router application with a Prisma + PostgreSQL backend and server-backed authentication.
 
