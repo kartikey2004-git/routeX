@@ -1,13 +1,18 @@
-# YAML: Yet Another Markup Language
-# docker compose file for database
+# Local PostgreSQL for development.
+# Set POSTGRES_USER and POSTGRES_PASSWORD in your local .env (never commit real values).
 
 name: routex
 services:
   db:
-    image: postgres:latest
+    image: postgres:16
     environment:
-      - POSTGRES_USER=kartikey
-      - POSTGRES_PASSWORD=npg_pewzjfJVn61D
-      - POSTGRES_DB=routex
+      - POSTGRES_USER=${POSTGRES_USER:-routex}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in your .env file}
+      - POSTGRES_DB=${POSTGRES_DB:-routex}
     ports:
       - 5432:5432
+    volumes:
+      - routex-db:/var/lib/postgresql/data
+
+volumes:
+  routex-db:
