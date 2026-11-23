@@ -1,26 +1,29 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+"use client";
+
+import React, { useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  ChevronDown,
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import { Badge } from "@/components/ui/badge";
+import {
   ChevronRight,
-  Edit,
-  EllipsisVertical,
   FilePlus,
-  Folder,
-  Loader2,
-  Trash,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
 } from "lucide-react";
-import React, { useState } from "react";
 import EditCollectionModal from "./edit-collection-modal";
 import DeleteCollectionModal from "./delete-collection-modal";
 import SaveRequestToCollectionModal from "./add-request-modal";
@@ -30,6 +33,8 @@ import DeleteRequestModal from "@/modules/request/components/delete-request-moda
 import { useRequestPlaygroundStore } from "@/modules/request/store/useRequestStore";
 import { Button } from "@/components/ui/button";
 import { getMethodColor } from "@/lib/status-colors";
+import { ErrorState, LoadingRows } from "@/components/shared/states";
+import { cn } from "@/lib/utils";
 
 interface Props {
   collection: {
@@ -40,280 +45,279 @@ interface Props {
   };
 }
 
+/*
+  One collection in the tree. Actions are available three ways: the hover
+  buttons, the "more" menu, and right-click. The open request is marked in the
+  list, so the tree always answers "which request am I looking at?".
+*/
 const CollectionFolder = ({ collection }: Props) => {
-  // Folder collapse/expand state handle karne ke liye.
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
-  // state for opening modal for adding a request
+  const [isOpen, setIsOpen] = useState(true);
 
   const [isAddRequestOpen, setIsAddRequestOpen] = useState(false);
-
-  // state for opening modal for deleting , editing a collection
-
   const [isEditOpen, setIsEditOpen] = useState(false);
-
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
-  // state for opening edit and delete modal for particular request
-
-  const [isEditReqOpen, setIsEditReqOpen] = useState(false);
-
-  const [isDelReqOpen, setIsDelReqOpen] = useState(false);
-
-  // we need to handle state for currently selected request to perform edit and delete
-
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
-
-  // hook for getting all requests from a particular collection by passing particular collection id
+  const [isEditReqOpen, setIsEditReqOpen] = useState(false);
+  const [isDelReqOpen, setIsDelReqOpen] = useState(false);
 
   const {
     data: requestData,
     isPending,
     isError,
+    refetch,
   } = useGetAllRequestFromCollection(collection.id);
 
-  const { openRequestTab } = useRequestPlaygroundStore();
+  const { openRequestTab, tabs, activeTabId } = useRequestPlaygroundStore();
+  const activeRequestId = tabs.find((t) => t.id === activeTabId)?.requestId;
 
-  // we have requests if we have requestData and uski length zero se jyada hai
+  const requests: any[] = requestData ?? [];
 
-  const hasRequests = requestData && requestData.length > 0;
+  const openRenameRequest = (request: any) => {
+    setSelectedRequest(request);
+    setIsEditReqOpen(true);
+  };
+
+  const openDeleteRequest = (request: any) => {
+    setSelectedRequest(request);
+    setIsDelReqOpen(true);
+  };
 
   return (
-    <>
-      <Collapsible
-        open={isCollapsed}
-        onOpenChange={setIsCollapsed}
-        className="w-full"
-      >
-        <div className="flex flex-col w-full">
-          <div className="flex flex-row justify-between items-center p-2 flex-1 w-full hover:bg-muted rounded-md">
-            {/* Collection Header */}
-
-            <CollapsibleTrigger className="flex flex-row justify-start items-center space-x-2 flex-1">
-              <div className="flex items-center space-x-1">
-                {isCollapsed ? (
-                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                ) : (
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+    <section className="group/collection px-1.5 py-0.5">
+      <ContextMenu>
+        <ContextMenuTrigger asChild>
+          <div className="flex items-center rounded-sm hover:bg-muted focus-within:bg-muted">
+            <button
+              type="button"
+              onClick={() => setIsOpen((open) => !open)}
+              aria-expanded={isOpen}
+              className="flex h-7 min-w-0 flex-1 items-center gap-1.5 rounded-sm px-1.5 text-left outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <ChevronRight
+                className={cn(
+                  "size-3.5 shrink-0 text-muted-foreground transition-transform duration-150",
+                  isOpen && "rotate-90",
                 )}
-                <Folder className="w-5 h-5 text-muted-foreground" />
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium text-foreground capitalize">
-                  {collection.name}
-                </span>
-              </div>
-            </CollapsibleTrigger>
-
-            <div className="flex flex-row justify-center items-center space-x-2">
-              <FilePlus
-                className="w-4 h-4 text-muted-foreground hover:text-primary cursor-pointer"
-                onClick={() => setIsAddRequestOpen(true)}
               />
+              <span className="truncate text-[13px] font-medium text-foreground">
+                {collection.name}
+              </span>
+              {requestData && (
+                <Badge
+                  variant="secondary"
+                  className="ml-auto h-4 rounded-sm px-1 font-mono text-[10px] font-normal"
+                >
+                  {requestData.length}
+                </Badge>
+              )}
+            </button>
+
+            <div className="flex shrink-0 items-center pr-0.5 md:opacity-0 md:transition-opacity md:group-hover/collection:opacity-100 md:focus-within:opacity-100">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="size-6"
+                aria-label={`Add request to ${collection.name}`}
+                onClick={() => setIsAddRequestOpen(true)}
+              >
+                <FilePlus />
+              </Button>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 text-muted-foreground hover:text-primary"
+                    size="icon-sm"
+                    className="size-6"
+                    aria-label={`More actions for ${collection.name}`}
                   >
-                    <EllipsisVertical className="w-4 h-4" />
+                    <MoreHorizontal />
                   </Button>
                 </DropdownMenuTrigger>
-
-                {/* 
-                
-                we can implement shortcut keys related to add , delete and edit a request because it helps in PWA(progressive web apps) experience
-                
-                abhi toh we implement hot keys bhi implement krenge
-
-                */}
-
-                <DropdownMenuContent className="w-48">
+                <DropdownMenuContent align="start" className="w-44">
                   <DropdownMenuItem onClick={() => setIsAddRequestOpen(true)}>
-                    <div className="flex flex-row justify-between items-center w-full">
-                      <div className="font-semibold flex justify-center items-center">
-                        <FilePlus className="text-success mr-2 w-4 h-4" />
-                        Add Request
-                      </div>
-                      <span className="text-xs text-muted-foreground bg-muted px-1 rounded-sm">
-                        ⌘R
-                      </span>
-                    </div>
+                    <FilePlus />
+                    Add request
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setIsEditOpen(true)}>
-                    <div className="flex flex-row justify-between items-center w-full">
-                      <div className="font-semibold flex justify-center items-center">
-                        <Edit className="text-blue-600 dark:text-blue-400 mr-2 w-4 h-4" />
-                        Edit
-                      </div>
-                      <span className="text-xs text-muted-foreground bg-muted px-1 rounded-sm">
-                        ⌘E
-                      </span>
-                    </div>
+                    <Pencil />
+                    Rename
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setIsDeleteOpen(true)}>
-                    <div className="flex flex-row justify-between items-center w-full">
-                      <div className="font-semibold flex justify-center items-center">
-                        <Trash className="text-destructive mr-2 w-4 h-4" />
-                        Delete
-                      </div>
-                      <span className="text-xs text-muted-foreground bg-muted px-1 rounded-sm">
-                        ⌘D
-                      </span>
-                    </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onClick={() => setIsDeleteOpen(true)}
+                  >
+                    <Trash2 />
+                    Delete collection
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
           </div>
+        </ContextMenuTrigger>
+        <ContextMenuContent className="w-44">
+          <ContextMenuItem onClick={() => setIsAddRequestOpen(true)}>
+            <FilePlus />
+            Add request
+          </ContextMenuItem>
+          <ContextMenuItem onClick={() => setIsEditOpen(true)}>
+            <Pencil />
+            Rename
+          </ContextMenuItem>
+          <ContextMenuSeparator />
+          <ContextMenuItem
+            variant="destructive"
+            onClick={() => setIsDeleteOpen(true)}
+          >
+            <Trash2 />
+            Delete collection
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
 
-          <CollapsibleContent className="w-full">
-            {/* pending state jab tak requests of particular collection load nhi huyi hai - still fetching */}
-
-            {isPending ? (
-              <div className="pl-8 py-2">
-                <div className="flex items-center space-x-2">
-                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                </div>
-              </div>
-            ) : isError ? (
-              // Error state agar requests of particular collection nahi aa rhe
-
-              <div className="pl-8 py-2">
-                <span className="text-xs text-destructive">
-                  Failed to load requests
-                </span>
-              </div>
-            ) : hasRequests ? (
-              <div className="ml-6 border-l border pl-4 space-y-1">
-                {requestData.map((request: any) => {
-                  // console.log(requestData);
-
-                  // onclick krne request tab open ho woh baad mein implement krenge
-
-                  return (
-                    <div
-                      key={request.id}
-                      onClick={() => openRequestTab(request)}
-                      className="flex items-center justify-between py-2 px-3 hover:bg-muted/50 rounded-md cursor-pointer group transition-colors"
-                    >
-                      <div className="flex items-center space-x-3 flex-1">
-                        <div className="flex items-center space-x-2">
-                          <span
-                            className={`text-xs font-medium px-2 py-1 rounded-sm ${getMethodColor(
-                              request.method,
-                            )}`}
+      {isOpen && (
+        <div className="mt-0.5 ml-[11px] border-l border-border pl-2">
+          {isPending ? (
+            <LoadingRows rows={2} />
+          ) : isError ? (
+            <ErrorState
+              title="Couldn't load requests"
+              description="This collection's requests didn't load."
+              onRetry={() => refetch()}
+            />
+          ) : requests.length === 0 ? (
+            <p className="py-1.5 pl-1.5 text-[13px] text-muted-foreground">
+              No requests yet.{" "}
+              <button
+                type="button"
+                onClick={() => setIsAddRequestOpen(true)}
+                className="text-accent-text underline-offset-4 hover:underline"
+              >
+                Add one
+              </button>
+            </p>
+          ) : (
+            <ul className="space-y-px py-0.5">
+              {requests.map((request: any) => {
+                const isActive = activeRequestId === request.id;
+                const label = request.name || request.url;
+                return (
+                  <li key={request.id} className="group/request relative">
+                    <ContextMenu>
+                      <ContextMenuTrigger asChild>
+                        <div className="relative">
+                          <button
+                            type="button"
+                            onClick={() => openRequestTab(request)}
+                            title={request.url}
+                            aria-current={isActive ? "true" : undefined}
+                            className={cn(
+                              "flex h-7 w-full min-w-0 items-center gap-2 rounded-sm pr-7 pl-2 text-left text-[13px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring",
+                              isActive
+                                ? "bg-muted text-foreground"
+                                : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                            )}
                           >
-                            {request.method}
-                          </span>
-
-                          <div className="w-1.5 h-1.5 bg-success rounded-full animate-pulse shadow-sm shadow-success/50"></div>
-                        </div>
-
-                        <div className="flex flex-col flex-1 min-w-0">
-                          <span className="text-sm text-foreground truncate font-medium">
-                            {request.name || request.url}
-                          </span>
-
-                          {request.url && request.name && (
-                            <span className="text-xs text-muted-foreground truncate">
-                              {request.url}
+                            {isActive && (
+                              <span
+                                aria-hidden="true"
+                                className="absolute top-1 bottom-1 left-0 w-0.5 bg-primary"
+                              />
+                            )}
+                            <span
+                              className={cn(
+                                "w-11 shrink-0 font-mono text-[11px] font-semibold",
+                                getMethodColor(request.method),
+                              )}
+                            >
+                              {request.method}
                             </span>
-                          )}
+                            <span className="truncate">{label}</span>
+                          </button>
+
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                className="absolute top-0.5 right-0.5 size-6 md:opacity-0 md:group-hover/request:opacity-100 md:focus-visible:opacity-100 data-[state=open]:opacity-100"
+                                aria-label={`More actions for ${label}`}
+                              >
+                                <MoreHorizontal />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="start" className="w-40">
+                              <DropdownMenuItem onClick={() => openRenameRequest(request)}>
+                                <Pencil />
+                                Rename
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                variant="destructive"
+                                onClick={() => openDeleteRequest(request)}
+                              >
+                                <Trash2 />
+                                Delete request
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
-                      </div>
-
-                      {/* Here is assignment for implementing a whole functionality for updating , deleting a request  */}
-
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6 text-muted-foreground"
-                            >
-                              <EllipsisVertical className="w-3.5 h-3.5" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent className="w-32">
-                            <DropdownMenuItem
-                              onClick={() => {
-                                setSelectedRequest(request);
-                                setIsEditReqOpen(true);
-                              }}
-                            >
-                              <Edit className="text-blue-600 dark:text-blue-400 mr-2 w-3.5 h-3.5" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => {
-                                setSelectedRequest(request);
-                                setIsDelReqOpen(true);
-                              }}
-                            >
-                              <Trash className="text-destructive mr-2 w-3.5 h-3.5" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-
-                        {selectedRequest && (
-                          <>
-                            <EditRequestModal
-                              isModalOpen={isEditReqOpen}
-                              setIsModalOpen={(open) => {
-                                setIsEditReqOpen(open);
-                                if (!open) setSelectedRequest(null);
-                              }}
-                              collectionId={collection.id}
-                              collectionName={collection.name}
-                              initialMethod={selectedRequest?.method || ""}
-                              initialName={selectedRequest?.name || ""}
-                              initialUrl={selectedRequest?.url || ""}
-                              requestId={selectedRequest?.id || ""}
-                            />
-
-                            <DeleteRequestModal
-                              isModalOpen={isDelReqOpen}
-                              setIsModalOpen={(open) => {
-                                setIsDelReqOpen(open);
-                                if (!open) setSelectedRequest(null);
-                              }}
-                              collectionId={collection.id}
-                              collectionName={collection.name}
-                              requestId={selectedRequest?.id || ""}
-                            />
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="pl-8 py-2">
-                <span className="text-xs text-muted-foreground italic">
-                  No requests yet
-                </span>
-              </div>
-            )}
-          </CollapsibleContent>
+                      </ContextMenuTrigger>
+                      <ContextMenuContent className="w-40">
+                        <ContextMenuItem onClick={() => openRequestTab(request)}>
+                          Open
+                        </ContextMenuItem>
+                        <ContextMenuItem onClick={() => openRenameRequest(request)}>
+                          <Pencil />
+                          Rename
+                        </ContextMenuItem>
+                        <ContextMenuSeparator />
+                        <ContextMenuItem
+                          variant="destructive"
+                          onClick={() => openDeleteRequest(request)}
+                        >
+                          <Trash2 />
+                          Delete request
+                        </ContextMenuItem>
+                      </ContextMenuContent>
+                    </ContextMenu>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
-      </Collapsible>
+      )}
 
-      {/* 
-      
-      Modals for editing and deleting a collection 
-        
-        - EditCollectionModal accepts isModalOpen ,setIsModalOpen for opening the modal and collectionId and intial collection name by default when collection modal opens
-
-        - DeleteCollectionModal accepts isModalOpen ,setIsModalOpen for opening the modal and collectionId for deleting a particular collection
-        
-      */}
+      {selectedRequest && (
+        <>
+          <EditRequestModal
+            isModalOpen={isEditReqOpen}
+            setIsModalOpen={(open) => {
+              setIsEditReqOpen(open);
+              if (!open) setSelectedRequest(null);
+            }}
+            collectionId={collection.id}
+            collectionName={collection.name}
+            initialMethod={selectedRequest?.method || ""}
+            initialName={selectedRequest?.name || ""}
+            initialUrl={selectedRequest?.url || ""}
+            requestId={selectedRequest?.id || ""}
+          />
+          <DeleteRequestModal
+            isModalOpen={isDelReqOpen}
+            setIsModalOpen={(open) => {
+              setIsDelReqOpen(open);
+              if (!open) setSelectedRequest(null);
+            }}
+            collectionId={collection.id}
+            collectionName={collection.name}
+            requestId={selectedRequest?.id || ""}
+          />
+        </>
+      )}
 
       <EditCollectionModal
         isModalOpen={isEditOpen}
@@ -333,10 +337,8 @@ const CollectionFolder = ({ collection }: Props) => {
         setIsModalOpen={setIsAddRequestOpen}
         collectionId={collection.id}
       />
-    </>
+    </section>
   );
 };
 
 export default CollectionFolder;
-
-// now we want to render all saved requests inside a collection

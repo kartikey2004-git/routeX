@@ -2,7 +2,6 @@ import { auth } from "@/lib/auth";
 import { currentUser } from "@/modules/authentication/actions";
 import Header from "@/modules/layout/components/header";
 import { initializeWorkspace } from "@/modules/workspace/actions";
-import TabbedLeftPanel from "@/modules/workspace/components/tabbed-left-panel";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import React from "react";
@@ -12,112 +11,66 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "../../components/ui/tooltip";
+} from "@/components/ui/tooltip";
 
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {
-  // we grab the session from auth.api.getSession and we have to pass headers
-
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
-  // if we don't have session means user's is not loggedIn or authenticated , then we have redirect to sign-in page
-
+  // Not signed in (or the session expired): sign in, then come back to this page.
   if (!session) {
-    redirect("/sign-in");
+    const requested = (await headers()).get("x-pathname") ?? "/app";
+    redirect(`/sign-in?callbackUrl=${encodeURIComponent(requested)}`);
   }
-
-  // const { workspace } = await initializeWorkspace();
-
-  // console.log(JSON.stringify(workspace));
-
-  // utility for extracting current user data which search on basis of session user id in the database and extract user details
 
   const user = await currentUser();
   if (!user) return;
   await initializeWorkspace(user);
 
   return (
-    <>
-      {/*Header */}
+    <div className="flex h-dvh flex-col overflow-hidden bg-background">
+      <Header user={user} />
 
-      {user && (
-        <div className="flex h-dvh flex-col overflow-hidden">
-          <Header user={user} /> {/* main section of our app */}
-          <main className="flex flex-1 min-h-0 overflow-hidden bg-background">
-            <div className="flex h-full w-full">
-              <div className="flex-1 bg-background">{children}</div>
+      <main className="flex min-h-0 flex-1 overflow-hidden">{children}</main>
 
-              <div className="border-l border-border"></div>
+      {/* Status bar: quiet, always visible, holds the secondary links. */}
+      <footer className="flex h-6 shrink-0 items-center justify-between border-t border-border bg-surface px-3 text-[11px] text-muted-foreground">
+        <span>© {new Date().getFullYear()} RouteX</span>
 
-              <div className="w-12 border-border bg-card">
-                {/* Tabbed left panel */}
-                <TabbedLeftPanel />
-              </div>
-            </div>
-          </main>
-          <footer className="w-full shrink-0 border-t border-border bg-background text-muted-foreground">
-            <div className="max-w-6xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-              {/* Left Section */}
-              <div className="text-sm text-muted-foreground">
-                &copy; {new Date().getFullYear()} routeX. All rights reserved.
-              </div>
-
-              <TooltipProvider>
-                <div className="flex items-center gap-4">
-                  {/* LinkedIn */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <a
-                        href="https://www.linkedin.com/in/kartikey-bhatnagar-2702a4337"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="hover:text-foreground transition-colors duration-200"
-                      >
-                        <Linkedin className="h-5 w-5" />
-                      </a>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>LinkedIn</p>
-                    </TooltipContent>
-                  </Tooltip>
-
-                  {/* Email */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <a
-                        href="mailto:kartikeybhatnagar247@gmail.com"
-                        className="hover:text-foreground transition-colors duration-200"
-                      >
-                        <Mail className="h-5 w-5" />
-                      </a>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Email</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-              </TooltipProvider>
-            </div>
-          </footer>
-        </div>
-      )}
-    </>
+        <TooltipProvider>
+          <div className="flex items-center gap-3">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <a
+                  href="https://www.linkedin.com/in/kartikey-bhatnagar-2702a4337"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-foreground"
+                  aria-label="LinkedIn"
+                >
+                  <Linkedin className="size-3.5" />
+                </a>
+              </TooltipTrigger>
+              <TooltipContent>LinkedIn</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <a
+                  href="mailto:kartikeybhatnagar247@gmail.com"
+                  className="hover:text-foreground"
+                  aria-label="Email"
+                >
+                  <Mail className="size-3.5" />
+                </a>
+              </TooltipTrigger>
+              <TooltipContent>Email</TooltipContent>
+            </Tooltip>
+          </div>
+        </TooltipProvider>
+      </footer>
+    </div>
   );
 };
 
 export default RootLayout;
-
-// We try to make all layout files to be a server component
-
-// jaise hi apna root layout load hoga ya phir render hoga , waise hi hum user ke liye ek workspace intialize krdenge
-
-/*
-
-Fix(update): if user is not loggedIn then us ko redirect kro loggedIn page pe
-
-  - ye children render ho rha tha  even if user is not loggedIn though
-
-  - we have to setup authentication , if user is not loggedIn or we don't have not any session , then redirect to login "/sign-in" page , 
-
-*/

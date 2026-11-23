@@ -102,6 +102,10 @@ const getInitialState = () => ({
   reconnectTimeoutId: null,
 });
 
+// True while the user has asked to disconnect. The close that follows must not
+// trigger auto-reconnect, whatever close code the server sends back.
+let intentionalClose = false;
+
 export const useWsStore = create<WsStore>()(
   //@ts-ignore
   subscribeWithSelector((set, get) => ({
@@ -122,6 +126,7 @@ export const useWsStore = create<WsStore>()(
     },
     // Connect action
     connect: (url: string, options: WsOptions = {}) => {
+      intentionalClose = false;
       const state = get();
 
       // Close existing connection
@@ -177,8 +182,11 @@ export const useWsStore = create<WsStore>()(
           set({ ws: null });
           options.onClose?.(event);
 
-          // Handle reconnection
-          if (options.autoReconnect && event.code !== 1000) {
+          // Handle reconnection: never after a user-initiated disconnect.
+          if (intentionalClose) {
+            intentionalClose = false;
+            set({ status: "disconnected" });
+          } else if (options.autoReconnect && event.code !== 1000) {
             get().handleReconnect();
           } else {
             set({ status: "disconnected" });
@@ -215,6 +223,7 @@ export const useWsStore = create<WsStore>()(
       }
 
       if (state.ws) {
+        intentionalClose = true;
         state.ws.close(code, reason);
       }
 

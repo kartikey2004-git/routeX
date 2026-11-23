@@ -2,22 +2,22 @@
 
 import React, { useState } from "react";
 import { useRequestPlaygroundStore } from "../store/useRequestStore";
-import { X, Plus } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Plus, X } from "lucide-react";
 import AddNameModal from "./add-name-modal";
 import { Button } from "@/components/ui/button";
 import { getMethodColor } from "@/lib/status-colors";
+import { cn } from "@/lib/utils";
 
+/*
+  Request tabs. Each tab shows its method and name; an orange dot marks
+  unsaved work and is never hidden, so nothing is lost by accident. Double
+  click renames.
+*/
 const TabBar = () => {
   const { tabs, activeTabId, addTab, setActiveTab, closeTab } =
     useRequestPlaygroundStore();
 
-  // state for opening rename modal when user click two times on a tab
-
   const [renameModalOpen, setrenameModalOpen] = useState(false);
-
-  // state for handling tabId which is selected
-
   const [selectedTabId, setSelectedTabId] = useState<string | null>(null);
 
   const onDoubleClick = (tabId: string) => {
@@ -25,71 +25,91 @@ const TabBar = () => {
     setrenameModalOpen(true);
   };
 
-  // now we have to create modal for renaming the request of particular current active req tab
-
   return (
     <>
-      <div className="flex items-center border-b bg-card overflow-x-auto no-scrollbar">
-        <AnimatePresence initial={false}>
-          {tabs.map((tab) => {
-            return (
-              <motion.div
-                key={tab.id}
-                layout
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.2 }}
-                onDoubleClick={() => onDoubleClick(tab.id)}
-                // onclick pe particular request tab ko active kr denge
-
-                onClick={() => setActiveTab(tab.id)}
-                className={`group flex items-center gap-2 px-4 py-2 cursor-pointer transition-colors duration-200 ease-out ${
-                  activeTabId === tab.id
-                    ? "bg-muted text-foreground border-b-2 border-primary"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                }`}
-              >
+      <div
+        role="tablist"
+        aria-label="Open requests"
+        className="flex h-9 shrink-0 items-stretch overflow-x-auto border-b border-border bg-surface"
+      >
+        {tabs.map((tab) => {
+          const active = activeTabId === tab.id;
+          return (
+            <div
+              key={tab.id}
+              role="tab"
+              tabIndex={0}
+              aria-selected={active}
+              onClick={() => setActiveTab(tab.id)}
+              onDoubleClick={() => onDoubleClick(tab.id)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setActiveTab(tab.id);
+                }
+              }}
+              className={cn(
+                "group relative flex max-w-56 min-w-0 cursor-pointer items-center gap-2 border-r border-border pr-1.5 pl-3 text-[13px] outline-none select-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+                active
+                  ? "bg-background text-foreground"
+                  : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+              )}
+            >
+              {active && (
                 <span
-                  className={`font-semibold transition-colors duration-200 ${getMethodColor(
-                    tab.method,
-                  )}`}
-                >
-                  {tab.method}
-                </span>
-
-                <p className="max-w-xs truncate font-semibold flex items-center gap-1">
-                  {tab.title}
-                  {tab.unsavedChanges && (
-                    <span className="text-destructive transition-opacity duration-200 group-hover:opacity-0">
-                      •
-                    </span>
-                  )}
-                </p>
-
-                {/* icon for calling closeTab for closing particular request tab */}
-
-                <X
-                  className="ml-2 w-4 h-4 opacity-0 group-hover:opacity-100 hover:text-destructive transition-opacity duration-200"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    closeTab(tab.id);
-                  }}
+                  aria-hidden="true"
+                  className="absolute inset-x-0 top-0 h-0.5 bg-primary"
                 />
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
+              )}
 
-        {/* button to add a request tab*/}
+              <span
+                className={cn(
+                  "font-mono text-[11px] font-semibold",
+                  getMethodColor(tab.method),
+                )}
+              >
+                {tab.method}
+              </span>
+
+              <span className="truncate">{tab.title}</span>
+
+              {tab.unsavedChanges && (
+                <span
+                  className="size-1.5 shrink-0 rounded-full bg-primary"
+                  aria-label="Unsaved changes"
+                />
+              )}
+
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className={cn(
+                  "size-5 shrink-0 text-muted-foreground hover:text-foreground",
+                  active
+                    ? "opacity-100"
+                    : "opacity-0 group-hover:opacity-100 focus-visible:opacity-100",
+                )}
+                aria-label={`Close ${tab.title}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  closeTab(tab.id);
+                }}
+              >
+                <X />
+              </Button>
+            </div>
+          );
+        })}
+
         <Button
           variant="ghost"
-          size="icon"
+          size="icon-sm"
           onClick={addTab}
-          className="h-9 w-9 shrink-0 text-muted-foreground hover:text-foreground"
+          className="m-1 shrink-0 self-center"
           aria-label="New request tab"
+          title="New request (⌘G)"
         >
-          <Plus className="w-4 h-4" />
+          <Plus />
         </Button>
       </div>
 

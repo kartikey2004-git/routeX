@@ -1,42 +1,31 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Hint } from "@/components/ui/hint";
-import { Loader2, Plus, User } from "lucide-react";
-
+import { AlertCircle, Plus } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
   SelectItem,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import { useWorkspaces } from "@/modules/workspace/hooks/workspace";
 import { useWorkspaceStore } from "../store";
 import CreateWorkspace from "./create-workspace";
 
+/*
+  Workspace switcher. Auto-selects the first workspace on load so the app is
+  never in a "pick something first" state; creating one is one click away.
+*/
 const Workspace = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data: workspaces, isLoading } = useWorkspaces();
+  const { data: workspaces, isLoading, isError, refetch } = useWorkspaces();
 
   const { selectedWorkspace, setSelectedWorkspace } = useWorkspaceStore();
-
-  /*
-  
-  useEffect call krenge now , kyu call kr rhe kyuki agar humare workspaces ka length jyada ho   
-     
-     - matlab humare pass ek bhi workspace exist krta hai 
-
-     - aur abhi humne koi bhi workspace select nhi kri huyi hai 
-
-     - toh hum pehle workspace ko select krlenge
-  
-  */
-
-  // avoids useEffect although because it hampers the performance of application
 
   useEffect(() => {
     if (workspaces && workspaces.length > 0 && !selectedWorkspace) {
@@ -45,91 +34,77 @@ const Workspace = () => {
   }, [workspaces, selectedWorkspace, setSelectedWorkspace]);
 
   if (isLoading) {
-    return <Loader2 className="size-4 animate-spin text-muted-foreground" />;
+    return (
+      <Skeleton className="h-7 w-36 rounded-md" aria-label="Loading workspaces" />
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex h-7 items-center gap-2 text-sm text-muted-foreground">
+        <AlertCircle className="size-3.5 text-destructive" />
+        <span>Couldn&apos;t load workspaces</span>
+        <Button size="sm" variant="ghost" className="h-6 px-2" onClick={() => refetch()}>
+          Retry
+        </Button>
+      </div>
+    );
   }
 
   if (!workspaces || workspaces.length === 0) {
     return (
-      <span className="text-sm font-medium text-muted-foreground">
-        No workspace found
-      </span>
+      <span className="text-sm text-muted-foreground">No workspace yet</span>
     );
   }
 
   return (
     <>
-      <Hint label="Change Workspace">
-        <Select
-          value={selectedWorkspace?.id}
-          onValueChange={(id) => {
-            // if id of particular workspace changed then find the particular workspace in array with same id , and set it to selected workspace
-
-            const ws = workspaces.find((w) => w.id === id);
-            if (ws) setSelectedWorkspace(ws);
-          }}
+      <Select
+        value={selectedWorkspace?.id}
+        onValueChange={(id) => {
+          const ws = workspaces.find((w) => w.id === id);
+          if (ws) setSelectedWorkspace(ws);
+        }}
+      >
+        <SelectTrigger
+          size="sm"
+          aria-label="Switch workspace"
+          className="h-7 max-w-24 border-transparent bg-transparent px-1.5 text-sm font-medium hover:bg-muted sm:max-w-44 sm:px-2"
         >
-          <SelectTrigger className="border flex flex-row items-center space-x-1">
-            <User className="size-4 text-primary" />
-            <span className="text-sm font-semibold">
-              <SelectValue placeholder="Select workspace" />
-            </span>
-          </SelectTrigger>
+          <SelectValue placeholder="Select workspace" />
+        </SelectTrigger>
 
-          <SelectContent>
-            {workspaces.map((ws) => {
-              return (
-                <SelectItem key={ws.id} value={ws.id}>
-                  {ws.name}
-                </SelectItem>
-              );
-            })}
+        <SelectContent>
+          {workspaces.map((ws) => (
+            <SelectItem key={ws.id} value={ws.id}>
+              {ws.name}
+            </SelectItem>
+          ))}
 
-            <Separator className="my-1" />
-            <div className="flex items-center justify-between px-2 py-1 text-sm font-semibold text-muted-foreground">
-              {/* here show all created workspaces and all workspaces where we are a member */}
-
-              <span className="text-sm font-semibold text-muted-foreground">
-                My Workspaces
-              </span>
-
-              {/* now I want humein ek naya workspace create krne ka option miljayein */}
-
-              {/* when we click on this plus icon ek modal open hona chahiye for creating new worspace */}
-
-              <Button
-                size={"icon"}
-                variant={"outline"}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsModalOpen(true);
-                }}
-              >
-                <Plus size={16} />
-              </Button>
-            </div>
-          </SelectContent>
-        </Select>
-      </Hint>
+          <SelectSeparator />
+          <div className="flex items-center justify-between gap-2 px-2 py-1">
+            <span className="text-xs text-muted-foreground">Workspaces</span>
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              aria-label="Create workspace"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsModalOpen(true);
+              }}
+            >
+              <Plus />
+            </Button>
+          </div>
+        </SelectContent>
+      </Select>
 
       <CreateWorkspace
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
       />
-
-      {/* Workspace create hone ke baad, agar kisi workspace pe click karein, toh wahi app ka globally selected workspace ban jaayega */}
     </>
   );
 };
 
 export default Workspace;
-
-/* 
-  
-  - This component will try to render a prefetched workspace if available . It can also accept a workspace directly as a prop
-
-
-  - By default automatically login pe workspace automatically create/intialize hojayega if we have no workspaces
-
-  - If we have multiple workspaces already toh usme se pehla wala workspace select hojayega
-
-*/

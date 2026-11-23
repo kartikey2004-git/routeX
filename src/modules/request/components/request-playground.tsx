@@ -2,13 +2,21 @@
 import React, { useState } from "react";
 import { useRequestPlaygroundStore } from "../store/useRequestStore";
 import { useSaveRequest } from "../hooks/request";
-import { Zap } from "lucide-react";
+import { FilePlus, FolderOpen } from "lucide-react";
 import TabBar from "./tab-bar";
 import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "sonner";
 import RequestEditor from "./request-editor";
 import { REST_METHOD } from "@prisma/client";
 import SaveRequestToCollectionModal from "@/modules/collection/components/add-request-modal";
+import { Button } from "@/components/ui/button";
+
+const SHORTCUTS = [
+  { keys: ["⌘", "G"], label: "New request" },
+  { keys: ["⌘", "S"], label: "Save to collection" },
+  { keys: ["⌘", "↵"], label: "Send request" },
+  { keys: ["⌘", "K"], label: "Search and commands" },
+];
 
 const RequestPlayground = () => {
   const { tabs, activeTabId, addTab } = useRequestPlaygroundStore();
@@ -17,18 +25,12 @@ const RequestPlayground = () => {
 
   const { mutateAsync } = useSaveRequest(activeTab?.requestId ?? "");
 
-  // jab bhi hum kisi tab pe do baar click krenge toh ek modal open hojaye wo humein rename krne ka option dega
-
   const [showSaveModal, setShowSaveModal] = useState(false);
 
-  // it grabs the current request tab data from active tab
-
   const getCurrentRequestData = () => {
-    // if there is no active tab currrently in request playground area
-
     if (!activeTab) {
       return {
-        name: "Untitled Request",
+        name: "Untitled request",
         method: REST_METHOD.GET as REST_METHOD,
         url: "https://echo.hoppscotch.io",
       };
@@ -41,6 +43,7 @@ const RequestPlayground = () => {
     };
   };
 
+  // ⌘/Ctrl+S: update a saved request in place; unsaved ones go to the save dialog.
   useHotkeys(
     "ctrl+s , meta+s",
     async (e) => {
@@ -48,35 +51,26 @@ const RequestPlayground = () => {
       e.stopPropagation();
 
       if (!activeTab) {
-        toast.error("No active request to save");
+        toast.error("Open a request first");
         return;
       }
-
-      // means if collectionId is present in any particular active request tab , then it means woh request kisi collection mein save hai
 
       if (activeTab.collectionId) {
         try {
           await mutateAsync({
             url: activeTab.url || "https://echo.hoppscotch.io",
             method: activeTab.method as REST_METHOD,
-            name: activeTab.title || "Untitled Request",
+            name: activeTab.title || "Untitled request",
             body: activeTab.body,
             headers: activeTab.headers,
             parameters: activeTab.parameters,
           });
-
-          toast.success("Request updated");
+          toast.success("Saved");
         } catch (error) {
           console.error("Failed to update request:", error);
-          toast.error("Failed to update request");
+          toast.error("Couldn't save. Try again.");
         }
       } else {
-        // means if collectionId is not present in any particular active request tab , then it means woh request kisi collection mein save nahi hai
-
-        // means koi aisa request jisse hum naya add kr rhe hai kisi collection mein , toh modal popup ho ki kis collection mein add krna hai us request ko
-
-        // but now jab humne kisi request ko kisi particular collection mein add kra toh current active tab update nhi hua us request ka
-
         setShowSaveModal(true);
       }
     },
@@ -84,56 +78,63 @@ const RequestPlayground = () => {
     [activeTab],
   );
 
+  // ⌘/Ctrl+G: new request tab.
   useHotkeys(
     "ctrl+g , meta+g",
     (e) => {
       e.preventDefault();
       e.stopPropagation();
-      addTab(); // add new request tab
-      toast.success("New Request created");
+      addTab();
     },
     { preventDefault: true, enableOnFormTags: true },
     [],
   );
 
   if (!activeTab) {
-    // return a welcome page
-
     return (
-      <div className="flex h-full items-center justify-center bg-background">
-        <div className="flex flex-col items-center text-center max-w-sm">
-          {/* Icon Circle */}
-          <div className="flex h-20 w-20 items-center justify-center rounded-lg border border-border bg-muted/40">
-            <Zap size={34} className="text-foreground" strokeWidth={1.5} />
+      <div className="flex h-full items-center justify-center bg-background p-8">
+        <div className="w-full max-w-sm space-y-6">
+          <div className="space-y-1.5">
+            <h2 className="text-lg font-semibold text-foreground">
+              No request open
+            </h2>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              Open a saved request from a collection, or start a new one. Your
+              open tabs are kept while you work.
+            </p>
           </div>
 
-          {/* Title */}
-          <h3 className="mt-6 text-lg font-semibold text-foreground">
-            Quick Actions
-          </h3>
-
-          <p className="mt-1 text-sm text-muted-foreground">
-            Use keyboard shortcuts to work faster
-          </p>
-
-          {/* Shortcuts */}
-          <div className="mt-6 w-full space-y-3">
-            <div className="flex items-center justify-between rounded-md border border-border bg-card px-4 py-2.5">
-              <span className="text-sm text-foreground">New Request</span>
-
-              <kbd className="rounded-md bg-muted px-2 py-1 text-xs font-medium text-foreground">
-                Ctrl + G
-              </kbd>
-            </div>
-
-            <div className="flex items-center justify-between rounded-md border border-border bg-card px-4 py-2.5">
-              <span className="text-sm text-foreground">Save Request</span>
-
-              <kbd className="rounded-md bg-muted px-2 py-1 text-xs font-medium text-foreground">
-                Ctrl + S
-              </kbd>
-            </div>
+          <div className="flex items-center gap-3">
+            <Button onClick={() => addTab()}>
+              <FilePlus />
+              New request
+            </Button>
+            <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <FolderOpen className="size-3.5" />
+              or pick one from the sidebar
+            </span>
           </div>
+
+          <dl className="divide-y divide-border border-y border-border text-sm">
+            {SHORTCUTS.map((shortcut) => (
+              <div
+                key={shortcut.label}
+                className="flex items-center justify-between py-2"
+              >
+                <dt className="text-muted-foreground">{shortcut.label}</dt>
+                <dd className="flex gap-1">
+                  {shortcut.keys.map((key) => (
+                    <kbd
+                      key={key}
+                      className="min-w-5 rounded-sm border border-border px-1 text-center font-mono text-[11px] text-foreground"
+                    >
+                      {key}
+                    </kbd>
+                  ))}
+                </dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </div>
     );
@@ -142,7 +143,7 @@ const RequestPlayground = () => {
   return (
     <div className="flex h-full min-h-0 flex-col bg-background">
       <TabBar />
-      <div className="flex-1 min-h-0 overflow-auto scrollbar-light">
+      <div className="flex min-h-0 flex-1 flex-col">
         <RequestEditor />
       </div>
       <SaveRequestToCollectionModal
@@ -156,7 +157,3 @@ const RequestPlayground = () => {
 };
 
 export default RequestPlayground;
-
-// In browser , by default bahut saare key combinations already acquired hote hai toh hum unhe directly use nhi kr skte
-
-// after functionality : renaming on doubleClick humara tab ka kaam khatam hojayega , then we move to saving a request

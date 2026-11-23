@@ -3,8 +3,7 @@
 
 import React, { useState, useEffect } from "react";
 import Modal from "@/components/ui/modal";
-import { ChevronRight, Folder, Loader2, Search } from "lucide-react";
-
+import { Check, FolderOpen, Search } from "lucide-react";
 import { toast } from "sonner";
 import { useAddRequestToCollection } from "@/modules/request/hooks/request";
 import { REST_METHOD } from "@prisma/client";
@@ -13,6 +12,8 @@ import { useGetCollections } from "../hooks/collection";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getMethodColor } from "@/lib/status-colors";
+import { ErrorState, LoadingRows } from "@/components/shared/states";
+import { cn } from "@/lib/utils";
 
 interface Props {
   isModalOpen: boolean;
@@ -26,6 +27,10 @@ interface Props {
   collectionId?: string;
 }
 
+/*
+  "Save as": name the request, pick where it goes, confirm. The method and URL
+  are shown read-only so people can see exactly what will be saved.
+*/
 const SaveRequestToCollectionModal = ({
   isModalOpen,
   setIsModalOpen,
@@ -37,25 +42,13 @@ const SaveRequestToCollectionModal = ({
   initialName = "Untitled",
   collectionId,
 }: Props) => {
-  // state for handling request name
-
   const [requestName, setRequestName] = useState(initialName);
-
-  // state for handling the selected collection Id by default collection Id hum props se le lenge
-
   const [selectedCollectionId, setSelectedCollectionId] = useState<string>(
     collectionId || "",
   );
-
-  // state for input search text which used for rendering filtering collections
-
   const [searchTerm, setSearchTerm] = useState("");
 
-  // extract data for current selected workspace
-
   const { selectedWorkspace } = useWorkspaceStore();
-
-  // get collection for particular selected workspace
 
   const {
     data: collections,
@@ -63,12 +56,8 @@ const SaveRequestToCollectionModal = ({
     isError,
   } = useGetCollections(selectedWorkspace?.id ?? "");
 
-  // hook for adding request in selected collection here
-
   const { mutateAsync, isPending } =
     useAddRequestToCollection(selectedCollectionId);
-
-  // setting default data to Modal which is used for adding request
 
   useEffect(() => {
     if (isModalOpen) {
@@ -78,8 +67,7 @@ const SaveRequestToCollectionModal = ({
     }
   }, [isModalOpen, requestData.name, initialName]);
 
-  // by default ek collection ko selected krke modal mein dikha denge - By default selected collection
-
+  // Preselect the first collection when the dialog isn't scoped to one.
   useEffect(() => {
     if (!isModalOpen) return;
     if (collectionId) return;
@@ -88,200 +76,139 @@ const SaveRequestToCollectionModal = ({
     }
   }, [isModalOpen, collections, collectionId, selectedCollectionId]);
 
-  // Logic to filter collection of particular workspace on basis of search input
-
   const filteredCollections =
     collections?.filter((collection) =>
       collection.name.toLowerCase().includes(searchTerm.toLowerCase()),
     ) || [];
-
-  // check kar rahe hain agar collections me se koi collection  selectedCollectionId ke saath match karta hai, toh usko selectedCollection krdenge ( show selected collection name here )
 
   const selectedCollection = collections?.find(
     (c) => c.id === selectedCollectionId,
   );
 
   const handleSubmit = async () => {
-    // validation for request name
     if (!requestName.trim()) {
-      toast.error("Please enter a request name");
+      toast.error("Give the request a name");
       return;
     }
-
-    // validation for not selecting a collection to add a particular req
-
     if (!selectedCollectionId) {
-      toast.error("Please select a collection");
+      toast.error("Choose a collection to save into");
       return;
     }
-
     try {
-      // collection ke andar specific request ka data add krdega
-
       await mutateAsync({
         url: requestData.url.trim(),
         method: requestData.method,
         name: requestName.trim(),
       });
-
-      toast.success(
-        `Request saved to "${selectedCollection?.name}" collection`,
-      );
+      toast.success(`Saved to ${selectedCollection?.name}`);
       setIsModalOpen(false);
     } catch (error) {
-      toast.error("Failed to save request to collection");
+      toast.error("Couldn't save the request. Try again.");
       console.error("Failed to save request to collection:", error);
     }
   };
 
   return (
     <Modal
-      title="Save as"
-      description=""
+      title="Save request"
+      description="Name it and choose the collection it belongs to."
       isOpen={isModalOpen}
       onClose={() => setIsModalOpen(false)}
       onSubmit={handleSubmit}
-      submitText={isPending ? "Saving..." : "Save"}
-      submitVariant="default"
+      submitText={isPending ? "Saving…" : "Save request"}
+      size="sm:max-w-lg"
     >
-      <div className="space-y-4">
-        <div>
-          <Label className="block text-sm font-medium mb-2 text-foreground">
-            Request name
+      <div className="space-y-5">
+        <div className="space-y-1.5">
+          <Label htmlFor="save-request-name" className="text-sm font-medium">
+            Name
           </Label>
-
-          {/* adding request name input */}
-
-          <div className="relative">
-            <Input
-              value={requestName}
-              onChange={(e) => setRequestName(e.target.value)}
-              autoFocus
-              className="pr-20"
-              placeholder="Enter request name..."
-            />
-
-            {/* Yeh batata hai ki hum kaunsa HTTP request method (GET, POST, PUT, DELETE, etc.) use kar rahe hain. */}
-
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-              <span
-                className={`text-xs font-semibold px-2 py-1 rounded-sm ${getMethodColor(
-                  requestData.method,
-                )}`}
-              >
-                {requestData.method}
-              </span>
-            </div>
-          </div>
+          <Input
+            id="save-request-name"
+            value={requestName}
+            onChange={(e) => setRequestName(e.target.value)}
+            autoFocus
+            placeholder="e.g. Create order"
+          />
         </div>
 
-        {/* select collection in workspace for particular request */}
-        <div>
-          <Label className="block text-sm font-medium mb-2 text-foreground">
-            Select collection
-          </Label>
-
-          {/* selected workspace name */}
-          <div className="flex items-center space-x-2 text-sm text-muted-foreground mb-3">
-            <span>{selectedWorkspace?.name || "workspace"}</span>
-            <span>›</span>
-            <span>Collections</span>
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <Label className="text-sm font-medium">Collection</Label>
+            <span className="text-xs text-muted-foreground">
+              {selectedWorkspace?.name ?? "Workspace"}
+            </span>
           </div>
 
-          {/* input for searching particular collection in workspace to adding req */}
+          {collections && collections.length > 4 && (
+            <div className="relative">
+              <Search className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Filter collections"
+                className="pl-8"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                aria-label="Filter collections"
+              />
+            </div>
+          )}
 
-          <div className="relative mb-3">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search"
-              className="pl-10"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-
-          {/* Jab user ko kisi collection ke andar request add karna ho, toh input search ke text ke hisaab se collections ko filter karke dikhana hai. */}
-
-          <div className="space-y-1 max-h-48 overflow-y-auto">
-            {/* Loading State jab tak collections of particular workspace load nhi huye hai */}
-
+          <div
+            role="radiogroup"
+            aria-label="Collection"
+            className="max-h-48 overflow-y-auto rounded-md border border-border"
+          >
             {isLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
-                <span className="ml-2 text-sm text-muted-foreground">
-                  Loading collections...
-                </span>
-              </div>
-            ) : // Error state agar collections of particular workspace nahi aa rhe
-
-            isError ? (
-              <div className="text-center py-4 text-destructive text-sm">
-                Failed to load collections
-              </div>
-            ) : // state When there is no collections in workspace
-
-            filteredCollections.length === 0 ? (
-              <div className="text-center py-4 text-muted-foreground text-sm">
+              <LoadingRows rows={3} />
+            ) : isError ? (
+              <ErrorState
+                title="Couldn't load collections"
+                description="Close this and try again in a moment."
+              />
+            ) : filteredCollections.length === 0 ? (
+              <p className="px-3 py-4 text-sm text-muted-foreground">
                 {searchTerm
-                  ? "No collections found"
-                  : "No collections available"}
-              </div>
+                  ? `No collection matches “${searchTerm}”.`
+                  : "No collections yet. Create one from the sidebar first."}
+              </p>
             ) : (
-              /*
-
-							       Yaha hum filtered collections ko map karke render kar rahe hain.
-
-						        Jab user kisi collection par click karega, toh selectedCollection woh collection set hojayega by its id
-												
-							      */
-
-              filteredCollections.map((collection) => (
-                <div
-                  key={collection.id}
-                  onClick={() => setSelectedCollectionId(collection.id)}
-                  className={`flex items-center justify-between p-3  cursor-pointer rounded-md transition-all duration-200 ${
-                    selectedCollectionId === collection.id
-                      ? "bg-accent/40 border border-accent/60  tracking-wide shadow-sm "
-                      : "border border-transparent hover:border-border hover:bg-muted/50 hover:shadow-md hover:shadow-border/10"
-                  }`}
-                >
-                  <div className="flex items-center space-x-3">
-                    {selectedCollectionId === collection.id ? (
-                      <div>
-                        <ChevronRight className="w-4 h-4" />
-                      </div>
-                    ) : (
-                      <Folder className="w-4 h-4 text-muted-foreground" />
+              filteredCollections.map((collection) => {
+                const checked = selectedCollectionId === collection.id;
+                return (
+                  <button
+                    key={collection.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={checked}
+                    onClick={() => setSelectedCollectionId(collection.id)}
+                    className={cn(
+                      "flex w-full items-center gap-2.5 border-b border-border px-3 py-2 text-left text-sm transition-colors last:border-b-0",
+                      checked
+                        ? "bg-muted font-medium text-foreground"
+                        : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
                     )}
-                    <span className={`text-sm font-light`}>
-                      {collection.name}
-                    </span>
-                  </div>
-                </div>
-              ))
+                  >
+                    <FolderOpen className="size-4 shrink-0" />
+                    <span className="flex-1 truncate">{collection.name}</span>
+                    {checked && <Check className="size-4 text-primary" />}
+                  </button>
+                );
+              })
             )}
           </div>
         </div>
 
-        {/* Selected Collection Preview : means yaha pr preview dikhega ki request kis collection mein save hogi */}
-
-        {selectedCollection && (
-          <div className="p-3 bg-muted/50 rounded-lg border border-border">
-            <div className="flex items-center space-x-2 text-sm">
-              <span className="text-muted-foreground">Saving to:</span>
-              <Folder className="w-4 h-4" />
-              <span className="font-light">{selectedCollection.name}</span>
-            </div>
-          </div>
-        )}
-
-        {/* URL Preview (Optional) */}
-        <div className="p-2 bg-card rounded border border-border">
-          <div className="flex items-center space-x-2 text-xs">
-            <span className="text-muted-foreground">URL:</span>
-            <span className="text-foreground truncate">{requestData.url}</span>
-          </div>
+        <div className="flex min-w-0 items-center gap-2.5 rounded-md bg-muted/60 px-3 py-2 font-mono text-xs">
+          <span
+            className={cn(
+              "shrink-0 font-semibold",
+              getMethodColor(requestData.method),
+            )}
+          >
+            {requestData.method}
+          </span>
+          <span className="truncate text-foreground">{requestData.url}</span>
         </div>
       </div>
     </Modal>

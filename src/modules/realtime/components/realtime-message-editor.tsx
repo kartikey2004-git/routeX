@@ -1,29 +1,30 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Send, Copy, Trash2, RefreshCw } from "lucide-react";
+import { AlignLeft, Copy, Eraser, Send } from "lucide-react";
 import Editor from "@monaco-editor/react";
 import { toast } from "sonner";
 import { useWsStore } from "../hooks/useWs";
 import RealtimeClientServerLogsTable from "./realtime-client-server-logs-table";
 import { useTheme } from "next-themes";
 
+/*
+  Outgoing message composer on top, the live message log below. Sending is
+  only possible while connected, and the reason is shown next to the button
+  instead of leaving a silently disabled control.
+*/
 const RealtimeMessageEditor = () => {
-  const { send, status, isConnected, draftMessage, setDraftMessage, messages } =
+  const { send, status, draftMessage, setDraftMessage } =
     useWsStore();
 
   const [isSending, setIsSending] = useState(false);
-  const [lastSent, setLastSent] = useState("");
-  const editorRef = useRef(null);
-  const monacoRef = useRef(null);
+  const [copied, setCopied] = useState(false);
+  const editorRef = useRef<any>(null);
   const { resolvedTheme } = useTheme();
+
+  const isLive = status === "connected";
 
   useEffect(() => {
     if (!draftMessage) {
@@ -33,55 +34,50 @@ const RealtimeMessageEditor = () => {
         '"\n}';
       setDraftMessage(initial);
     }
-  }, []);
+  }, [draftMessage, setDraftMessage]);
 
   const handleSendMessage = useCallback(async () => {
-    if (!status || status !== "connected") {
-      toast.info("WebSocket is not connected!");
+    if (!isLive) {
+      toast.info("Connect to a server before sending.");
       return;
     }
-
     if (!draftMessage || !draftMessage.trim()) {
-      toast.info("Please enter a message!");
+      toast.info("Write a message to send.");
       return;
     }
 
     try {
       setIsSending(true);
-
-      // Try to parse JSON to validate
       let messageToSend;
       try {
         messageToSend = JSON.parse(draftMessage);
-      } catch (e) {
-        // If not valid JSON, send as string
+      } catch {
+        // Not JSON: send the text as-is.
         messageToSend = draftMessage;
       }
 
       const success = send(messageToSend);
-      if (success) {
-        setLastSent(draftMessage);
-        toast.success("Message sent successfully");
-      } else {
-        toast.error("Failed to send message");
+      if (!success) {
+        toast.error("The message didn't send. The connection may have dropped.");
       }
     } catch (error) {
-      console.error("Error sending message:", error);
       toast.error(
-        "Error sending message: " +
+        "Couldn't send: " +
           (error instanceof Error ? error.message : String(error)),
       );
     } finally {
       setIsSending(false);
     }
-  }, [draftMessage, send, isConnected]);
+  }, [draftMessage, send, isLive]);
 
-  // Initialize Monaco Editor
+  // The editor's Ctrl+Enter command is registered once on mount. Route it through
+  // a ref so it always calls the latest send handler (with current connection state).
+  const sendRef = useRef(handleSendMessage);
+  sendRef.current = handleSendMessage;
 
   const handleEditorDidMount = useCallback(
     (editor: any, monaco: any) => {
       editorRef.current = editor;
-      monacoRef.current = monaco;
 
       monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
         validate: true,
@@ -90,152 +86,111 @@ const RealtimeMessageEditor = () => {
         enableSchemaRequest: true,
       });
 
-      // Set editor options
-      editor.updateOptions({
-        fontSize: 14,
-        minimap: { enabled: false },
-        scrollBeyondLastLine: false,
-        wordWrap: "on",
-        formatOnPaste: true,
-        formatOnType: true,
-      });
-
-      // Add keyboard shortcut for sending (Ctrl+Enter)
       editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
-        handleSendMessage();
+        sendRef.current();
       });
     },
-    [handleSendMessage],
+    [],
   );
 
   const handleFormatJSON = useCallback(() => {
     try {
-      const parsed = JSON.parse(draftMessage);
-      const formatted = JSON.stringify(parsed, null, 2);
+      const formatted = JSON.stringify(JSON.parse(draftMessage), null, 2);
       setDraftMessage(formatted);
-      if (editorRef.current) {
-        // @ts-ignore
-        editorRef.current.setValue(formatted);
-      }
-    } catch (error) {
-      toast.error("Invalid JSON format");
+      editorRef.current?.setValue(formatted);
+    } catch {
+      toast.error("This isn't valid JSON, so it can't be formatted.");
     }
   }, [draftMessage, setDraftMessage]);
 
   const handleClearMessage = useCallback(() => {
     const emptyMessage = "{\n  \n}";
     setDraftMessage(emptyMessage);
-    if (editorRef.current) {
-      // @ts-ignore
-      editorRef.current.setValue(emptyMessage);
-      // @ts-ignore
-      editorRef.current.focus();
-    }
+    editorRef.current?.setValue(emptyMessage);
+    editorRef.current?.focus();
   }, [setDraftMessage]);
 
-  const handleCopyMessage = useCallback(() => {
-    navigator.clipboard
-      .writeText(draftMessage)
-      .then(() => {
-        console.log("Message copied to clipboard");
-      })
-      .catch((err) => {
-        console.error("Failed to copy message:", err);
-      });
+  const handleCopyMessage = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(draftMessage);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      toast.error("Couldn't copy. Select the text and copy it manually.");
+    }
   }, [draftMessage]);
 
   return (
-    <Card className="flex flex-col gap-4 p-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-foreground">
-          Message Editor
-        </h3>
-        <div className="flex items-center gap-2">
-          <Badge variant={status === "connected" ? "success" : "destructive"}>
-            {status === "connected" ? "Connected" : "Disconnected"}
-          </Badge>
-        </div>
-      </div>
-
-      {/* Editor */}
-      <div className="relative">
-        <div className="overflow-hidden rounded-md border border-border">
-          {/* Monaco Editor */}
-          <Editor
-            height="150px"
-            language="json"
-            theme={resolvedTheme === "dark" ? "vs-dark" : "vs-light"}
-            value={draftMessage}
-            onChange={(value) => setDraftMessage(value || "")}
-            onMount={handleEditorDidMount}
-            options={{
-              fontSize: 14,
-              minimap: { enabled: false },
-              scrollBeyondLastLine: false,
-              wordWrap: "on",
-              formatOnPaste: true,
-              formatOnType: true,
-              automaticLayout: true,
-              tabSize: 2,
-              insertSpaces: true,
-              folding: true,
-              lineNumbers: "on",
-              renderWhitespace: "boundary",
-              cursorStyle: "line",
-              contextmenu: true,
-              mouseWheelZoom: false,
-            }}
-            loading={<Skeleton className="h-[150px] w-full rounded-none" />}
-          />
-        </div>
-
-        {/* Editor Actions */}
-        <div className="absolute top-2 right-2 flex gap-1 opacity-70 hover:opacity-100 transition-opacity">
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={handleFormatJSON}
-            className="h-6 w-6 text-muted-foreground hover:bg-muted hover:text-foreground"
-          >
-            <RefreshCw className="size-3" />
+    <section className="flex min-h-0 flex-1 flex-col gap-3">
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="text-sm font-semibold text-foreground">Outgoing message</h2>
+        <div className="flex items-center gap-0.5">
+          <Button variant="ghost" size="sm" className="h-7 text-[13px]" onClick={handleFormatJSON}>
+            <AlignLeft />
+            Format
           </Button>
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={handleCopyMessage}
-            className="h-6 w-6 text-muted-foreground hover:bg-muted hover:text-foreground"
-          >
-            <Copy className="size-3" />
+          <Button variant="ghost" size="sm" className="h-7 text-[13px]" onClick={handleCopyMessage}>
+            <Copy />
+            {copied ? "Copied" : "Copy"}
           </Button>
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={handleClearMessage}
-            className="h-6 w-6 text-muted-foreground hover:bg-muted hover:text-foreground"
-          >
-            <Trash2 className="size-3" />
+          <Button variant="ghost" size="sm" className="h-7 text-[13px]" onClick={handleClearMessage}>
+            <Eraser />
+            Clear
           </Button>
         </div>
       </div>
 
-      {/* Send Button and Info */}
-      <div className="flex items-center justify-between">
-        <div className="text-xs text-muted-foreground">
-          Press Ctrl+Enter to send • JSON auto-validation enabled
-        </div>
+      <div className="overflow-hidden rounded-md border border-border">
+        <Editor
+          height="160px"
+          language="json"
+          theme={resolvedTheme === "dark" ? "vs-dark" : "vs-light"}
+          value={draftMessage}
+          onChange={(value) => setDraftMessage(value || "")}
+          onMount={handleEditorDidMount}
+          options={{
+            fontSize: 13,
+            fontFamily: "var(--font-plex-mono), ui-monospace, monospace",
+            minimap: { enabled: false },
+            scrollBeyondLastLine: false,
+            wordWrap: "on",
+            formatOnPaste: true,
+            automaticLayout: true,
+            tabSize: 2,
+            insertSpaces: true,
+            folding: true,
+            lineNumbers: "on",
+            renderWhitespace: "boundary",
+            contextmenu: true,
+            mouseWheelZoom: false,
+            padding: { top: 10, bottom: 10 },
+          }}
+          loading={<Skeleton className="h-40 w-full rounded-none" />}
+        />
+      </div>
+
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs text-muted-foreground">
+          {isLive ? (
+            <>
+              Send with <kbd className="font-mono">Ctrl</kbd>+<kbd className="font-mono">Enter</kbd>.
+            </>
+          ) : (
+            "Connect to a server to send messages."
+          )}
+        </p>
         <Button
           onClick={handleSendMessage}
-          disabled={status !== "connected" || isSending}
-          className="font-medium"
+          disabled={!isLive || isSending}
+          className="min-w-[112px]"
         >
-          <Send size={16} className="mr-2" />
-          {isSending ? "Sending..." : "Send Message"}
+          <Send />
+          {isSending ? "Sending…" : "Send"}
         </Button>
       </div>
 
       <RealtimeClientServerLogsTable />
-    </Card>
+    </section>
   );
 };
 

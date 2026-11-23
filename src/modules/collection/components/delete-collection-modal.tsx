@@ -1,9 +1,9 @@
 "use client";
 
-import Modal from "@/components/ui/modal";
 import React from "react";
 import { toast } from "sonner";
 import { useDeleteCollection } from "../hooks/collection";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 
 const DeleteCollectionModal = ({
   isModalOpen,
@@ -14,39 +14,29 @@ const DeleteCollectionModal = ({
   setIsModalOpen: (open: boolean) => void;
   collectionId: string;
 }) => {
-
-  // when we are deleting something we need mutate function for mutation or lets say in this case deletion of collection by its collectionId
-
   const { mutateAsync, isPending } = useDeleteCollection(collectionId);
 
   const handleDelete = async () => {
     try {
-
-      await mutateAsync(); // mutateAsync for mutation asynchronously
-      
-      toast.success("Collection deleted successfully");
+      await mutateAsync();
+      toast.success("Collection deleted");
       setIsModalOpen(false);
     } catch (err) {
-      toast.error("Failed to delete collection");
+      toast.error("Couldn't delete the collection. Try again.");
       console.error("Failed to delete collection:", err);
     }
   };
 
   return (
-    <Modal
-      title="Delete Collection"
-      description="Are you sure you want to delete this collection? This action cannot be undone."
-      isOpen={isModalOpen}
-      onClose={() => setIsModalOpen(false)}
-      onSubmit={handleDelete}
-      submitText={isPending ? "Deleting..." : "Delete"}
-      submitVariant="destructive"
-    >
-      <p className="text-sm text-muted-foreground">
-        Once deleted, all requests and data in this collection will be
-        permanently removed.
-      </p>
-    </Modal>
+    <ConfirmDialog
+      open={isModalOpen}
+      onOpenChange={setIsModalOpen}
+      title="Delete this collection?"
+      description="Its requests are deleted too. This can't be undone."
+      confirmLabel="Delete collection"
+      pending={isPending}
+      onConfirm={handleDelete}
+    />
   );
 };
 

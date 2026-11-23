@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import { useRequestPlaygroundStore } from "../store/useRequestStore";
@@ -8,9 +7,15 @@ import { Input } from "@/components/ui/input";
 import { useSuggestRequestName } from "@/modules/ai/hooks/ai-suggestion";
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
+import { describeAiError } from "@/modules/ai/services/describe-error";
 import { REST_METHOD } from "@prisma/client";
-import { cn } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
 
+/*
+  Rename the open tab. The name is UI state until the request is saved
+  (⌘S), which is why the tab shows its unsaved dot afterwards.
+*/
 const AddNameModal = ({
   isModalOpen,
   setIsModalOpen,
@@ -20,118 +25,103 @@ const AddNameModal = ({
   setIsModalOpen: (open: boolean) => void;
   tabId: string;
 }) => {
-  // rename modal when user click two times on a particular request tab , just reflect/update in UI , no database calls , database mein request toh ctrl + s pe hi update hogi
-
   const { updateTab, tabs, markUnsaved } = useRequestPlaygroundStore();
-
-  const { mutateAsync, data, isPending, isError } = useSuggestRequestName();
-
-  const tab = tabs.find((tab) => tab.id === tabId);
-
-  // state to change or rename the tab title and show by default intial name
+  const { mutateAsync, isPending } = useSuggestRequestName();
+  const tab = tabs.find((t) => t.id === tabId);
 
   const [name, setName] = useState(tab?.title || "");
-
   const [suggestions, setSuggestions] = useState<
     Array<{ name: string; reasoning: string }>
   >([]);
-
-  // on changing tabId or component mount for first time set name to tab title
 
   useEffect(() => {
     if (tab) setName(tab.title);
   }, [tabId]);
 
-  const handleSubmit = async () => {
-    // validate the name input
+  const handleSubmit = () => {
     if (!name.trim()) return;
+    updateTab(tabId, { title: name.trim() });
+    markUnsaved(tabId, true);
+    setIsModalOpen(false);
+    setSuggestions([]);
+  };
 
-    // update the tab title and markUnsaved to be true that means no unsaved changes
-
+  const suggestNames = async () => {
+    if (!tab) return;
     try {
-      updateTab(tabId, { title: name });
-      markUnsaved(tabId, true);
-      toast.success("Request name updated");
-      setIsModalOpen(false);
-      setSuggestions([]);
+      const result = await mutateAsync({
+        workspaceName: tab.workspaceId || "Default Workspace",
+        method: (tab.method as REST_METHOD) || "GET",
+        url: tab.url || "",
+        description: `Request in collection ${tab.collectionId || ""}`,
+      });
+      if (result.suggestions && result.suggestions.length > 0) {
+        setSuggestions(result.suggestions);
+      } else {
+        toast.message("No suggestions for this request. Name it yourself.");
+      }
     } catch (error) {
-      toast.error("Failed to update request name");
-      console.log(error);
+      toast.error(describeAiError(error, "Getting suggestions"));
     }
   };
 
   return (
     <Modal
-      title="Rename Request"
-      description="Give your request a name"
+      title="Rename request"
+      description="The new name shows on this tab. Save the request to keep it."
       isOpen={isModalOpen}
       onClose={() => setIsModalOpen(false)}
       onSubmit={handleSubmit}
-      submitText="Save"
-      submitVariant="default"
+      submitText="Rename"
     >
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-row items-center justify-center gap-2">
-          {/* input for renaming tab title */}
-
-          <Input
-            className="w-full"
-            placeholder="Request Name..."
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-
-          <Button
-            variant={"outline"}
-            size={"icon"}
-            onClick={async () => {
-              if (!tab) return;
-              try {
-                const result = await mutateAsync({
-                  workspaceName: tab.workspaceId || "Default Workspace",
-
-                  method: (tab.method as REST_METHOD) || "GET",
-
-                  url: tab.url || "",
-
-                  description: `Request in collection ${
-                    tab.collectionId || ""
-                  }`,
-                });
-
-                if (result.suggestions && result.suggestions.length > 0) {
-                  setSuggestions(result.suggestions);
-                  setName(result.suggestions[0].name);
-                  toast.success("Generated name suggestions");
-                }
-              } catch (error) {
-                toast.error("Failed to generate name suggestions");
-              }
-            }}
-            disabled={isPending}
-          >
-            <Sparkles
-              className={cn("h-5 w-5", isPending && "animate-pulse")}
+      <div className="space-y-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="rename-request" className="text-sm font-medium">
+            Name
+          </Label>
+          <div className="flex items-center gap-2">
+            <Input
+              id="rename-request"
+              className="flex-1"
+              placeholder="e.g. Create order"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              autoFocus
             />
-          </Button>
+            <Button
+              variant="outline"
+              onClick={suggestNames}
+              disabled={isPending}
+            >
+              {isPending ? <Spinner /> : <Sparkles />}
+              {isPending ? "Thinking…" : "Suggest"}
+            </Button>
+          </div>
         </div>
 
         {suggestions.length > 0 && (
-          <div className="flex flex-col gap-2">
-            {suggestions.map((suggestion, index) => (
-              <div
-                key={index}
-                className="flex flex-row justify-between items-center gap-3 p-2 border border-input rounded-md bg-background hover:bg-accent cursor-pointer transition-colors"
-                onClick={() => setName(suggestion.name)}
-              >
-                <span className="text-sm text-foreground">
-                  {suggestion.name}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {suggestion.reasoning}
-                </span>
-              </div>
-            ))}
+          <div className="space-y-1.5">
+            <p className="text-xs font-medium text-muted-foreground">
+              Suggestions
+            </p>
+            <ul className="divide-y divide-border overflow-hidden rounded-md border border-border">
+              {suggestions.map((suggestion, index) => (
+                <li key={index}>
+                  <button
+                    type="button"
+                    onClick={() => setName(suggestion.name)}
+                    className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left transition-colors hover:bg-muted"
+                  >
+                    <span className="text-sm text-foreground">
+                      {suggestion.name}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {suggestion.reasoning}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </div>
