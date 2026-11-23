@@ -3,7 +3,11 @@ import { google } from "@ai-sdk/google";
 import { generateText, generateObject } from "ai";
 import { z } from "zod";
 
-const model = google("gemini-2.0-flash");
+// gemini-2.0 and 2.5 flash are retired for new users; 3.8-flash is the current model.
+const model = google("gemini-3.8-flash");
+
+// Bounded calls: one retry and a 30s deadline, so the UI never waits minutes on a slow or overloaded model.
+const withLimits = () => ({ maxRetries: 1, abortSignal: AbortSignal.timeout(30_000) });
 
 export interface RequestSuggestionParams {
   workspaceName: string;
@@ -31,11 +35,6 @@ const RequestNameSchema = z.object({
     .length(3)
     .describe("Three different name suggestions ordered by relevance"),
 });
-
-/**
- * Agent 1: Suggest Request Names
- * Generates meaningful request names based on workspace context and HTTP method
- */
 
 export async function suggestRequestName({
   workspaceName,
@@ -68,6 +67,7 @@ Consider the workspace theme and make names that would make sense to other devel
       schema: RequestNameSchema,
       prompt,
       temperature: 0.7,
+      ...withLimits(),
     });
 
     return {
@@ -102,10 +102,6 @@ const JsonBodySchema = z.object({
     .describe("Alternative field suggestions or improvements"),
 });
 
-/**
- * Agent 2: Generate JSON Body
- * Creates JSON request bodies based on user prompts and context
- */
 export async function generateJsonBody({
   prompt,
   method = "POST",
@@ -142,6 +138,7 @@ IMPORTANT: Return the jsonBody as a valid JSON string that can be parsed with JS
       schema: JsonBodySchema,
       prompt: systemPrompt,
       temperature: 0.3,
+      ...withLimits(),
     });
 
     // Parse the JSON string back to an object for easier handling
@@ -172,9 +169,6 @@ IMPORTANT: Return the jsonBody as a valid JSON string that can be parsed with JS
   }
 }
 
-/**
- * Batch process multiple requests for name suggestions
- */
 export async function batchSuggestRequestNames(
   requests: RequestSuggestionParams[]
 ): Promise<

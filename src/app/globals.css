@@ -1,229 +1,261 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/*
+  RouteX "bench" design system.
+
+  Principles
+  - Surfaces are separated by hairlines and tone steps, never by shadows.
+  - Corners are square-ish (2px). Nothing is pill-shaped except status dots.
+  - Orange is the only chromatic accent. It marks the primary action, the
+    active selection, focus, and live state. Semantic colours (method, status)
+    are reserved for data.
+  - Machine data (URLs, payloads, status codes, timings) is set in mono.
+*/
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter);
-  --font-mono: var(--font-geist-mono);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-warning: var(--warning);
-  --color-success: var(--success);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent-text: var(--accent-text);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-method-patch: var(--method-patch);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-sidebar: var(--surface);
+  --color-sidebar-foreground: var(--foreground);
+  --color-sidebar-accent: var(--muted);
+  --color-sidebar-accent-foreground: var(--foreground);
+  --color-sidebar-border: var(--border);
+  --color-sidebar-ring: var(--ring);
+  --color-sidebar-primary: var(--primary);
+  --color-sidebar-primary-foreground: var(--primary-foreground);
+
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, monospace;
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  /* Layout tokens: fixed chrome sizes for the workbench. */
+  --spacing-rail: 48px;
+  --spacing-sidebar: 248px;
+  --spacing-topbar: 40px;
+  --container-landing: 1120px;
 }
 
 :root {
   --radius: 0.5rem;
+
   --background: #ffffff;
-  --foreground: #000000;
+  --surface: #f6f6f7;
+  --surface-raised: #ffffff;
+  --foreground: #17171b;
   --card: #ffffff;
-  --card-foreground: #000000;
+  --card-foreground: #17171b;
   --popover: #ffffff;
-  --popover-foreground: #000000;
-  --primary: #000000;
+  --popover-foreground: #17171b;
+
+  /* Orange action with dark text: white on orange fails WCAG AA. */
+  --primary: #f97518;
   --primary-foreground: #ffffff;
-  --secondary: #f5f5f5;
-  --secondary-foreground: #171717;
-  --muted: #f5f5f5;
-  --muted-foreground: #525252;
-  --accent: #f5f5f5;
-  --accent-foreground: #171717;
-  --destructive: #dc2626;
-  --warning: #d97706;
-  --success: #16a34a;
-  --border: #e5e5e5;
-  --input: #e5e5e5;
-  --ring: #737373;
-  --chart-1: #171717;
-  --chart-2: #404040;
-  --chart-3: #737373;
-  --chart-4: #a3a3a3;
-  --chart-5: #d4d4d4;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #000000;
-  --sidebar-primary: #000000;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f5f5f5;
-  --sidebar-accent-foreground: #171717;
-  --sidebar-border: #e5e5e5;
-  --sidebar-ring: #737373;
+  --accent-text: #c2410c;
+
+  --secondary: #efeff1;
+  --secondary-foreground: #17171b;
+  --muted: #efeff1;
+  --muted-foreground: #62626c;
+  --accent: #efeff1;
+  --accent-foreground: #17171b;
+
+  --destructive: #b91c1c;
+  --destructive-foreground: #ffffff;
+  --success: #15803d;
+  --warning: #b45309;
+  --info: #1d4ed8;
+  --method-patch: #7c3aed;
+
+  --border: #e3e3e7;
+  --input: #d6d6dc;
+  --ring: #f97518;
+
+  color-scheme: light;
 }
 
 .dark {
-  --background: #000000;
-  --foreground: #ffffff;
-  --card: #0a0a0a;
-  --card-foreground: #ffffff;
-  --popover: #0a0a0a;
-  --popover-foreground: #ffffff;
-  --primary: #ffffff;
-  --primary-foreground: #000000;
-  --secondary: #171717;
-  --secondary-foreground: #fafafa;
-  --muted: #171717;
-  --muted-foreground: #a3a3a3;
-  --accent: #171717;
-  --accent-foreground: #fafafa;
+  --background: #0c0c0e;
+  --surface: #111113;
+  --surface-raised: #17171a;
+  --foreground: #ececef;
+  --card: #111113;
+  --card-foreground: #ececef;
+  --popover: #17171a;
+  --popover-foreground: #ececef;
+
+  --primary: #f97518;
+  --primary-foreground: #ffffff;
+  --accent-text: #fb923c;
+
+  --secondary: #1c1c20;
+  --secondary-foreground: #ececef;
+  --muted: #1c1c20;
+  --muted-foreground: #9a9aa5;
+  --accent: #1c1c20;
+  --accent-foreground: #ececef;
+
   --destructive: #ef4444;
-  --warning: #f59e0b;
-  --success: #22c55e;
-  --border: #262626;
-  --input: #262626;
-  --ring: #a3a3a3;
-  --chart-1: #fafafa;
-  --chart-2: #d4d4d4;
-  --chart-3: #a3a3a3;
-  --chart-4: #737373;
-  --chart-5: #404040;
-  --sidebar: #000000;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #ffffff;
-  --sidebar-primary-foreground: #000000;
-  --sidebar-accent: #171717;
-  --sidebar-accent-foreground: #fafafa;
-  --sidebar-border: #262626;
-  --sidebar-ring: #a3a3a3;
+  --destructive-foreground: #ffffff;
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --info: #60a5fa;
+  --method-patch: #a78bfa;
+
+  --border: #26262c;
+  --input: #34343b;
+  --ring: #fb923c;
+
+  color-scheme: dark;
 }
 
 @layer base {
-  html,
-  body {
-    min-height: 100%;
-    width: 100%;
-  }
-
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
 
+  html {
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Font variables are declared on <body> by next/font, so the family must be set there. */
   body {
-    @apply bg-background text-foreground font-sans;
-    font-size: clamp(0.875rem, 0.84rem + 0.16vw, 1rem);
-    line-height: 1.6;
+    @apply min-h-dvh bg-background font-sans text-foreground;
+    font-size: 14px;
+    line-height: 1.5;
     text-rendering: optimizeLegibility;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 1px;
   }
 
   h1,
   h2,
-  h3,
-  h4 {
-    @apply tracking-tight;
-    line-height: 1.2;
-  }
-
-  h1 {
-    font-size: clamp(1.75rem, 1.5rem + 1vw, 3.25rem);
-  }
-
-  h2 {
-    font-size: clamp(1.5rem, 1.35rem + 0.7vw, 2.5rem);
-  }
-
   h3 {
-    font-size: clamp(1.2rem, 1.1rem + 0.4vw, 1.75rem);
+    letter-spacing: -0.01em;
   }
 
-  p {
-    line-height: 1.65;
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 30%, transparent);
   }
 }
 
-.no-scrollbar::-webkit-scrollbar {
-  display: none; /* Chrome, Safari */
-}
-
-.no-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-}
-
-/* Token-based scrollbars */
-.scrollbar-light {
-  scrollbar-width: thin;
-  scrollbar-color: var(--muted-foreground) var(--muted);
-}
-
-.scrollbar-light::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.scrollbar-light::-webkit-scrollbar-track {
-  background: var(--muted);
-  border-radius: 4px;
-}
-
-.scrollbar-light::-webkit-scrollbar-thumb {
-  background: var(--muted-foreground);
-  border-radius: 4px;
-  border: 1px solid var(--border);
-}
-
-.scrollbar-light::-webkit-scrollbar-thumb:hover {
-  background: var(--foreground);
-}
-
-.scrollbar-light::-webkit-scrollbar-thumb:active {
-  background: var(--foreground);
-}
-
-/* Apply to all scrollable areas by default */
+/* Thin, quiet scrollbars everywhere. */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--muted-foreground) var(--muted);
+  scrollbar-color: var(--input) transparent;
 }
 
-*::-webkit-scrollbar {
+::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
-*::-webkit-scrollbar-track {
-  background: var(--muted);
-  border-radius: 4px;
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-*::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb {
+  background: var(--input);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
   background: var(--muted-foreground);
-  border-radius: 4px;
-  border: 1px solid var(--border);
+  background-clip: padding-box;
 }
 
-*::-webkit-scrollbar-thumb:hover {
-  background: var(--foreground);
+/* Motion: one orchestrated entrance for the landing specimen, and
+   state-driven feedback elsewhere. Everything respects reduced motion. */
+@keyframes bench-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
 }
 
-*::-webkit-scrollbar-thumb:active {
-  background: var(--foreground);
+@keyframes bench-sweep {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
 }
+
+@keyframes bench-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Premium surface details for the marketing site only. */
+.dot-grid {
+  background-image: radial-gradient(color-mix(in oklab, var(--foreground) 14%, transparent) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+.dot-grid-fade {
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 35%, transparent 100%);
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 35%, transparent 100%);
+}
+
+.reveal {
+  animation: bench-rise 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.reveal-delay-1 { animation-delay: 80ms; }
+.reveal-delay-2 { animation-delay: 160ms; }
+.reveal-delay-3 { animation-delay: 300ms; }

@@ -14,6 +14,24 @@ import {
 import { REST_METHOD } from "@prisma/client";
 import { useRequestPlaygroundStore } from "../store/useRequestStore";
 
+function parseJsonField<T = unknown>(raw: string | undefined): T | undefined {
+  if (!raw) return undefined;
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    return undefined;
+  }
+}
+
+function parseBodyField(raw: string | undefined): unknown {
+  if (!raw) return undefined;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return raw;
+  }
+}
+
 // Custom hook banaya hai to add request to collection
 
 export function useAddRequestToCollection(collectionId: string) {
@@ -205,38 +223,13 @@ export function useRunDirectRequest() {
         throw new Error("No active request tab found");
       }
 
-      // Parse JSON fields if they exist, otherwise use undefined
-      let headers;
-      let parameters;
-      let body;
-
-      try {
-        headers = activeTab.headers ? JSON.parse(activeTab.headers) : undefined;
-      } catch {
-        headers = undefined;
-      }
-
-      try {
-        parameters = activeTab.parameters
-          ? JSON.parse(activeTab.parameters)
-          : undefined;
-      } catch {
-        parameters = undefined;
-      }
-
-      try {
-        body = activeTab.body ? JSON.parse(activeTab.body) : undefined;
-      } catch {
-        body = activeTab.body || undefined;
-      }
-
       const requestData = {
         id: activeTab.id, // Use tab.id for runDirect
         method: activeTab.method,
         url: activeTab.url,
-        headers,
-        parameters,
-        body,
+        headers: parseJsonField<Record<string, string>>(activeTab.headers),
+        parameters: parseJsonField<Record<string, unknown>>(activeTab.parameters),
+        body: parseBodyField(activeTab.body),
       };
 
       return await runDirect(requestData);

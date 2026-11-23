@@ -1,11 +1,11 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PlugZap, Plug, AlertCircle } from "lucide-react";
 import { useState, useCallback, useEffect } from "react";
 import { useWsStore } from "../hooks/useWs";
 import { toast } from "sonner";
 import { getConnectionDotColor, type ConnectionState } from "@/lib/status-colors";
+import { cn } from "@/lib/utils";
 
 const toConnectionState = (status: string): ConnectionState => {
   if (status === "connected") return "connected";
@@ -15,19 +15,11 @@ const toConnectionState = (status: string): ConnectionState => {
   return "disconnected";
 };
 
-const getConnectButtonColor = (state: ConnectionState): string => {
-  switch (state) {
-    case "connected":
-      return "bg-success text-white hover:bg-success/90";
-    case "connecting":
-      return "bg-warning text-white hover:bg-warning/90";
-    case "error":
-      return "bg-destructive text-white hover:bg-destructive/90";
-    default:
-      return "bg-muted text-foreground hover:bg-muted/80";
-  }
-};
-
+/*
+  One connection row: endpoint, state, and a single action. Connect is the
+  primary (orange) action; when a socket is live, Disconnect becomes a quiet
+  outline so the view doesn't invite a destructive click by accident.
+*/
 const RealtimeConnectionBar = () => {
   const {
     status,
@@ -42,140 +34,97 @@ const RealtimeConnectionBar = () => {
 
   const [url, setUrl] = useState(connectedUrl || "");
 
-  // keep local input in sync with connectedUrl
-
   useEffect(() => {
     setUrl(connectedUrl || "");
   }, [connectedUrl]);
 
   const connectionState = toConnectionState(status);
+  const isBusy = status === "connecting" || status === "reconnecting";
 
-  const getConnectionIcon = () => {
-    switch (status) {
-      case "connected":
-        return <Plug size={20} />;
-      case "connecting":
-      case "reconnecting":
-        return <PlugZap size={20} className="animate-pulse" />;
-      case "error":
-        return <AlertCircle size={20} />;
-      default:
-        return <PlugZap size={20} />;
-    }
-  };
+  const statusLabel =
+    status === "reconnecting"
+      ? `Reconnecting (${reconnectAttempts}/${maxReconnectAttempts})`
+      : status === "connected"
+        ? "Connected"
+        : status === "connecting"
+          ? "Connecting"
+          : status === "error"
+            ? "Connection failed"
+            : "Not connected";
 
-  const getButtonText = () => {
-    switch (status) {
-      case "connected":
-        return "Disconnect";
-      case "connecting":
-        return "Connecting...";
-      case "reconnecting":
-        return `Reconnecting... (${reconnectAttempts}/${maxReconnectAttempts})`;
-      case "error":
-        return "Retry";
-      default:
-        return "Connect";
-    }
-  };
-
-  const getStatusText = () => {
-    switch (status) {
-      case "reconnecting":
-        return `reconnecting (${reconnectAttempts}/${maxReconnectAttempts})`;
-      default:
-        return status;
-    }
-  };
+  const buttonLabel =
+    status === "connected"
+      ? "Disconnect"
+      : isBusy
+        ? "Connecting…"
+        : status === "error"
+          ? "Try again"
+          : "Connect";
 
   const onConnect = useCallback(() => {
-    if (!url.trim()) {
-      toast.info("Please enter a WebSocket URL");
+    if (isConnected) {
+      disconnect();
       return;
     }
-
-    if (isConnected) {
-      // Disconnect if already connected
-      disconnect();
-    } else {
-      // Connect to WebSocket
-      connect(url, {
-        onOpen: () => {
-          console.log("Successfully connected to:", url);
-        },
-        onClose: () => {
-          console.log("Disconnected from WebSocket");
-        },
-        onError: (error) => {
-          console.error("WebSocket connection error:", error);
-        },
-        onMessage: (event) => {
-          console.log("Received message:", event.data);
-        },
-        autoReconnect: true,
-        reconnectDelay: 3000,
-      });
+    if (!url.trim()) {
+      toast.info("Enter a WebSocket URL, such as ws://localhost:8080");
+      return;
     }
+    connect(url, {
+      onError: (err) => {
+        console.error("WebSocket connection error:", err);
+      },
+      autoReconnect: true,
+      reconnectDelay: 3000,
+    });
   }, [url, isConnected, connect, disconnect]);
 
-  const handleKeyPress = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Enter") {
-        onConnect();
-      }
-    },
-    [onConnect],
-  );
-
   return (
-    <div className="flex items-center justify-between bg-card border px-3 py-2 w-full shadow-sm">
-      <div className="flex flex-row items-center gap-2 flex-1">
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-2">
+        <label htmlFor="ws-url" className="sr-only">
+          WebSocket URL
+        </label>
         <Input
+          id="ws-url"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          onKeyDown={handleKeyPress}
-          placeholder="Enter WebSocket URL (e.g., ws://localhost:8080)"
-          className="flex-1"
-          disabled={status === "connecting" || status === "reconnecting"}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") onConnect();
+          }}
+          placeholder="ws://localhost:8080"
+          spellCheck={false}
+          autoComplete="off"
+          disabled={isBusy}
+          className="h-8 flex-1 font-mono text-[13px]"
         />
-      </div>
-
-      <div className="flex items-center gap-2">
-        {/* Connection Status Indicator */}
-        <div className="flex px-2 flex-col items-end text-xs text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <div
-              className={`w-2 h-2 rounded-full ${getConnectionDotColor(
-                connectionState,
-              )} ${connectionState === "connecting" ? "animate-pulse" : ""}`}
-            />
-            <span className="capitalize">{getStatusText()}</span>
-          </div>
-          {connectedUrl && (
-            <div className="text-xs text-muted-foreground max-w-32 truncate">
-              {connectedUrl}
-            </div>
-          )}
-          {error && (
-            <div className="text-xs text-destructive max-w-32 truncate">
-              {error}
-            </div>
-          )}
-        </div>
-
         <Button
           type="button"
           onClick={onConnect}
-          disabled={status === "connecting" || status === "reconnecting"}
-          className={`ml-2 font-semibold transition-colors ${getConnectButtonColor(
-            connectionState,
-          )}`}
+          disabled={isBusy}
+          variant={status === "connected" ? "outline" : "default"}
+          className="h-8 min-w-[112px]"
         >
-          <span className="flex items-center gap-2">
-            {getConnectionIcon()}
-            {getButtonText()}
-          </span>
+          {buttonLabel}
         </Button>
+      </div>
+
+      <div className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground" role="status">
+        <span
+          aria-hidden="true"
+          className={cn(
+            "size-1.5 shrink-0 rounded-full",
+            getConnectionDotColor(connectionState),
+            isBusy && "animate-pulse",
+          )}
+        />
+        <span className="shrink-0 text-foreground">{statusLabel}</span>
+        {connectedUrl && (
+          <span className="min-w-0 truncate font-mono">· {connectedUrl}</span>
+        )}
+        {error && (
+          <span className="min-w-0 truncate text-destructive">· {error}</span>
+        )}
       </div>
     </div>
   );

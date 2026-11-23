@@ -2,7 +2,6 @@ import React from "react";
 import { RequestTab } from "../store/useRequestStore";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import KeyValueFormEditor from "./key-value-form";
-import { toast } from "sonner";
 import BodyEditor from "./body-editor";
 
 interface Props {
@@ -10,128 +9,111 @@ interface Props {
   updateTab: (id: string, data: Partial<RequestTab>) => void;
 }
 
+type KeyValue = { key: string; value: string; enabled?: boolean };
+
+const emptyRow: KeyValue = { key: "", value: "", enabled: true };
+
+const parseKeyValueData = (jsonString?: string): KeyValue[] => {
+  if (!jsonString) return [];
+  try {
+    const parsed = JSON.parse(jsonString);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
+// Autosaved edits are silent: the field itself shows the state, so a toast
+// on every keystroke would only add noise.
 const RequestEditorArea = ({ tab, updateTab }: Props) => {
-  // parse the stringfy json data into key value pair , object format
+  const parameters = parseKeyValueData(tab.parameters);
+  const headers = parseKeyValueData(tab.headers);
 
-  const parseKeyValueData = (jsonString?: string) => {
-    if (!jsonString) return [];
-    try {
-      return JSON.parse(jsonString);
-    } catch {
-      return [];
-    }
-  };
-
-  // if already koi parameter exists krta hai , toh wo bhi dikhna chahiye - means also to show pre-fetched data
-
-  const getHeadersData = () => {
-    const parsed = parseKeyValueData(tab.headers);
-    return parsed.length > 0
-      ? parsed
-      : [
-          { key: "", value: "", enabled: true },
-          { key: "", value: "", enabled: true },
-        ];
-  };
-
-  const getParametersData = () => {
-    const parsed = parseKeyValueData(tab.parameters);
-    return parsed.length > 0
-      ? parsed
-      : [
-          { key: "", value: "", enabled: true },
-          { key: "", value: "", enabled: true },
-        ];
-  };
-
-  const getBodyData = () => {
-    return {
-      contentType: "application/json" as const,
-      body: tab.body || "",
-    };
-  };
-
-  const handleHeadersChange = (
-    data: { key: string; value: string; enabled?: boolean }[],
-  ) => {
+  const handleHeadersChange = (data: KeyValue[]) => {
     const filteredHeaders = data.filter(
       (item) =>
         item.enabled !== false && (item.key.trim() || item.value.trim()),
     );
     updateTab(tab.id, { headers: JSON.stringify(filteredHeaders) });
-    toast.success("Headers updated successfully");
   };
 
-  const handleParametersChange = (
-    data: { key: string; value: string; enabled?: boolean }[],
-  ) => {
+  const handleParametersChange = (data: KeyValue[]) => {
     const filteredParams = data.filter(
       (item) =>
         item.enabled !== false && (item.key.trim() || item.value.trim()),
     );
     updateTab(tab.id, { parameters: JSON.stringify(filteredParams) });
-    toast.success("Parameters updated successfully");
   };
 
   const handleBodyChange = (data: { contentType: string; body?: string }) => {
     updateTab(tab.id, { body: data.body || "" });
-    toast.success("Body updated successfully");
   };
 
+  const hasBody = Boolean(tab.body && tab.body.trim());
+
   return (
-    <Tabs
-      defaultValue="parameters"
-      className="bg-card border rounded-lg w-full px-6 py-6 shadow-sm"
-    >
-      <TabsList className="bg-muted rounded-lg p-1 mb-6">
+    <Tabs defaultValue="parameters" className="gap-0">
+      <TabsList className="h-8 gap-4 border-b border-border bg-transparent p-0">
         <TabsTrigger
           value="parameters"
-          className="flex-1 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-sm transition-all"
+          className="h-8 flex-none rounded-none border-0 border-b-2 border-transparent bg-transparent px-0 text-[13px] text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
         >
-          <span className="font-medium text-foreground">Parameters</span>
+          Params
+          {parameters.length > 0 && <Count n={parameters.length} />}
         </TabsTrigger>
         <TabsTrigger
           value="headers"
-          className="flex-1 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-sm transition-all"
+          className="h-8 flex-none rounded-none border-0 border-b-2 border-transparent bg-transparent px-0 text-[13px] text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
         >
-          <span className="font-medium text-foreground">Headers</span>
+          Headers
+          {headers.length > 0 && <Count n={headers.length} />}
         </TabsTrigger>
         <TabsTrigger
           value="body"
-          className="flex-1 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-sm transition-all"
+          className="h-8 flex-none rounded-none border-0 border-b-2 border-transparent bg-transparent px-0 text-[13px] text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
         >
-          <span className="font-medium text-foreground">Body</span>
+          Body
+          {hasBody && <span className="size-1.5 rounded-full bg-primary" aria-label="Has content" />}
         </TabsTrigger>
       </TabsList>
 
-      {/* here key value form editor */}
-      <TabsContent value="parameters">
+      <TabsContent value="parameters" forceMount className="pt-4 data-[state=inactive]:hidden">
         <KeyValueFormEditor
-          initialData={getParametersData()}
+          title="Query parameters"
+          initialData={parameters.length > 0 ? parameters : [emptyRow]}
           onSubmit={handleParametersChange}
-          placeholder={{
-            key: "Key",
-            value: "Value",
-            description: "URL Parameter",
-          }}
+          placeholder={{ key: "name", value: "value", description: "Query parameter" }}
         />
       </TabsContent>
-      <TabsContent value="headers">
+
+      <TabsContent value="headers" forceMount className="pt-4 data-[state=inactive]:hidden">
         <KeyValueFormEditor
-          initialData={getHeadersData()}
+          title="Headers"
+          initialData={headers.length > 0 ? headers : [emptyRow]}
           onSubmit={handleHeadersChange}
-          placeholder={{
-            key: "Header Name",
-            value: "Header Value",
-            description: "HTTP Header",
-          }}
+          placeholder={{ key: "Header", value: "Value", description: "HTTP header" }}
         />
       </TabsContent>
-      <TabsContent value="body">
-        <BodyEditor initialData={getBodyData()} onSubmit={handleBodyChange} />
+
+      <TabsContent value="body" className="pt-4">
+        <BodyEditor
+          initialData={{
+            contentType: "application/json",
+            body: tab.body || "",
+          }}
+          onSubmit={handleBodyChange}
+        />
       </TabsContent>
     </Tabs>
   );
 };
+
+function Count({ n }: { n: number }) {
+  return (
+    <span className="ml-1.5 rounded-sm bg-muted px-1 font-mono text-[11px] text-muted-foreground">
+      {n}
+    </span>
+  );
+}
 
 export default RequestEditorArea;

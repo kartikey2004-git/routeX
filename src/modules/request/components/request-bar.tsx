@@ -1,9 +1,9 @@
+"use client";
 import React from "react";
 import { RequestTab } from "../store/useRequestStore";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -12,117 +12,118 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRunRequest, useRunDirectRequest } from "../hooks/request";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Send } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
+import { Kbd } from "@/components/ui/kbd";
 import { getMethodColor } from "@/lib/status-colors";
+import { useHotkeys } from "react-hotkeys-hook";
 
 interface Props {
   tab: RequestTab;
   updateTab: (id: string, data: Partial<RequestTab>) => void;
 }
 
-const RequestBar = ({ tab, updateTab }: Props) => {
-  // here utility/hashmap for mapping color according to different HTTP requests
+const METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE"] as const;
 
-  // Use appropriate hook based on whether request is saved
+/*
+  The one place to act on a request: method, URL, send. The URL field is
+  monospace because URLs are data, and ⌘↵ sends from anywhere in the editor.
+*/
+const RequestBar = ({ tab, updateTab }: Props) => {
   const { mutateAsync: runSavedRequest, isPending: isSavedPending } =
     useRunRequest(tab?.requestId ?? "");
   const { mutateAsync: runDirectRequest, isPending: isDirectPending } =
     useRunDirectRequest();
 
   const isPending = isSavedPending || isDirectPending;
+  const canSend = Boolean(tab?.url?.trim()) && !isPending;
 
   const onSendRequest = async () => {
+    if (!canSend) return;
     try {
+      // Saved requests run through the collection; unsaved ones run directly.
       if (tab.requestId) {
-        // Request is saved, use regular run
-        const res = await runSavedRequest();
-        toast.success("Request sent successfully");
+        await runSavedRequest();
       } else {
-        // Request is not saved, use direct run
-        const res = await runDirectRequest();
-        toast.success("Request sent successfully");
+        await runDirectRequest();
       }
-    } catch (error) {
-      toast.error("Failed to send request");
+    } catch {
+      toast.error("Couldn't send the request. Check the URL and try again.");
     }
   };
 
+  useHotkeys(
+    "mod+enter",
+    (e) => {
+      e.preventDefault();
+      onSendRequest();
+    },
+    { enableOnFormTags: true },
+    [tab?.id, tab?.url, tab?.requestId, isPending],
+  );
+
   return (
-    <div className="flex items-center justify-between bg-card border px-3 py-2 w-full shadow-sm">
-      {/* Left section — Method selector + URL input */}
-
-      <div className="flex items-center gap-3 flex-1">
-        {/* we can update the tab request method in real time from this select component*/}
-
-        <Select
-          value={tab.method}
-          onValueChange={(value) => updateTab(tab.id, { method: value })}
+    <div className="flex shrink-0 items-center gap-2 border-b border-border bg-background px-4 py-3">
+      <Select
+        value={tab.method}
+        onValueChange={(value) => updateTab(tab.id, { method: value })}
+      >
+        <SelectTrigger
+          aria-label="HTTP method"
+          className="h-8 w-[104px] shrink-0 border-input bg-surface-raised font-mono text-[13px] font-semibold"
         >
-          <SelectTrigger
-            className={`w-28 font-semibold text-sm focus:ring-0 border-none shadow-none ${getMethodColor(
-              tab.method,
-            )}`}
-          >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="bg-card border">
-            <SelectGroup>
-              <SelectItem
-                value="GET"
-                className={`font-semibold ${getMethodColor("GET")}`}
-              >
-                GET
-              </SelectItem>
-              <SelectItem
-                value="POST"
-                className={`font-semibold ${getMethodColor("POST")}`}
-              >
-                POST
-              </SelectItem>
-              <SelectItem
-                value="PUT"
-                className={`font-semibold ${getMethodColor("PUT")}`}
-              >
-                PUT
-              </SelectItem>
-              <SelectItem
-                value="DELETE"
-                className={`font-semibold ${getMethodColor("DELETE")}`}
-              >
-                DELETE
-              </SelectItem>
-              <SelectItem
-                value="PATCH"
-                className={`font-semibold ${getMethodColor("PATCH")}`}
-              >
-                PATCH
-              </SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {METHODS.map((method) => (
+            <SelectItem
+              key={method}
+              value={method}
+              className={`font-mono font-semibold ${getMethodColor(method)}`}
+            >
+              {method}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
-        <Input
-          value={tab?.url || ""}
-          onChange={(e) => updateTab(tab.id, { url: e.target.value })}
-          placeholder="Enter URL"
-          className="flex-1"
-        />
+      <Input
+        value={tab?.url || ""}
+        onChange={(e) => updateTab(tab.id, { url: e.target.value })}
+        onKeyDown={(e) => {
+          // Plain Enter sends here; ⌘/Ctrl+Enter is handled by the hotkey below.
+          if (e.key === "Enter" && !e.metaKey && !e.ctrlKey) {
+            e.preventDefault();
+            onSendRequest();
+          }
+        }}
+        placeholder="https://api.example.com/resource"
+        aria-label="Request URL"
+        spellCheck={false}
+        autoComplete="off"
+        className="h-8 min-w-0 flex-1 font-mono text-[13px]"
+      />
 
-        {/* button which send HTTP requests on endpoint url */}
-      </div>
       <Button
-        type="submit"
+        type="button"
         onClick={onSendRequest}
-        disabled={!tab.url || isPending}
-        className="ml-3"
+        disabled={!canSend}
+        className="h-8 min-w-[88px] gap-2 px-4"
+        aria-keyshortcuts="Meta+Enter Control+Enter"
       >
         {isPending ? (
           <>
-            <Loader2 className="animate-spin" />
-            Sending...
+            <Spinner />
+            Sending
           </>
         ) : (
-          <>Send</>
+          <>
+            <Send />
+            Send
+            <Kbd className="ml-1 hidden border-primary-foreground/25 bg-primary-foreground/15 text-primary-foreground sm:inline-flex">
+              ⌘↵
+            </Kbd>
+          </>
         )}
       </Button>
     </div>
@@ -130,5 +131,3 @@ const RequestBar = ({ tab, updateTab }: Props) => {
 };
 
 export default RequestBar;
-
-// now we want to achieve one thing when we click on particular request inside the particular collection collapsible , it opens the particular request tab

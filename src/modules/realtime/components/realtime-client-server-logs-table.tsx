@@ -1,295 +1,206 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect, useRef } from "react";
 import { useWsStore } from "../hooks/useWs";
-import {
-  ChevronUp,
-  ChevronDown,
-  Trash2,
-  Copy,
-  Clock,
-  ArrowUpRight,
-  ArrowDownLeft,
-  Inbox,
-} from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Copy, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/shared/states";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
+const formatTimestamp = (timestamp: Date) =>
+  new Intl.DateTimeFormat("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    fractionalSecondDigits: 3,
+  }).format(timestamp);
+
+const formatMessageData = (data: any) => {
+  if (typeof data === "string") {
+    try {
+      return JSON.stringify(JSON.parse(data), null, 2);
+    } catch {
+      return data;
+    }
+  }
+  return JSON.stringify(data, null, 2);
+};
+
+const previewOf = (data: any) =>
+  typeof data === "string" ? data : JSON.stringify(data);
+
+/*
+  Message log. Sent and received are told apart by direction (arrow and
+  colour) rather than by colour alone. Arrow keys move through messages while
+  the list is focused, and Enter expands the selected one.
+*/
 const RealtimeClientServerLogsTable = () => {
   const { messages, clearMessages } = useWsStore();
-  const [selectedMessageIndex, setSelectedMessageIndex] = useState<number>(-1);
-  const tableRef = useRef<HTMLDivElement>(null);
-  const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [selected, setSelected] = useState<number>(-1);
+  const listRef = useRef<HTMLDivElement>(null);
+  const rowRefs = useRef<(HTMLLIElement | null)[]>([]);
 
-  // Auto-scroll to bottom when new messages arrive
+  // Follow new traffic unless the user has picked a message.
   useEffect(() => {
-    if (messages.length > 0 && selectedMessageIndex === -1) {
-      scrollToBottom();
+    if (messages.length > 0 && selected === -1 && listRef.current) {
+      listRef.current.scrollTop = listRef.current.scrollHeight;
     }
-  }, [messages.length, selectedMessageIndex]);
+  }, [messages.length, selected]);
 
-  // Update row refs array when messages change
-  useEffect(() => {
-    rowRefs.current = rowRefs.current.slice(0, messages.length);
-  }, [messages.length]);
-
-  const scrollToBottom = () => {
-    if (tableRef.current) {
-      tableRef.current.scrollTop = tableRef.current.scrollHeight;
-    }
+  const focusRow = (index: number) => {
+    setSelected(index);
+    rowRefs.current[index]?.scrollIntoView({ block: "nearest" });
   };
 
-  const scrollToRow = (index: number) => {
-    const row = rowRefs.current[index];
-    if (row && tableRef.current) {
-      const containerRect = tableRef.current.getBoundingClientRect();
-      const rowRect = row.getBoundingClientRect();
-
-      if (
-        rowRect.top < containerRect.top ||
-        rowRect.bottom > containerRect.bottom
-      ) {
-        row.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-    }
-  };
-
-  const handleNavigateUp = () => {
+  const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (messages.length === 0) return;
-
-    const newIndex =
-      selectedMessageIndex === -1
-        ? messages.length - 1
-        : Math.max(0, selectedMessageIndex - 1);
-
-    setSelectedMessageIndex(newIndex);
-    scrollToRow(newIndex);
-  };
-
-  const handleNavigateDown = () => {
-    if (messages.length === 0) return;
-
-    const newIndex =
-      selectedMessageIndex === -1
-        ? 0
-        : selectedMessageIndex + 1 < messages.length
-          ? selectedMessageIndex + 1
-          : -1;
-
-    setSelectedMessageIndex(newIndex);
-
-    if (newIndex === -1) {
-      scrollToBottom();
-    } else {
-      scrollToRow(newIndex);
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      focusRow(selected < 0 ? 0 : Math.min(messages.length - 1, selected + 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      focusRow(
+        selected < 0 ? messages.length - 1 : Math.max(0, selected - 1),
+      );
+    } else if (e.key === "Escape") {
+      setSelected(-1);
     }
   };
 
-  const handleRowClick = (index: number) => {
-    setSelectedMessageIndex(selectedMessageIndex === index ? -1 : index);
-  };
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard
-      .writeText(text)
-      .then(() => {
-        console.log("Copied to clipboard");
-      })
-      .catch((err) => {
-        console.error("Failed to copy: ", err);
-      });
-  };
-
-  const formatTimestamp = (timestamp: Date) => {
-    return new Intl.DateTimeFormat("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      fractionalSecondDigits: 3,
-    }).format(timestamp);
-  };
-
-  const formatMessageData = (data: any) => {
-    if (typeof data === "string") {
-      try {
-        return JSON.stringify(JSON.parse(data), null, 2);
-      } catch {
-        return data;
-      }
+  const copyMessage = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success("Message copied");
+    } catch {
+      toast.error("Couldn't copy the message.");
     }
-    return JSON.stringify(data, null, 2);
-  };
-
-  const getMessageTypeIcon = (type: "sent" | "received") => {
-    return type === "sent" ? (
-      <ArrowUpRight size={16} className="text-primary" />
-    ) : (
-      <ArrowDownLeft size={16} className="text-success" />
-    );
   };
 
   return (
-    <Card className="flex h-full flex-col gap-0 py-0">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-border px-4 py-3">
-        <div className="flex items-center gap-2">
-          <Clock size={18} className="text-muted-foreground" />
-          <h3 className="font-medium text-foreground">Message Logs</h3>
-          <span className="text-xs text-muted-foreground">
-            ({messages.length} messages)
+    <section className="flex min-h-0 flex-1 flex-col rounded-md border border-border">
+      <div className="flex h-9 shrink-0 items-center justify-between border-b border-border px-3">
+        <h2 className="text-sm font-semibold text-foreground">
+          Messages
+          <span className="ml-2 font-mono text-xs font-normal text-muted-foreground">
+            {messages.length}
           </span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {/* Navigation arrows */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleNavigateUp}
-            disabled={messages.length === 0}
-            className="h-8 w-8 text-muted-foreground hover:bg-muted hover:text-foreground"
-            title="Navigate up (previous message)"
-          >
-            <ChevronUp size={16} />
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleNavigateDown}
-            disabled={messages.length === 0}
-            className="h-8 w-8 text-muted-foreground hover:bg-muted hover:text-foreground"
-            title="Navigate down (next message)"
-          >
-            <ChevronDown size={16} />
-          </Button>
-
-          <div className="mx-1 h-6 w-px bg-border" />
-
-          {/* Clear messages */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={clearMessages}
-            disabled={messages.length === 0}
-            className="h-8 w-8 text-muted-foreground hover:bg-muted hover:text-destructive"
-            title="Clear all messages"
-          >
-            <Trash2 size={16} />
-          </Button>
-        </div>
+        </h2>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 text-[13px] text-muted-foreground hover:text-destructive"
+          onClick={clearMessages}
+          disabled={messages.length === 0}
+        >
+          <Trash2 />
+          Clear
+        </Button>
       </div>
 
-      {/* Messages Table */}
-      <div ref={tableRef} className="flex-1 overflow-auto">
-        {messages.length === 0 ? (
-          <div className="flex h-32 flex-col items-center justify-center gap-2 text-center px-4">
-            <Inbox className="h-6 w-6 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">
-              No messages yet. Connect to a WebSocket to see message logs.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-1 p-2">
-            {messages.map((message, index) => (
-              <div
-                key={message.id}
-                ref={(el) => {
-                  rowRefs.current[index] = el;
-                }}
-                className={`
-                  cursor-pointer rounded-md border border-border p-3 transition-colors duration-200
-               
-                  ${
-                    selectedMessageIndex === index
-                      ? "bg-muted ring-1 ring-ring"
-                      : "hover:bg-muted/60"
-                  }
-                `}
-                onClick={() => handleRowClick(index)}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    {getMessageTypeIcon(message.type)}
+      {messages.length === 0 ? (
+        <EmptyState
+          title="No messages yet"
+          description="Sent and received messages appear here as they happen."
+          className="px-4 py-8"
+        />
+      ) : (
+        <div
+          ref={listRef}
+          tabIndex={0}
+          onKeyDown={onKeyDown}
+          aria-label="Message log. Use arrow keys to move between messages."
+          className="min-h-0 flex-1 overflow-auto outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ring"
+        >
+          <ul className="divide-y divide-border">
+            {messages.map((message, index) => {
+              const isSent = message.type === "sent";
+              const isOpen = selected === index;
+              return (
+                <li
+                  key={message.id}
+                  ref={(el) => {
+                    rowRefs.current[index] = el;
+                  }}
+                  className={cn(
+                    "group cursor-pointer px-3 py-2 transition-colors",
+                    isOpen ? "bg-muted" : "hover:bg-muted/50",
+                  )}
+                  onClick={() => setSelected(isOpen ? -1 : index)}
+                  aria-current={isOpen ? "true" : undefined}
+                >
+                  <div className="flex items-center gap-2 text-xs">
                     <span
-                      className={`text-sm font-medium capitalize ${
-                        message.type === "sent"
-                          ? "text-primary"
-                          : "text-success"
-                      }`}
+                      className={cn(
+                        "flex items-center gap-1 font-medium",
+                        isSent ? "text-primary" : "text-success",
+                      )}
                     >
-                      {message.type}
+                      {isSent ? (
+                        <ArrowUpRight className="size-3.5" aria-hidden="true" />
+                      ) : (
+                        <ArrowDownLeft className="size-3.5" aria-hidden="true" />
+                      )}
+                      <span className="sr-only">{isSent ? "Sent" : "Received"}</span>
+                      <span aria-hidden="true">{isSent ? "Sent" : "Received"}</span>
                     </span>
-                    <span className="text-xs text-muted-foreground">
-                      #{index + 1}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">
+                    <span className="font-mono text-muted-foreground tabular-nums">
                       {formatTimestamp(message.timestamp)}
+                    </span>
+                    <span className="font-mono text-muted-foreground">
+                      #{index + 1}
                     </span>
                     <Button
                       variant="ghost"
-                      size="icon"
+                      size="icon-sm"
+                      className="ml-auto size-6 md:opacity-0 md:group-hover:opacity-100"
+                      aria-label="Copy message"
                       onClick={(e) => {
                         e.stopPropagation();
-                        copyToClipboard(
-                          message.raw || formatMessageData(message.data),
-                        );
+                        copyMessage(message.raw || formatMessageData(message.data));
                       }}
-                      className="h-6 w-6 text-muted-foreground hover:bg-muted hover:text-foreground"
-                      title="Copy message"
                     >
-                      <Copy size={12} />
+                      <Copy />
                     </Button>
                   </div>
-                </div>
 
-                <div className="text-xs text-foreground">
-                  <div className="overflow-x-auto rounded-md border border-border bg-background p-2 font-mono">
-                    {selectedMessageIndex === index ? (
-                      <pre className="whitespace-pre-wrap wrap-break-word">
+                  {isOpen ? (
+                    <div className="mt-2 space-y-2">
+                      <pre className="overflow-x-auto rounded-sm border border-border bg-background p-2.5 font-mono text-[12px] leading-relaxed whitespace-pre-wrap break-words text-foreground">
                         {formatMessageData(message.data)}
                       </pre>
-                    ) : (
-                      <div className="truncate">
-                        {typeof message.data === "string"
-                          ? message.data
-                          : JSON.stringify(message.data)}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {selectedMessageIndex === index &&
-                  message.raw &&
-                  message.raw !== formatMessageData(message.data) && (
-                    <div className="mt-2 text-xs text-muted-foreground">
-                      <div className="mb-1 text-muted-foreground">Raw:</div>
-                      <div className="overflow-x-auto rounded-md border border-border bg-background p-2 font-mono">
-                        <pre className="whitespace-pre-wrap wrap-break-word">
-                          {message.raw}
-                        </pre>
-                      </div>
+                      {message.raw &&
+                        message.raw !== formatMessageData(message.data) && (
+                          <details className="text-xs text-muted-foreground">
+                            <summary className="cursor-pointer select-none hover:text-foreground">
+                              Raw frame
+                            </summary>
+                            <pre className="mt-1.5 overflow-x-auto rounded-sm border border-border bg-background p-2.5 font-mono whitespace-pre-wrap break-words">
+                              {message.raw}
+                            </pre>
+                          </details>
+                        )}
                     </div>
+                  ) : (
+                    <p className="mt-1 truncate font-mono text-[12px] text-muted-foreground">
+                      {previewOf(message.data)}
+                    </p>
                   )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Footer with selection info */}
-      {selectedMessageIndex >= 0 && (
-        <div className="border-t border-border px-4 py-2 text-xs text-muted-foreground">
-          Message {selectedMessageIndex + 1} of {messages.length} selected
-          {selectedMessageIndex < messages.length - 1 && (
-            <span> • Press ↓ for next</span>
-          )}
-          {selectedMessageIndex > 0 && <span> • Press ↑ for previous</span>}
+                </li>
+              );
+            })}
+          </ul>
         </div>
       )}
-    </Card>
+
+      {selected >= 0 && (
+        <div className="shrink-0 border-t border-border px-3 py-1.5 text-xs text-muted-foreground">
+          <span className="font-mono">
+            {selected + 1} / {messages.length}
+          </span>
+          <span> · ↑↓ move · esc clear selection</span>
+        </div>
+      )}
+    </section>
   );
 };
 

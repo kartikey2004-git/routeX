@@ -1,6 +1,9 @@
 "use client";
-import { Clock, Loader2, Search } from "lucide-react";
+
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useQueries } from "@tanstack/react-query";
+import { FilePlus, Globe, Search, Blocks, FolderOpen } from "lucide-react";
 import {
   CommandDialog,
   CommandEmpty,
@@ -10,218 +13,192 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { useWorkspaces } from "@/modules/workspace/hooks/workspace";
+import { useGetCollections } from "@/modules/collection/hooks/collection";
+import { getAllRequestFromCollection } from "@/modules/request/actions";
+import { useRequestPlaygroundStore } from "@/modules/request/store/useRequestStore";
 import { useWorkspaceStore } from "../store";
+import { getMethodColor } from "@/lib/status-colors";
+import { Skeleton } from "@/components/ui/skeleton";
 
-interface Workspace {
-  id: string;
-  name: string;
-  description: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-  ownerId: string;
-}
-
-const SearchBar = () => {
-  // Custom hook that fetches all user workspaces
-  const { data: workspaces = [], isLoading, isError } = useWorkspaces();
-
-  // Custom hook that fetches all user workspaces
-  const { setSelectedWorkspace } = useWorkspaceStore();
-
-  // console.log(workspaces);
-
-  // open state variable for opening the command prompt/list
-
+/*
+  Command palette (Ctrl/⌘K). One place to reach anything: actions, requests in
+  the current workspace, and workspaces. Shortcut hints are shown next to the
+  commands that have one, so the palette doubles as a cheat sheet.
+*/
+const CommandPalette = () => {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
 
-  // Search input value
-  const [search, setSearch] = useState("");
-
-  const [recentSearches, setRecentSearches] = useState<Workspace[]>([]);
-
-  // Load recent searches from localStorage on mount
-  useEffect(() => {
-    const saved = localStorage.getItem("recentSearches");
-    if (saved) setRecentSearches(JSON.parse(saved));
-  }, []);
-
-  // Filter logic — runs whenever search input changes : Jab search input ya workspace data change ho, to list filter karo
-
-  const filtered = workspaces.filter((w: Workspace) =>
-    // lowercase me filter kar rahe hain (case-insensitive search)
-
-    w.name.toLowerCase().includes(search.toLowerCase()),
+  const { data: workspaces = [], isError } = useWorkspaces();
+  const { selectedWorkspace, setSelectedWorkspace } = useWorkspaceStore();
+  const { data: collections = [] } = useGetCollections(
+    selectedWorkspace?.id ?? "",
   );
-
-  // Open workspace on click
-  const handleOpenWorkspace = (workspace: Workspace) => {
-    // global state me selected workspace set karo and aapka store jab update hoga, uske basis pe workspace open ho jayega
-    setSelectedWorkspace(workspace);
-    setOpen(false); // modal close karo
-    setSearch("");
-
-    // Save to recent searches (limit to 5, no duplicates)
-
-    const updated = [
-      workspace,
-      ...recentSearches.filter((r) => r.id !== workspace.id),
-    ].slice(0, 5);
-    setRecentSearches(updated);
-    localStorage.setItem("recentSearches", JSON.stringify(updated));
-  };
-
-  // implement keyboard shortcut
+  const requestQueries = useQueries({
+    queries: collections.map((collection) => ({
+      queryKey: ["requests", collection.id],
+      queryFn: () => getAllRequestFromCollection(collection.id),
+    })),
+  });
+  const { addTab, openRequestTab } = useRequestPlaygroundStore();
 
   useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        setOpen((prev) => !prev);
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault();
+        setOpen((previous) => !previous);
       }
     };
-
-    // addEventlistener: method of the EventTarget interface sets up a function that will be called whenever the specified event is delivered to the target.
-
-    document.addEventListener("keydown", down);
-
-    // cleanup on unmount
-    return () => document.removeEventListener("keydown", down);
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
   }, []);
+
+  const close = () => {
+    setOpen(false);
+    setQuery("");
+  };
+
+  const run = (action: () => void) => {
+    action();
+    close();
+  };
+
+  const requests = requestQueries.flatMap((result, index) =>
+    (result.data ?? []).map((request) => ({
+      ...request,
+      collectionName: collections[index]?.name ?? "",
+    })),
+  );
 
   return (
     <>
-      {/* Compact search bar UI on navbar  */}
       <button
+        type="button"
         onClick={() => setOpen(true)}
-        className="relative flex flex-1 cursor-text items-center justify-between self-stretch rounded bg-muted px-4 py-2 text-muted-foreground transition hover:bg-muted/80 hover:text-foreground focus-visible:bg-accent focus-visible:text-foreground overflow-hidden"
+        aria-label="Search requests, commands and workspaces"
+        className="flex h-7 w-8 shrink-0 items-center justify-center gap-2 rounded-md border border-border bg-background text-left text-sm text-muted-foreground transition-colors hover:border-input hover:text-foreground sm:w-full sm:max-w-md sm:justify-start sm:px-2.5"
       >
-        <span className="inline-flex flex-1 items-center">
-          <Search size={16} className="mr-2" />
-          <span className="text-xs text-left">Search routeX</span>
+        <Search className="size-3.5 shrink-0" />
+        <span className="hidden min-w-0 flex-1 truncate sm:block">
+          Search requests, commands and workspaces
         </span>
-
-        {/* Keyboard shortcut hint */}
-        <span className="flex space-x-1">
-          <kbd className="px-1 py-0.5 text-xs bg-border rounded">Ctrl</kbd>
-          <kbd className="px-1 py-0.5 text-xs bg-border rounded">K</kbd>
-        </span>
+        <kbd className="hidden shrink-0 rounded-sm border border-border px-1 font-mono text-[11px] sm:inline-block">
+          ⌘K
+        </kbd>
       </button>
 
-      {/* Command Dialog (opens when Ctrl+K or clicked) */}
+      <CommandDialog
+        open={open}
+        onOpenChange={(next) => (next ? setOpen(true) : close())}
+        title="Command palette"
+        description="Search requests, run a command or switch workspace"
+        className="sm:max-w-lg"
+      >
+        <CommandInput
+          placeholder="Type a command or search…"
+          value={query}
+          onValueChange={setQuery}
+        />
+        <CommandList className="max-h-[360px]">
+          <CommandEmpty>
+            {isError
+              ? "Couldn't load workspaces. Refresh and try again."
+              : "Nothing matches. Try a request name or a URL."}
+          </CommandEmpty>
 
-      <CommandDialog open={open} onOpenChange={setOpen}>
-        <div className="bg-card border rounded-lg">
-          {/* Input field for searching workspaces */}
-          <CommandInput
-            placeholder="Search workspaces..."
-            value={search}
-            onValueChange={setSearch}
-            className="bg-transparent border-none text-foreground placeholder:text-muted-foreground"
-          />
-
-          {/* Workspace list container */}
-          <CommandList>
-            {isLoading && (
-              <div className="p-2 text-sm">
-                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-              </div>
-            )}
-
-            {isError && (
-              <div className="p-2 text-sm text-destructive">
-                Error loading workspaces
-              </div>
-            )}
-
-            {recentSearches.length === 0 && search.trim() === "" && (
-              <div className="text-muted-foreground py-6 text-center">
-                Search routeX
-              </div>
-            )}
-
-            {search.trim() === "" ? (
-              recentSearches.length > 0 && (
-                <CommandGroup heading="Recent Searches">
-                  {recentSearches.map((ws) => (
-                    <CommandItem
-                      key={ws.id}
-                      onSelect={() => handleOpenWorkspace(ws)}
-                    >
-                      <Clock
-                        size={14}
-                        className="mt-0.5 text-muted-foreground"
-                      />
-                      <div className="flex flex-col">
-                        <span>{ws.name}</span>
-                        <span className="text-sm text-muted-foreground">
-                          {ws.description}
-                        </span>
-                      </div>
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              )
-            ) : (
-              <div>
-                {!isLoading && search.trim() !== "" && (
-                  <>
-                    <CommandEmpty>No workspace found.</CommandEmpty>
-
-                    <CommandGroup heading="Your Workspaces">
-                      {filtered.map((w) => (
-                        <CommandItem
-                          key={w.id}
-                          value={w.name}
-                          onSelect={() => handleOpenWorkspace(w)}
-                        >
-                          <div className="flex flex-col">
-                            <span className="font-medium text-foreground">
-                              {w.name}
-                            </span>
-                            <span className="text-muted-foreground text-xs">
-                              {w.description || "No description"}
-                            </span>
-                          </div>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </>
-                )}
-              </div>
-            )}
-          </CommandList>
-
-          {/* Keyboard navigation hints at the bottom */}
-
-          <div className="flex items-center justify-between px-3 py-2 border-t bg-card">
-            <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-              <div className="flex items-center space-x-1">
-                <kbd className="px-1.5 py-0.5 bg-muted text-foreground rounded text-xs">
-                  ↑
-                </kbd>
-                <kbd className="px-1.5 py-0.5 bg-muted text-foreground rounded text-xs">
-                  ↓
-                </kbd>
-                <span>to navigate</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <kbd className="px-1.5 py-0.5 bg-muted text-foreground rounded text-xs">
-                  ↵
-                </kbd>
-                <span>to select</span>
-              </div>
-            </div>
-            <div className="flex items-center space-x-1 text-xs text-muted-foreground">
-              <kbd className="px-1.5 py-0.5 bg-muted text-foreground rounded text-xs">
-                ESC
+          <CommandGroup heading="Commands">
+            <CommandItem onSelect={() => run(() => addTab())}>
+              <FilePlus />
+              New request
+              <kbd className="ml-auto font-mono text-[11px] text-muted-foreground">
+                ⌘G
               </kbd>
-              <span>to close</span>
+            </CommandItem>
+            <CommandItem onSelect={() => run(() => router.push("/app"))}>
+              <Blocks />
+              Go to REST
+            </CommandItem>
+            <CommandItem onSelect={() => run(() => router.push("/realtime"))}>
+              <Globe />
+              Go to WebSocket
+            </CommandItem>
+          </CommandGroup>
+
+          {requestQueries.some((q) => q.isPending) && requests.length === 0 && (
+            <div className="space-y-2 p-2" role="status" aria-label="Loading requests">
+              <Skeleton className="h-7 w-full" />
+              <Skeleton className="h-7 w-5/6" />
+              <Skeleton className="h-7 w-4/6" />
             </div>
-          </div>
+          )}
+
+          {requests.length > 0 && (
+            <CommandGroup heading="Requests">
+              {requests.map((request) => (
+                <CommandItem
+                  key={request.id}
+                  value={`${request.name} ${request.url} ${request.collectionName}`}
+                  onSelect={() =>
+                    run(() => {
+                      openRequestTab(request);
+                      router.push("/app");
+                    })
+                  }
+                >
+                  <span
+                    className={`w-12 shrink-0 font-mono text-xs font-semibold ${getMethodColor(
+                      request.method,
+                    )}`}
+                  >
+                    {request.method}
+                  </span>
+                  <span className="truncate">{request.name || request.url}</span>
+                  <span className="ml-auto flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
+                    <FolderOpen className="size-3" />
+                    {request.collectionName}
+                  </span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
+
+          {workspaces.length > 0 && (
+            <CommandGroup heading="Workspaces">
+              {workspaces.map((workspace) => (
+                <CommandItem
+                  key={workspace.id}
+                  value={`workspace ${workspace.name}`}
+                  onSelect={() =>
+                    run(() => setSelectedWorkspace(workspace))
+                  }
+                >
+                  <span className="truncate">{workspace.name}</span>
+                  {selectedWorkspace?.id === workspace.id && (
+                    <span className="ml-auto text-xs text-muted-foreground">
+                      Current
+                    </span>
+                  )}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
+        </CommandList>
+
+        <div className="flex items-center gap-4 border-t border-border px-3 py-2 text-xs text-muted-foreground">
+          <span>
+            <kbd className="font-mono">↑↓</kbd> move
+          </span>
+          <span>
+            <kbd className="font-mono">↵</kbd> select
+          </span>
+          <span>
+            <kbd className="font-mono">esc</kbd> close
+          </span>
         </div>
       </CommandDialog>
     </>
   );
 };
 
-export default SearchBar;
+export default CommandPalette;

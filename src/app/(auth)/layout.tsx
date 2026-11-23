@@ -1,23 +1,8 @@
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-import GridLayout from "./GridLayout";
-
-export default async function AuthLayout({
+// Each auth page lays out the full screen itself (the sign-in page is a split layout).
+export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Check if user is already authenticated
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  // Redirect to home if user is already logged in
-  if (session) {
-    return redirect("/");
-  }
-
-  // Render the layout with children
-  return <GridLayout>{children}</GridLayout>;
+  return <>{children}</>;
 }

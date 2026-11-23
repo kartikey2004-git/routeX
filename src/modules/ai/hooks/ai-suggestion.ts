@@ -32,8 +32,6 @@ export function useGenerateJsonBody() {
       toast.success("JSON body generated successfully");
     },
 
-    onError: (error) => {
-      toast.error("Failed to generate JSON body");
-    },
+    // Errors are shown by the caller (the body editor), which knows what to say.
   });
 }

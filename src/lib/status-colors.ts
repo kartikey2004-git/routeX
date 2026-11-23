@@ -1,15 +1,8 @@
-/**
- * Single source of truth for HTTP method / status / connection-state colors.
- * Previously duplicated (and drifted) across request-bar, tab-bar,
- * collection-folder, add-request-modal, response-viewer, and the realtime
- * module — consolidated here so every screen renders the same colors.
- */
-
 const METHOD_COLORS: Record<string, string> = {
   GET: "text-success",
-  POST: "text-blue-600 dark:text-blue-400",
+  POST: "text-info",
   PUT: "text-warning",
-  PATCH: "text-violet-600 dark:text-violet-400",
+  PATCH: "text-method-patch",
   DELETE: "text-destructive",
 };
 
@@ -20,7 +13,7 @@ export function getMethodColor(method: string): string {
 export function getStatusColor(status?: number): string {
   if (typeof status !== "number") return "text-muted-foreground";
   if (status >= 200 && status < 300) return "text-success";
-  if (status >= 300 && status < 400) return "text-blue-600 dark:text-blue-400";
+  if (status >= 300 && status < 400) return "text-info";
   if (status >= 400 && status < 500) return "text-warning";
   return "text-destructive";
 }

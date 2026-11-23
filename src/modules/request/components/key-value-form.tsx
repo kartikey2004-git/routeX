@@ -1,49 +1,43 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useRef, useCallback } from "react";
-import { useForm, useFieldArray, Control } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, useFieldArray } from "react-hook-form";
 import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
-import { Plus, Trash2, Check, X } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import { Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// schema for key-value input
+/*
+  Editable key/value table used for query parameters and headers.
+  Edits autosave after a short pause; disabled rows stay visible but are not
+  sent. A blank row is allowed, so the form never shows validation noise.
+*/
 
 const keyValueSchema = z.object({
-  // array of items
   items: z.array(
     z.object({
-      key: z.string().min(1, "Key is required"),
-      value: z.string().min(1, "Value is required"),
+      key: z.string(),
+      value: z.string(),
       enabled: z.boolean().default(true).optional(),
     }),
   ),
 });
-
-// type for keyvalue Form data
 
 type KeyValueFormData = z.infer<typeof keyValueSchema>;
 
 export interface KeyValueItem {
   key: string;
   value: string;
-  enabled?: boolean; // check key value pair for sending request / parameters is enabled or not
+  enabled?: boolean;
 }
 
 interface KeyValueFormEditorProps {
-  initialData?: KeyValueItem[]; // intial data for holding key value pair
-
-  onSubmit: (data: KeyValueItem[]) => void; // onSubmit pe keyValue items ko accept kr rha hoga props mein
-
+  title: string;
+  initialData?: KeyValueItem[];
+  onSubmit: (data: KeyValueItem[]) => void;
   placeholder?: {
     key?: string;
     value?: string;
@@ -53,25 +47,18 @@ interface KeyValueFormEditorProps {
 }
 
 const KeyValueFormEditor: React.FC<KeyValueFormEditorProps> = ({
+  title,
   onSubmit,
   initialData,
-  placeholder = {
-    key: "Key",
-    value: "Value",
-    description: "Description",
-  },
+  placeholder = { key: "Key", value: "Value", description: "Item" },
   className,
 }) => {
   const form = useForm<KeyValueFormData>({
     resolver: zodResolver(keyValueSchema),
     defaultValues: {
-      // if we have intial Data toh woh hi render krenge otherwise empty here
-
       items:
-        initialData && initialData?.length > 0
-          ? initialData?.map((item) => ({
-              // key: item.key,
-              // value: item.value,
+        initialData && initialData.length > 0
+          ? initialData.map((item) => ({
               ...item,
               enabled: item.enabled ?? true,
             }))
@@ -79,67 +66,30 @@ const KeyValueFormEditor: React.FC<KeyValueFormEditorProps> = ({
     },
   });
 
-  // utility to add items in this keyvalue form editor
-
   const { fields, append, remove } = useFieldArray({
-    control: form.control, // take the control of formdata
-
-    name: "items", // here we have to pass name for formdata
+    control: form.control,
+    name: "items",
   });
-
-  // for adding a new keyvalue pair row
 
   const addNewRow = () => {
     append({ key: "", value: "", enabled: true });
   };
 
-  // for managing state of enabled , is enabled current state true or false : to toggle , ki humein key value pair data bhejna hai ya nahi
-
-  // manage toggle boolean state
-
   const toggleEnabled = (index: number) => {
-    // here is index : key-value pair row number
-
     const currentValue = form.getValues(`items.${index}.enabled`);
     form.setValue(`items.${index}.enabled`, !currentValue);
   };
 
-  // for removing a exsiting keyvalue pair row
-
   const removeRow = (index: number) => {
-    if (fields.length > 1) {
-      remove(index);
-    }
+    remove(index);
   };
 
-  /*
-  
-  Auto-save text after user stops typing for a short time
-
-    Best practices : implement debouncing
-  
-    - Debouncing is a technique 
-
-      - that delays a function's execution until a specified period of time 
-     has passed without any further calls to it
-
-      - preventing rapid, repeated invocations and improving performance.
-
-     - we dont' want ki user type kr rha ho aur auto save call hota rhe , we want to auto save after sometime , when user stopped typing
-  
-  */
-
-  // we have to maintain ref , so that on every reload , tab re-render nahi ho
-
+  // Only enabled, non-empty rows are saved.
   const lastSavedRef = useRef<string | null>(null);
-
-  // return the enabled key-value pairs from the enabled items array , means auto save only works on enabled key value pairs
 
   const getFilteredItemsFromValues = (items: KeyValueItem[]) =>
     items
-      .filter(
-        (item) => item.enabled && (item.key?.trim() || item.value?.trim()),
-      )
+      .filter((item) => item.enabled && (item.key?.trim() || item.value?.trim()))
       .map(({ key, value }) => ({ key, value }));
 
   const debounce = (fn: (...args: any[]) => void, wait = 500) => {
@@ -153,9 +103,6 @@ const KeyValueFormEditor: React.FC<KeyValueFormEditorProps> = ({
   const saveIfChanged = useCallback(
     (items: KeyValueItem[]) => {
       const filtered = getFilteredItemsFromValues(items);
-
-      // now we have to serialise data because here we come with data in form of key value pair object - stringfy - convert to json
-
       const serialized = JSON.stringify(filtered);
       if (serialized !== lastSavedRef.current) {
         lastSavedRef.current = serialized;
@@ -166,7 +113,6 @@ const KeyValueFormEditor: React.FC<KeyValueFormEditorProps> = ({
   );
 
   const debouncedSaveRef = useRef(saveIfChanged);
-  // keep ref up to date when saveIfChanged changes
   useEffect(() => {
     debouncedSaveRef.current = saveIfChanged;
   }, [saveIfChanged]);
@@ -175,197 +121,140 @@ const KeyValueFormEditor: React.FC<KeyValueFormEditorProps> = ({
     null,
   );
 
-  // useEffect debounce method ko call krega means har 0.5 seconds baad is autosaved ko triggered krega and if value changed hogi toh call hota rhega
-
   useEffect(() => {
     debouncedInvokerRef.current = debounce((items: KeyValueItem[]) => {
       debouncedSaveRef.current(items);
     }, 500);
   }, []);
 
-  // Watch form values and trigger debounced save
   useEffect(() => {
     const subscription = form.watch((value) => {
       const items = (value as KeyValueFormData)?.items || [];
       debouncedInvokerRef.current?.(items as KeyValueItem[]);
     });
-
     return () => subscription.unsubscribe();
   }, [form]);
+
+  const watchedItems = form.watch("items");
+  const enabledCount = getFilteredItemsFromValues(
+    (watchedItems ?? []) as KeyValueItem[],
+  ).length;
+
+  const cellInput =
+    "h-8 rounded-none border-0 bg-transparent px-2.5 font-mono text-[13px] text-foreground shadow-none placeholder:font-sans placeholder:text-muted-foreground/60 focus-visible:ring-inset focus-visible:ring-1 disabled:opacity-100";
 
   return (
     <div className={cn("w-full", className)}>
       <Form {...form}>
-        <div className="space-y-3">
-          {/* Header */}
+        <div className="mb-2 flex items-center justify-between">
+          <h3 className="text-xs font-medium text-muted-foreground">
+            {title}
+            <span className="ml-2 font-normal text-muted-foreground/70">
+              {enabledCount} sent
+            </span>
+          </h3>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={addNewRow}
+            className="h-7 text-[13px] text-muted-foreground"
+          >
+            <Plus />
+            Add row
+          </Button>
+        </div>
 
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-muted-foreground">
-              Query Params
-            </h3>
-
-            {/* button to add new key value pair row */}
-
-            <Button
-              type="button"
-              variant={"ghost"}
-              size={"sm"}
-              onClick={addNewRow}
-              className="flex items-center gap-1 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-            >
-              <Plus className="h-4 w-4" />
-              <span className="text-xs font-medium">Add</span>
-            </Button>
+        <div className="overflow-hidden rounded-md border border-border">
+          <div className="grid grid-cols-[minmax(0,5fr)_minmax(0,5fr)_auto_auto] items-center border-b border-border bg-surface text-xs text-muted-foreground">
+            <div className="px-2.5 py-1.5">Name</div>
+            <div className="px-2.5 py-1.5">Value</div>
+            <div className="w-16 px-2 py-1.5 text-center">Send</div>
+            <div className="w-10 px-2 py-1.5" />
           </div>
 
-          {/* Table-like layout */}
-
-          <div className="w-full border rounded-md overflow-hidden">
-            {/* Table header */}
-            <div className="grid grid-cols-12 bg-muted text-xs text-muted-foreground border-b">
-              <div className="col-span-5 border-r font-medium px-3 py-2">
-                KEY
-              </div>
-              <div className="col-span-5 border-r font-medium px-3 py-2">
-                VALUE
-              </div>
-
-              <div className="hidden lg:block col-span-1 border-r font-medium px-3 py-2 text-muted-foreground/60">
-                ON/OFF
-              </div>
-
-              <div className="hidden lg:block col-span-1 border-r font-medium px-3 py-2">
-                DELETE
-              </div>
-
-              <div className="col-span-1 font-medium px-3 py-2 text-muted-foreground/60 lg:hidden">
-                <Check className="w-4 h-4 border" />
-              </div>
-
-              <div className="col-span-1 font-medium px-3 py-2 text-muted-foreground/60 lg:hidden">
-                <Trash2 className="w-4 h-4" />
-              </div>
-            </div>
-
-            {/* Rows */}
-            <div>
-              {fields.map((field, index) => (
-                <div
+          <ul>
+            {fields.map((field, index) => {
+              const enabled = form.watch(`items.${index}.enabled`);
+              return (
+                <li
                   key={field.id}
                   className={cn(
-                    "grid grid-cols-12 items-center text-sm border-t",
-                    form.watch(`items.${index}.enabled`)
-                      ? "bg-background"
-                      : "bg-muted/50 opacity-60",
+                    "grid grid-cols-[minmax(0,5fr)_minmax(0,5fr)_auto_auto] items-center border-b border-border last:border-b-0 focus-within:bg-muted/40",
+                    !enabled && "text-muted-foreground",
                   )}
                 >
-                  {/* Key Input*/}
-                  <div className="col-span-5 border-r px-3 py-2">
-                    <FormField
-                      control={form.control}
-                      name={`items.${index}.key`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              placeholder={placeholder.key}
-                              className="bg-transparent border-0 focus:ring-0 rounded-none text-xs text-foreground placeholder:text-muted-foreground"
-                              disabled={!form.watch(`items.${index}.enabled`)}
-                            />
-                          </FormControl>
-                          <FormMessage className="text-xs" />
-                        </FormItem>
-                      )}
+                  <FormField
+                    control={form.control}
+                    name={`items.${index}.key`}
+                    render={({ field }) => (
+                      <FormItem className="min-w-0">
+                        <FormControl>
+                          <Input
+                            {...field}
+                            aria-label={`${placeholder.description ?? "Item"} name, row ${index + 1}`}
+                            placeholder={placeholder.key}
+                            className={cn(cellInput, "w-full")}
+                            disabled={!enabled}
+                            spellCheck={false}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`items.${index}.value`}
+                    render={({ field }) => (
+                      <FormItem className="min-w-0 border-l border-border">
+                        <FormControl>
+                          <Input
+                            {...field}
+                            aria-label={`${placeholder.description ?? "Item"} value, row ${index + 1}`}
+                            placeholder={placeholder.value}
+                            className={cn(cellInput, "w-full")}
+                            disabled={!enabled}
+                            spellCheck={false}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="flex w-16 items-center justify-center border-l border-border py-2">
+                    <Switch
+                      size="sm"
+                      checked={enabled}
+                      onCheckedChange={() => toggleEnabled(index)}
+                      aria-label={
+                        enabled ? `Turn off row ${index + 1}` : `Turn on row ${index + 1}`
+                      }
                     />
                   </div>
 
-                  {/* Value */}
-                  <div className="col-span-5 border-r px-3 py-2">
-                    <FormField
-                      control={form.control}
-                      name={`items.${index}.value`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              placeholder={placeholder.value}
-                              className={cn(
-                                "bg-transparent border-0 focus:ring-0 text-xs rounded-none placeholder:text-muted-foreground",
-                              )}
-                              disabled={!form.watch(`items.${index}.enabled`)}
-                            />
-                          </FormControl>
-                          <FormMessage className="text-xs" />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  {/* Enabled */}
-                  <div className="col-span-1 border-r flex items-center justify-center px-3 py-4">
-                    <FormField
-                      control={form.control}
-                      name={`items.${index}.enabled`}
-                      render={({ field: checkBoxField }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Checkbox
-                              checked={checkBoxField.value}
-                              onCheckedChange={() => toggleEnabled(index)}
-                              aria-label={
-                                checkBoxField.value
-                                  ? "Disable row"
-                                  : "Enable row"
-                              }
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  {/* Delete */}
-                  <div className="col-span-1 flex items-center justify-center px-3 py-2">
+                  <div className="flex w-10 items-center justify-center">
                     <Button
                       type="button"
                       variant="ghost"
-                      size="icon"
+                      size="icon-sm"
                       onClick={() => removeRow(index)}
-                      disabled={fields.length <= 1}
-                      className={cn(
-                        "h-6 w-6 transition-colors",
-                        fields.length <= 1
-                          ? "text-muted-foreground cursor-not-allowed"
-                          : "text-destructive hover:text-destructive/80 hover:bg-destructive/10",
-                      )}
-                      aria-label="Remove row"
+                      className="size-7 text-muted-foreground hover:text-destructive"
+                      aria-label={`Remove row ${index + 1}`}
                     >
-                      <Trash2 className="h-3.5 w-3.5" />
+                      <Trash2 />
                     </Button>
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Autosave enabled — changes are saved automatically */}
-          <div className="flex justify-end pt-4">
-            <span className="text-xs text-muted-foreground">
-              Changes saved automatically
-            </span>
-          </div>
+                </li>
+              );
+            })}
+          </ul>
         </div>
+
+        <p className="mt-2 text-xs text-muted-foreground">Changes save as you type.</p>
       </Form>
     </div>
   );
 };
 
 export default KeyValueFormEditor;
-
-// useFieldArray: A custom hook that exposes convenient methods to perform operations with a list of dynamic inputs that need to be appended, updated, removed etc.
-
-// useFieldArray : coz hum multiple parameters pe kam kr rhe hai
-
-// watch : Watch and subscribe to the entire form update/change based on onChange and re-render at the useForm.
